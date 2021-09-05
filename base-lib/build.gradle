@@ -1,0 +1,39 @@
+plugins {
+    id 'groovy'
+    id 'java'
+    id 'org.jetbrains.kotlin.jvm' version '1.3.21'
+}
+
+apply from: "../publish.gradle"
+
+group = 'me.yangxiaobin.sample'
+description = "base-lib"
+version = '0.0.1'
+
+sourceCompatibility = 1.8
+
+repositories {
+    google()
+    jcenter()
+    mavenCentral()
+}
+
+dependencies {
+    // asm : https://asm.ow2.io/
+    implementation 'org.ow2.asm:asm:9.1'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+
+    compileOnly 'com.android.tools.build:gradle:4.2.0'
+
+    compileOnly 'org.codehaus.groovy:groovy-all:2.3.11'
+    api gradleApi()
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
