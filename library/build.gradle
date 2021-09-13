@@ -1,7 +1,6 @@
 plugins {
     id 'groovy'
-    id 'java'
-    id 'org.jetbrains.kotlin.jvm'
+    id 'kotlin'
 }
 apply from: "${rootDir}/publish.gradle"
 
@@ -14,16 +13,25 @@ sourceCompatibility = 1.8
 
 jar {
     from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }
 
 
 dependencies {
-    implementation "me.yangxiaobin.sample:base-lib:0.0.1"
-    compile 'org.codehaus.groovy:groovy-all:2.3.11'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.21"
+
     testCompile group: 'junit', name: 'junit', version: '4.12'
+
+    compile fileTree(dir: "libs", include: ["*.jar"])
+    
+    compile "me.yangxiaobin.sample:base-lib:0.0.1"
+    
+    compileOnly 'org.codehaus.groovy:groovy-all:2.3.11'
+    
+    compileOnly gradleApi()
+
+    compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.21"
+    
 }
 
 compileKotlin {

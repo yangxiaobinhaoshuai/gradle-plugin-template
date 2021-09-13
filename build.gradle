@@ -9,7 +9,6 @@ buildscript {
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.21"
-//        classpath 'me.yangxiaobin.sample:library:0.0.1'
     }
 }
 

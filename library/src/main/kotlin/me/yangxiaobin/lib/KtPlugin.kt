@@ -1,4 +1,4 @@
-package me.yangxiaobin.library
+package me.yangxiaobin.lib
 
 import me.yangxiaobin.base_lib.Logger
 import org.gradle.api.Plugin

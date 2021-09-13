@@ -2,6 +2,7 @@ plugins {
     id 'groovy'
     id 'java'
     id 'org.jetbrains.kotlin.jvm'
+    id 'kotlin'
 }
 
 //apply plugin: "sample-library"
