@@ -1,2 +1,2 @@
 
-1. Dependencies management.
+1. ~~Dependencies management.~~

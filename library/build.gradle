@@ -14,6 +14,7 @@ sourceCompatibility = 1.8
 jar {
     from {
         configurations.fatJarCompile.collect { it.isDirectory() ? it : zipTree(it) }
+        duplicatesStrategy DuplicatesStrategy.EXCLUDE
     }
 }
 
@@ -29,12 +30,6 @@ dependencies {
 
     fatJarCompile "me.yangxiaobin.sample:base-lib:0.0.1"
     compileOnly "me.yangxiaobin.sample:base-lib:0.0.1"
-    
-    compileOnly deps.groovyAll
-    
-    compileOnly gradleApi()
-
-    compileOnly deps.ktStdJdk
     
 }
 
