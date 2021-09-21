@@ -19,6 +19,7 @@ plugins {
 
 apply plugin: 'kotlin'
 apply from: "../publish.gradle"
+apply from: "../compile-base-deps.gradle"
 
 group = 'me.yangxiaobin.sample'
 description = "base-lib"
@@ -36,13 +37,6 @@ dependencies {
 
     testImplementation deps.junit
 
-    api gradleApi()
-    api localGroovy()
-    compileOnly deps.groovyAll
-
-    // asm : https://asm.ow2.io/
-    api deps.asm
-    api deps.ktStdJdk
 }
 
 compileKotlin {

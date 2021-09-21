@@ -1,0 +1,9 @@
+
+
+dependencies {
+    compileOnly gradleApi()
+    compileOnly localGroovy()
+    compileOnly deps.groovyAll
+    compileOnly deps.asm
+    compileOnly deps.ktStdJdk
+}

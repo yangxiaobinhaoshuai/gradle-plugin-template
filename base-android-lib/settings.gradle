@@ -11,5 +11,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = 'base-lib'
 
+includeBuild '../base-lib'
+rootProject.name = 'base-android-lib'
