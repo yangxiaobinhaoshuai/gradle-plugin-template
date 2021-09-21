@@ -42,19 +42,19 @@ private class ILogImpl : ILog {
     }
 
     override fun v(message: String) {
-        if (level <= Level.VERBOSE) System.out.println(message)
+        if (level <= Level.VERBOSE) println(message)
     }
 
     override fun i(message: String) {
-        if (level <= Level.INFO) System.out.println(message)
+        if (level <= Level.INFO) println(message)
     }
 
     override fun d(message: String) {
-        if (level <= Level.DEBUG) System.out.println(message)
+        if (level <= Level.DEBUG) println(message)
     }
 
     override fun e(message: String) {
-        if (level <= Level.ERROR) System.out.println(message)
+        if (level <= Level.ERROR) println(message)
     }
 
 }

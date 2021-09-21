@@ -1,0 +1,26 @@
+# TOML specifications : https://toml.io/en/
+
+# Doc : https://docs.gradle.org/current/userguide/platforms.html#sub:conventional-dependencies-toml
+
+[versions]
+junitV = "4.13.2"
+kotlinV = "1.5.30"
+asmV = "9.2"
+groovy-allV = "3.0.9"
+
+
+[libraries]
+junit = { module = "junit:junit", version.ref = "junitV" }
+
+ktGradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlinV" }
+ktStdJdk = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlinV" }
+
+asm = { module = "org.ow2.asm:asm", version.ref = "asmV" }
+
+groovyAll = { module = "org.codehaus.groovy:groovy-all", version.ref = "groovy-allV" }
+
+
+
+[bundles]
+
+

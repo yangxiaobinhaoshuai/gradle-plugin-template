@@ -1,1 +1,15 @@
+
+
+enableFeaturePreview('VERSION_CATALOGS')
+
+dependencyResolutionManagement {
+    versionCatalogs {
+        deps {
+            def filePath = "${rootDir.parent}/gradle/libs.versions.toml"
+            from(files(filePath))
+        }
+    }
+}
+
 rootProject.name = 'base-lib'
+
