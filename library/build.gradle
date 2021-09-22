@@ -2,7 +2,7 @@ plugins {
     id 'groovy'
     id 'kotlin'
 }
-apply from: "../publish.gradle"
+apply from: "../mvn-publish.gradle"
 apply from: "../compile-base-deps.gradle"
 
 group = 'me.yangxiaobin.sample'

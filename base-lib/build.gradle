@@ -15,10 +15,20 @@ buildscript {
 
 plugins {
     id 'groovy'
+    id 'java-gradle-plugin'
+}
+
+gradlePlugin {
+    plugins {
+        simplePlugin {
+            id = 'base-lib'
+            implementationClass = 'me.yangxiaobin.base_lib.base.BaseProjectPlugin'
+        }
+    }
 }
 
 apply plugin: 'kotlin'
-apply from: "../publish.gradle"
+//apply from: "../mvn-publish.gradle"
 apply from: "../compile-base-deps.gradle"
 
 group = 'me.yangxiaobin.sample'

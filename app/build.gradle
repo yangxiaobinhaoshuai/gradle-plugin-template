@@ -3,11 +3,12 @@ plugins {
     id 'java'
     id 'org.jetbrains.kotlin.jvm'
     id 'kotlin'
+    id 'base-lib'
 }
 
 //apply plugin: "sample-library"
 
-version 'unspecified'
+version '0.0.1'
 
 sourceCompatibility = 1.8
 

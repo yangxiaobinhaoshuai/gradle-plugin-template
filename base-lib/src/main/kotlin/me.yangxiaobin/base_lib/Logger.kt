@@ -1,62 +1,94 @@
 package me.yangxiaobin.base_lib
 
 
+typealias LogPrinter = (Triple<Level, String, String>) -> Unit
+
 interface ILog {
 
-    fun isEnable(enable: Boolean)
+    fun setGlobalPrefix(prefix: String): ILog
 
-    fun tag(tag: String)
+    fun setGlobalSuffix(prefix: String): ILog
 
-    fun setLevel(level: Level)
+    fun isEnable(enable: Boolean): ILog
 
-    fun v(message: String)
+    fun setLevel(level: Level): ILog
 
-    fun i(message: String)
+    fun setPrinter(printFun: LogPrinter): ILog
 
-    fun d(message: String)
+    fun v(tag: String, message: String)
 
-    fun e(message: String)
+    fun i(tag: String, message: String)
+
+    fun d(tag: String, message: String)
+
+    fun e(tag: String, message: String)
 
 }
 
 enum class Level { VERBOSE, INFO, DEBUG, ERROR }
 
-private class ILogImpl : ILog {
+abstract class AbsLogger : ILog {
 
-
-    private var level = Level.DEBUG
+    private var curLevel = Level.INFO
     private var enable: Boolean = true
 
-    private var TAG = ""
+    private var curPrinter: LogPrinter? = null
 
-    override fun isEnable(enable: Boolean) {
+    private var globalPrefix: String? = null
+    private var globalSuffix: String? = null
+
+
+    override fun isEnable(enable: Boolean) = apply {
         this.enable = enable
     }
 
-    override fun tag(tag: String) {
-        this.TAG = tag
+    override fun setLevel(level: Level) = apply {
+        this.curLevel = level
     }
 
-    override fun setLevel(level: Level) {
-        this.level = level
+    override fun setGlobalPrefix(prefix: String) = apply {
+        globalPrefix = prefix
     }
 
-    override fun v(message: String) {
-        if (level <= Level.VERBOSE) println(message)
+    override fun setGlobalSuffix(suffix: String) = apply {
+        globalSuffix = suffix
     }
 
-    override fun i(message: String) {
-        if (level <= Level.INFO) println(message)
+    override fun setPrinter(printFun: (Triple<Level, String, String>) -> Unit) = apply {
+        this.curPrinter = printFun
     }
 
-    override fun d(message: String) {
-        if (level <= Level.DEBUG) println(message)
-    }
+    override fun v(tag: String, message: String) = logPriority(Level.VERBOSE, tag, message)
 
-    override fun e(message: String) {
-        if (level <= Level.ERROR) println(message)
+    override fun i(tag: String, message: String) = logPriority(Level.INFO, tag, message)
+
+    override fun d(tag: String, message: String) = logPriority(Level.DEBUG, tag, message)
+
+    override fun e(tag: String, message: String) = logPriority(Level.ERROR, tag, message)
+
+
+    private fun logPriority(level: Level, tag: String, message: String) {
+        var actualTag = if (globalPrefix != null) "$globalPrefix$tag" else tag
+        actualTag = if (globalSuffix != null) "$actualTag$globalSuffix" else actualTag
+
+        if (level >= curLevel) curPrinter?.invoke(Triple(level, actualTag, message)) ?: println("$actualTag : $message")
+
     }
 
 }
 
-object Logger : ILog by ILogImpl()
+fun ILog.log(level: Level, tag: String) =
+    fun(message: String) =
+        when (level) {
+            Level.VERBOSE -> this.v(tag, message)
+            Level.INFO -> this.i(tag, message)
+            Level.DEBUG -> this.d(tag, message)
+            Level.ERROR -> this.e(tag, message)
+        }
+
+class ILogImpl: AbsLogger()
+
+object Logger : ILog by (ILogImpl().apply {
+    this.setGlobalSuffix(" ==>")
+        .setLevel(Level.INFO)
+})
