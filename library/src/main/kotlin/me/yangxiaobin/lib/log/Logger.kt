@@ -1,4 +1,4 @@
-package me.yangxiaobin.base_lib
+package me.yangxiaobin.lib.log
 
 
 typealias LogPrinter = (Triple<Level, String, String>) -> Unit

@@ -27,7 +27,6 @@ dependencies {
     testImplementation deps.junit
 
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation project(":base-lib")
 }
 
 compileKotlin {

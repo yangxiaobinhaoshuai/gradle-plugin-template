@@ -1,8 +1,8 @@
-package me.yangxiaobin.base_lib.base
+package me.yangxiaobin.lib.base
 
-import me.yangxiaobin.base_lib.Level
-import me.yangxiaobin.base_lib.Logger
-import me.yangxiaobin.base_lib.log
+import me.yangxiaobin.lib.log.Level
+import me.yangxiaobin.lib.log.Logger
+import me.yangxiaobin.lib.log.log
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
