@@ -1,9 +1,9 @@
 package me.yangxiaobin.lib
 
-import org.gradle.api.Plugin
+import me.yangxiaobin.lib.base.BasePlugin
 import org.gradle.api.Project
 
-class KtPlugin : Plugin<Project> {
+class KtPlugin : BasePlugin() {
 
     override fun apply(target: Project) {
     }

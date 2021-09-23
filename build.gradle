@@ -10,6 +10,7 @@ buildscript {
 
     dependencies {
         classpath deps.ktGradlePlugin
+        classpath "me.yangxiaobin.sample:library:1.0"
     }
 }
 

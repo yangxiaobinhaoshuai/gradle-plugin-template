@@ -1,8 +1,9 @@
 plugins {
     id 'groovy'
     id 'kotlin'
+    id 'java-gradle-plugin'
 }
-apply from: "../gradle/mvn-publish.gradle"
+//apply from: "../gradle/mvn-publish.gradle"
 apply from: "../gradle/compile-base-deps.gradle"
 
 group = 'me.yangxiaobin.sample'
@@ -11,6 +12,14 @@ version = '1.0-SNAPSHOT'
 
 sourceCompatibility = 1.8
 
+gradlePlugin {
+    plugins {
+        simplePlugin {
+            id = 'sample-plugin'
+            implementationClass = 'me.yangxiaobin.lib.KtPlugin'
+        }
+    }
+}
 
 jar {
     from {
