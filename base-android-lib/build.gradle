@@ -1,0 +1,56 @@
+// For kotlin plugin
+buildscript {
+
+    repositories {
+        google()
+    }
+
+    dependencies {
+        classpath deps.ktGradlePlugin
+    }
+}
+
+
+plugins {
+    id 'groovy'
+    id 'java'
+}
+
+
+apply plugin: 'kotlin'
+apply from: "../mvn-publish.gradle"
+apply from: "../compile-base-deps.gradle"
+
+group = 'me.yangxiaobin.sample'
+description = "base-android-lib"
+version = '0.0.1'
+
+jar {
+    from {
+        configurations.fatJarCompile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+configurations {
+    fatJarCompile
+}
+
+repositories {
+    google()
+    mavenCentral()
+}
+
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+
+    fatJarCompile "me.yangxiaobin.sample:base-lib:0.0.1"
+    compileOnly "me.yangxiaobin.sample:base-lib:0.0.1"
+}
+
+test {
+    useJUnitPlatform()
+}
