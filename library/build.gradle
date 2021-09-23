@@ -2,8 +2,8 @@ plugins {
     id 'groovy'
     id 'kotlin'
 }
-apply from: "../mvn-publish.gradle"
-apply from: "../compile-base-deps.gradle"
+apply from: "../gradle/mvn-publish.gradle"
+apply from: "../gradle/compile-base-deps.gradle"
 
 group = 'me.yangxiaobin.sample'
 description = "sample-library"
@@ -27,10 +27,7 @@ dependencies {
     testImplementation deps.junit
 
     implementation fileTree(dir: "libs", include: ["*.jar"])
-
-    fatJarCompile "me.yangxiaobin.sample:base-android-lib:0.0.1"
-    compileOnly "me.yangxiaobin.sample:base-android-lib:0.0.1"
-
+    implementation project(":base-lib")
 }
 
 compileKotlin {

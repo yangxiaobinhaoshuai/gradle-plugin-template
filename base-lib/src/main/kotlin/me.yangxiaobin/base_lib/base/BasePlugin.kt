@@ -6,7 +6,7 @@ import me.yangxiaobin.base_lib.log
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
-class BaseProjectPlugin : Plugin<Project> {
+class BasePlugin : Plugin<Project> {
 
     val logI = Logger.log(Level.INFO, "BaseProjectPlugin")
 

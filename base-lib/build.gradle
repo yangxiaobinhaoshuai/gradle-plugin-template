@@ -1,35 +1,9 @@
-
-
-// For kotlin plugin
-buildscript {
-
-    repositories {
-        google()
-    }
-
-    dependencies {
-        classpath deps.ktGradlePlugin
-    }
-}
-
-
 plugins {
     id 'groovy'
-    id 'java-gradle-plugin'
-}
-
-gradlePlugin {
-    plugins {
-        simplePlugin {
-            id = 'base-lib'
-            implementationClass = 'me.yangxiaobin.base_lib.base.BaseProjectPlugin'
-        }
-    }
 }
 
 apply plugin: 'kotlin'
-//apply from: "../mvn-publish.gradle"
-apply from: "../compile-base-deps.gradle"
+apply from: "../gradle/compile-base-deps.gradle"
 
 group = 'me.yangxiaobin.sample'
 description = "base-lib"
@@ -37,16 +11,9 @@ version = '0.0.1'
 
 sourceCompatibility = 1.8
 
-repositories {
-    google()
-    mavenCentral()
-    jcenter()
-}
 
 dependencies {
-
     testImplementation deps.junit
-
 }
 
 compileKotlin {

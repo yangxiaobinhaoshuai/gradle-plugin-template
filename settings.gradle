@@ -1,13 +1,7 @@
 import org.gradle.api.initialization.resolve.RepositoriesMode
 
-pluginManagement {
-    repositories {
-        mavenLocal()
-    }
-}
-
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
     defaultLibrariesExtensionName.set('deps')
     repositories {
         google()
@@ -19,6 +13,6 @@ dependencyResolutionManagement {
 rootProject.name = 'gradle-template'
 
 include 'app', 'library'
-includeBuild 'base-android-lib'
+include 'base-lib'
 
 enableFeaturePreview('VERSION_CATALOGS')
