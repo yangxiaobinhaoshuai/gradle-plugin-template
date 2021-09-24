@@ -5,7 +5,6 @@ plugins {
     id 'maven-publish'
 }
 //apply from: "../gradle/mvn-publish.gradle"
-apply from: "../gradle/compile-base-deps.gradle"
 
 group = 'me.yangxiaobin.sample'
 description = "sample-library"
@@ -44,6 +43,13 @@ dependencies {
     testImplementation deps.junit
 
     implementation fileTree(dir: "libs", include: ["*.jar"])
+
+    compileOnly gradleApi()
+    compileOnly localGroovy()
+    compileOnly deps.groovyAll
+    compileOnly deps.asm
+    compileOnly deps.ktStdJdk
+    compileOnly deps.agp
 }
 
 compileKotlin {

@@ -7,11 +7,13 @@ junitV = "4.13.2"
 kotlinV = "1.5.30"
 asmV = "9.2"
 groovy-allV = "3.0.9"
+agpV = "7.0.2"
 
 
 [libraries]
 junit = { module = "junit:junit", version.ref = "junitV" }
 
+agp = { module = "com.android.tools.build:gradle", version.ref = "agpV" }
 ktGradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlinV" }
 ktStdJdk = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlinV" }
 

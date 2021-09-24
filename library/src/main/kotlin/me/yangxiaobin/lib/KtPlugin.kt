@@ -10,6 +10,7 @@ class KtPlugin : BasePlugin() {
 
     override fun apply(target: Project) {
         super.apply(target)
+
     }
 
 }
