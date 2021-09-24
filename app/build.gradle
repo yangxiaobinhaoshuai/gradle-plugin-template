@@ -17,6 +17,7 @@ dependencies {
     
     implementation deps.groovyAll
     implementation deps.ktStdJdk
+    implementation deps.bundles.aspectj
 }
 
 compileKotlin {

@@ -8,6 +8,7 @@ kotlinV = "1.5.30"
 asmV = "9.2"
 groovy-allV = "3.0.9"
 agpV = "7.0.2"
+aspectjV = "1.9.7"
 
 
 [libraries]
@@ -20,11 +21,20 @@ ktStdJdk = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "
 # asm : https://asm.ow2.io/
 asm = { module = "org.ow2.asm:asm", version.ref = "asmV" }
 
+# aspectJ : https://github.com/eclipse/org.aspectj
+aspectj-lib = { module = "org.aspectj:aspectjlib", version = "1.6.2" }
+
+aspectj-jrt = { module = "org.aspectj:aspectjrt", version.ref = "aspectjV" }
+aspectj-weaver = { module = "org.aspectj:aspectjweaver", version.ref = "aspectjV" }
+aspectj-tools = { module = "org.aspectj:aspectjtools", version.ref = "aspectjV" }
+aspectj-matcher = { module = "org.aspectj:aspectjmatcher", version.ref = "aspectjV" }
+
 groovyAll = { module = "org.codehaus.groovy:groovy-all", version.ref = "groovy-allV" }
 
 
 
 [bundles]
 base =['ktStdJdk','groovyAll']
+aspectj =['aspectj-lib','aspectj-jrt','aspectj-weaver','aspectj-tools','aspectj-matcher']
 
 
