@@ -5,11 +5,11 @@ import org.gradle.api.Project
 
 class KtPlugin : BasePlugin() {
 
-    override fun apply(target: Project) {
-    }
+    override val TAG: String
+        get() = "KtPlugin"
 
-    private companion object {
-        private const val TAG = "KtPlugin"
+    override fun apply(target: Project) {
+        super.apply(target)
     }
 
 }

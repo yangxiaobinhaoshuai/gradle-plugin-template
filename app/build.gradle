@@ -2,11 +2,11 @@ plugins {
     id 'groovy'
     id 'java'
     id 'kotlin'
-//    id 'sample-plugin'
+    id 'sample-library' version'1.0-SNAPSHOT'
 }
 
 
-apply plugin: 'sample-library'
+//apply plugin: 'sample-library'
 version '0.0.1'
 
 sourceCompatibility = 1.8

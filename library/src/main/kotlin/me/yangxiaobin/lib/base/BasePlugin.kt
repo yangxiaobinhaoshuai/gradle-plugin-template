@@ -8,10 +8,13 @@ import org.gradle.api.Project
 
 abstract class BasePlugin : Plugin<Project> {
 
-    val logI = Logger.log(Level.INFO, "BaseProjectPlugin")
+    open val TAG: String = "BasePlugin"
+
+    @Suppress("LeakingThis")
+    val logI = Logger.log(Level.INFO, TAG)
 
     override fun apply(target: Project) {
-        logI("${target.name} Applied baseProjectPlugin")
+        logI("${target.name} Applied basePlugin")
     }
 
 }

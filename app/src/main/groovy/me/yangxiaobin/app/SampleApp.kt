@@ -1,7 +1,7 @@
 package me.yangxiaobin.app
 
 
-class SampleApp{
+class SampleApp {
 
     suspend fun main() {
         println("----> Sample App")

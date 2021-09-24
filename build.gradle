@@ -2,22 +2,19 @@ buildscript {
 
     repositories {
         mavenLocal()
-        
+
         google()
         mavenCentral()
-        jcenter()
     }
 
     dependencies {
         classpath deps.ktGradlePlugin
-        classpath "me.yangxiaobin.sample:library:1.0"
     }
 }
 
 subprojects {
     repositories {
         google()
-        jcenter()
         mavenCentral()
     }
 }

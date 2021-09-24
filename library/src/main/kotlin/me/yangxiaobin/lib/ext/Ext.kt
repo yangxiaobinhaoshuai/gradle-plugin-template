@@ -3,4 +3,4 @@ package me.yangxiaobin.lib.ext
 import org.gradle.api.Project
 
 
-fun Project.getProjectProp1(key: String): String? = this.gradle.startParameter.projectProperties[key]
+fun Project.getProjectProp(key: String): String? = this.gradle.startParameter.projectProperties[key]

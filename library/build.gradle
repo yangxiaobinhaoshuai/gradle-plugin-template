@@ -2,6 +2,7 @@ plugins {
     id 'groovy'
     id 'kotlin'
     id 'java-gradle-plugin'
+    id 'maven-publish'
 }
 //apply from: "../gradle/mvn-publish.gradle"
 apply from: "../gradle/compile-base-deps.gradle"
@@ -12,18 +13,25 @@ version = '1.0-SNAPSHOT'
 
 sourceCompatibility = 1.8
 
+// artifact coordinate : plugin.id:plugin.id.gradle.plugin:plugin.version
 gradlePlugin {
     plugins {
         simplePlugin {
-            id = 'sample-plugin'
+            id = project.description
             implementationClass = 'me.yangxiaobin.lib.KtPlugin'
         }
     }
 }
 
+processResources{
+    exclude 'META-INF/', 'META-INF/**'
+}
+
 jar {
     from {
         configurations.fatJarCompile.collect { it.isDirectory() ? it : zipTree(it) }
+    }{
+        //exclude 'META-INF', 'META-INF/**'
     }
 }
 
