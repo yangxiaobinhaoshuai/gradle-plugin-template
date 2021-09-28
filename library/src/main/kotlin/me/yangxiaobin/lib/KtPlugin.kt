@@ -8,9 +8,9 @@ class KtPlugin : BasePlugin() {
     override val TAG: String
         get() = "KtPlugin"
 
-    override fun apply(target: Project) {
-        super.apply(target)
-        logI("${target.name} Applied KtPlugin.")
+    override fun apply(p: Project) {
+        super.apply(p)
+        logI("${p.name} Applied KtPlugin.")
     }
 
 }

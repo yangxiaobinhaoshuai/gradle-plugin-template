@@ -5,6 +5,7 @@ import me.yangxiaobin.lib.log.Logger
 import me.yangxiaobin.lib.log.log
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.plugins.ApplicationPlugin
 
 abstract class BasePlugin : Plugin<Project> {
 
@@ -13,8 +14,8 @@ abstract class BasePlugin : Plugin<Project> {
     @Suppress("LeakingThis")
     val logI = Logger.log(Level.INFO, TAG)
 
-    override fun apply(target: Project) {
-        logI("${target.name} Applied basePlugin")
+    override fun apply(p: Project) {
+        logI("${p.name} Applied basePlugin")
     }
 
 }
