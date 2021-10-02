@@ -1,13 +1,9 @@
-package me.yangxiaobin.lib.asm
+package me.yangxiaobin.sample.asm
 
-import me.yangxiaobin.lib.log.LogLevel
-import me.yangxiaobin.lib.log.Logger
-import me.yangxiaobin.lib.log.log
+import me.yangxiaobin.lib.asm.AbsClassVisitor
 import org.objectweb.asm.*
 
-open class AbsClassVisitor(cv: ClassVisitor) : ClassVisitor(Opcodes.ASM9, cv) {
-
-    private val logI = Logger.log(LogLevel.DEBUG, "AbsClassVisitor")
+class SampleClassVisitor(cv:ClassVisitor) : AbsClassVisitor(cv) {
 
     override fun visit(
         version: Int,
@@ -18,7 +14,6 @@ open class AbsClassVisitor(cv: ClassVisitor) : ClassVisitor(Opcodes.ASM9, cv) {
         interfaces: Array<out String>?
     ) {
         super.visit(version, access, name, signature, superName, interfaces)
-
     }
 
     override fun visitSource(source: String?, debug: String?) {

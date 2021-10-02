@@ -3,6 +3,12 @@
 # Gradle plugin template
 
 
+## ASM Commands
+
+1. asmifier : 
+2. trace : 
+
+
 # Reading refs
 - [Gradle 7.0 TransformAction](https://docs.gradle.org/current/userguide/artifact_transforms.html)
 - [AspectJ EclipseHomePage](https://www.eclipse.org/aspectj/)

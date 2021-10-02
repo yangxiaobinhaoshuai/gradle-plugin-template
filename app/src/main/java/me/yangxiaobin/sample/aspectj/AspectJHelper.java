@@ -1,4 +1,4 @@
-package me.yangxiaobin.sample;
+package me.yangxiaobin.sample.aspectj;
 
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -7,12 +7,12 @@ import org.aspectj.lang.annotation.Before;
 class AspectJHelper {
 
     @Before("execution(public * *(..))")
-    public void beforeExecute() {
+    public void beforeExecute () {
         System.out.println("---> beforeExecute ");
     }
 
-//    public void afterExecute() {
-//        System.out.println("---> afterExecute");
-//    }
+    //    public void afterExecute() {
+    //        System.out.println("---> afterExecute");
+    //    }
 
 }

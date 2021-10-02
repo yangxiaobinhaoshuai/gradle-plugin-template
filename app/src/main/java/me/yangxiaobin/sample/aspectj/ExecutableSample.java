@@ -1,8 +1,8 @@
-package me.yangxiaobin.sample;
+package me.yangxiaobin.sample.aspectj;
 
 class ExecutableSample {
 
-    public void execute() {
+    public void execute () {
         System.out.println("----> execute");
     }
 }

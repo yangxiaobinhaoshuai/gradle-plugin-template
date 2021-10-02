@@ -16,8 +16,11 @@ dependencies {
     testImplementation deps.junit
     
     implementation deps.groovyAll
+    implementation deps.asm
     implementation deps.ktStdJdk
     implementation deps.bundles.aspectj
+
+    implementation project(":library")
 }
 
 compileKotlin {
