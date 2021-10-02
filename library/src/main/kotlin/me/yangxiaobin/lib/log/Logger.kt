@@ -1,7 +1,7 @@
 package me.yangxiaobin.lib.log
 
 
-typealias LogPrinter = (Triple<Level, String, String>) -> Unit
+typealias LogPrinter = (Triple<LogLevel, String, String>) -> Unit
 
 interface ILog {
 
@@ -11,7 +11,7 @@ interface ILog {
 
     fun isEnable(enable: Boolean): ILog
 
-    fun setLevel(level: Level): ILog
+    fun setLevel(level: LogLevel): ILog
 
     fun setPrinter(printFun: LogPrinter): ILog
 
@@ -25,11 +25,11 @@ interface ILog {
 
 }
 
-enum class Level { VERBOSE, INFO, DEBUG, ERROR }
+enum class LogLevel { VERBOSE, INFO, DEBUG, ERROR }
 
 abstract class AbsLogger : ILog {
 
-    private var curLevel = Level.INFO
+    private var curLevel = LogLevel.INFO
     private var enable: Boolean = true
 
     private var curPrinter: LogPrinter? = null
@@ -42,7 +42,7 @@ abstract class AbsLogger : ILog {
         this.enable = enable
     }
 
-    override fun setLevel(level: Level) = apply {
+    override fun setLevel(level: LogLevel) = apply {
         this.curLevel = level
     }
 
@@ -54,20 +54,20 @@ abstract class AbsLogger : ILog {
         globalSuffix = suffix
     }
 
-    override fun setPrinter(printFun: (Triple<Level, String, String>) -> Unit) = apply {
+    override fun setPrinter(printFun: (Triple<LogLevel, String, String>) -> Unit) = apply {
         this.curPrinter = printFun
     }
 
-    override fun v(tag: String, message: String) = logPriority(Level.VERBOSE, tag, message)
+    override fun v(tag: String, message: String) = logPriority(LogLevel.VERBOSE, tag, message)
 
-    override fun i(tag: String, message: String) = logPriority(Level.INFO, tag, message)
+    override fun i(tag: String, message: String) = logPriority(LogLevel.INFO, tag, message)
 
-    override fun d(tag: String, message: String) = logPriority(Level.DEBUG, tag, message)
+    override fun d(tag: String, message: String) = logPriority(LogLevel.DEBUG, tag, message)
 
-    override fun e(tag: String, message: String) = logPriority(Level.ERROR, tag, message)
+    override fun e(tag: String, message: String) = logPriority(LogLevel.ERROR, tag, message)
 
 
-    private fun logPriority(level: Level, tag: String, message: String) {
+    private fun logPriority(level: LogLevel, tag: String, message: String) {
         var actualTag = if (globalPrefix != null) "$globalPrefix$tag" else tag
         actualTag = if (globalSuffix != null) "$actualTag$globalSuffix" else actualTag
 
@@ -77,18 +77,18 @@ abstract class AbsLogger : ILog {
 
 }
 
-fun ILog.log(level: Level, tag: String) =
+fun ILog.log(level: LogLevel, tag: String) =
     fun(message: String) =
         when (level) {
-            Level.VERBOSE -> this.v(tag, message)
-            Level.INFO -> this.i(tag, message)
-            Level.DEBUG -> this.d(tag, message)
-            Level.ERROR -> this.e(tag, message)
+            LogLevel.VERBOSE -> this.v(tag, message)
+            LogLevel.INFO -> this.i(tag, message)
+            LogLevel.DEBUG -> this.d(tag, message)
+            LogLevel.ERROR -> this.e(tag, message)
         }
 
 class ILogImpl: AbsLogger()
 
 object Logger : ILog by (ILogImpl().apply {
     this.setGlobalSuffix(" ==>")
-        .setLevel(Level.INFO)
+        .setLevel(LogLevel.INFO)
 })
