@@ -1,6 +1,7 @@
 package me.yangxiaobin.sample.asm
 
 import me.yangxiaobin.lib.asm.abs.AbsClassVisitor
+import me.yangxiaobin.lib.asm.annotation.TimeAnalysisMethodVisitor
 import me.yangxiaobin.lib.asm.wrappedWithTrace
 import org.objectweb.asm.*
 import org.objectweb.asm.util.ASMifier
@@ -92,7 +93,8 @@ class SampleClassVisitor(cv: ClassVisitor) : AbsClassVisitor(cv) {
 //        return super.visitMethod(access, name, descriptor, signature, exceptions)
         val originalMv = super.visitMethod(access, name, descriptor, signature, exceptions)
 
-        return SampleMethodVisitor(originalMv).wrappedWithTrace()
+        //return SampleMethodVisitor(originalMv).wrappedWithTrace()
+        return TimeAnalysisMethodVisitor(originalMv).wrappedWithTrace()
     }
 
     override fun visitEnd() {

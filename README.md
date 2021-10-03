@@ -7,6 +7,7 @@
 
 1. asmifier : java -cp /Users/handsomeyang/Avalon/AOP/ASM/asm-all-6.0_BETA.jar org.objectweb.asm.util.ASMifier
 2. trace : java -cp /Users/handsomeyang/Avalon/AOP/ASM/asm-all-6.0_BETA.jar org.objectweb.asm.util.Textifier
+2. check : java -cp /Users/handsomeyang/Avalon/AOP/ASM/asm-all-6.0_BETA.jar org.objectweb.asm.util.CheckClassAdapter
 
 
 # Reading refs

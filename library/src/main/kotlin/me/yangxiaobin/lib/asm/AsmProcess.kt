@@ -8,21 +8,21 @@ import java.io.PrintWriter
 import java.util.function.Function
 
 
-fun ClassVisitor.wrappedWithTrace() = apply { TraceClassVisitor(this, PrintWriter(System.out)) }
+fun ClassVisitor.wrappedWithTrace() = run { TraceClassVisitor(this, PrintWriter(System.out)) }
 
-fun ClassVisitor.wrappedWithCheck() = apply { CheckClassAdapter(this) }
+fun ClassVisitor.wrappedWithCheck() = run { CheckClassAdapter(this) }
 
-fun MethodVisitor.wrappedWithTrace(printer: Printer = Textifier()) = apply { TraceMethodVisitor(this, printer) }
+fun MethodVisitor.wrappedWithTrace(printer: Printer = Textifier()) = run { TraceMethodVisitor(this, printer) }
 
-fun FieldVisitor.wrappedWithTrace(printer: Printer = Textifier()) = apply {
-    TraceFieldVisitor(this,printer)
+fun FieldVisitor.wrappedWithTrace(printer: Printer = Textifier()) = run {
+    TraceFieldVisitor(this, printer)
 }
 
-fun FieldVisitor.wrappedWithCheck() = apply {
+fun FieldVisitor.wrappedWithCheck() = run {
     CheckFieldAdapter(this)
 }
 
-fun MethodVisitor.wrappedWithCheck() = apply { CheckMethodAdapter(this) }
+fun MethodVisitor.wrappedWithCheck() = run { CheckMethodAdapter(this) }
 
 fun MethodVisitor.wrappedWithAdvice(
     access: Int,
@@ -30,24 +30,22 @@ fun MethodVisitor.wrappedWithAdvice(
     desc: String,
     onEnter: (() -> Unit)? = null,
     onExit: (() -> Unit)? = null
-) = apply { AbsAdviceAdapter(this, access, name, desc, onEnter, onExit) }
+) = run { AbsAdviceAdapter(this, access, name, desc, onEnter, onExit) }
 
-fun AnnotationVisitor.wrappedWithTrace() = apply { TraceAnnotationVisitor(this, Textifier()) }
+fun AnnotationVisitor.wrappedWithTrace() = run { TraceAnnotationVisitor(this, Textifier()) }
 
-fun AnnotationVisitor.wrappedWithCheck() = apply { CheckAnnotationAdapter(this) }
+fun AnnotationVisitor.wrappedWithCheck() = run { CheckAnnotationAdapter(this) }
 
 fun InputStream.applyAsm(func: (cw: ClassVisitor) -> ClassVisitor): ByteArray = Function<InputStream, ByteArray> {
 
     val cr = ClassReader(this)
     val cw = ClassWriter(cr, ClassWriter.COMPUTE_FRAMES)
 
-    val cv = func.invoke(cw)
+    val cv = func.invoke(cw.wrappedWithTrace())
 
+    val parsingOptions = ClassReader.SKIP_DEBUG or ClassReader.SKIP_FRAMES
 
-    cr.accept(
-        cv.wrappedWithCheck().wrappedWithTrace(),
-        ClassReader.SKIP_CODE or ClassReader.SKIP_DEBUG or ClassReader.SKIP_FRAMES
-    )
+    cr.accept(cv.wrappedWithTrace(), parsingOptions)
 
     cw.toByteArray()
 }.apply(this)

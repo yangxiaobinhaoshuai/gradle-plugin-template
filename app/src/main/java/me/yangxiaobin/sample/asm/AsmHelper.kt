@@ -6,7 +6,6 @@ import me.yangxiaobin.lib.ext.currentWorkPath
 import me.yangxiaobin.lib.log.LogLevel
 import me.yangxiaobin.lib.log.Logger
 import java.io.File
-import javax.swing.MenuElement
 
 
 class AsmHelper {
@@ -42,7 +41,8 @@ class AsmHelper {
 
                 val cl = ByteArrayClassLoader(byteArray)
 
-                val loadedClazz = cl.loadClass("me.yangxiaobin.sample.asm.ClazzStub")
+                val loadClassName1 = "me.yangxiaobin.sample.asm.ClazzStub"
+                val loadedClazz = cl.loadClass(loadClassName1)
                 val instance: Any = loadedClazz.newInstance()
 
                 println("----> instance type :${instance.javaClass.methods.map { it.name }}")
