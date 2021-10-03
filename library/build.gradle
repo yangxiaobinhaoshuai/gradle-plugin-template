@@ -47,7 +47,7 @@ dependencies {
     compileOnly gradleApi()
     compileOnly localGroovy()
     compileOnly deps.groovyAll
-    compileOnly deps.asm
+    compileOnly deps.bundles.asm
     compileOnly deps.ktStdJdk
     compileOnly deps.agp
 }

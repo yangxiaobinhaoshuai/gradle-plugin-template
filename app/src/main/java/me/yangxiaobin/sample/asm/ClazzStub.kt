@@ -1,11 +1,16 @@
 package me.yangxiaobin.sample.asm
 
+import me.yangxiaobin.lib.asm.annotation.TimeAnalysis
+
 class ClazzStub : Runnable, java.util.function.LongConsumer {
 
     private val stringField = "sss"
     private val intField = 1024
-    private val nullableStub: me.yangxiaobin.sample.asm.ClazzStub? = null
-    private val lazyStub by lazy { me.yangxiaobin.sample.asm.ClazzStub() }
+    private val nullableStub: ClazzStub? = null
+    private val lazyStub by lazy { ClazzStub() }
+    private val runnable = Runnable {
+        println("---> I'm a runnable run.")
+    }
 
     init {
         println("init block")
@@ -17,5 +22,11 @@ class ClazzStub : Runnable, java.util.function.LongConsumer {
 
     override fun accept(value: Long) {
         println("accept accept accept")
+    }
+
+    @TimeAnalysis
+    fun show() {
+        println("----> I'm showing.")
+        runnable.run()
     }
 }

@@ -2,7 +2,11 @@ package me.yangxiaobin.sample.asm
 
 
 import me.yangxiaobin.lib.asm.applyAsm
-import java.io.InputStream
+import me.yangxiaobin.lib.ext.currentWorkPath
+import me.yangxiaobin.lib.log.LogLevel
+import me.yangxiaobin.lib.log.Logger
+import java.io.File
+import javax.swing.MenuElement
 
 
 class AsmHelper {
@@ -18,16 +22,34 @@ class AsmHelper {
         fun main(args: Array<String>) {
             println("----> SampleJava main")
 
-            val clazz: Class<ClazzStub> = ClazzStub::class.java
+            Logger.setLevel(level = LogLevel.VERBOSE)
+
+            val clazz: Class<AsmHelper> = AsmHelper::class.java
 
             val ins = try {
-                val ins: InputStream = clazz.getResourceAsStream("ClazzStub.class")
+                val abc = this.javaClass.getResourceAsStream("/abc.txt")
+                println("----> ${abc.bufferedReader().use { it.readText() }}")
+
+
+                val ins = File("$currentWorkPath/app/ClazzStub.class").inputStream()
+
                 //val inputAsString = ins.bufferedReader().use { it.readText() }
                 //println("---> ins : $inputAsString")
 
                 val byteArray = ins.applyAsm { SampleClassVisitor(it) }
 
-                println("----> res :${String(byteArray)}")
+                println("----> res size :${byteArray.size}")
+
+                val cl = ByteArrayClassLoader(byteArray)
+
+                val loadedClazz = cl.loadClass("me.yangxiaobin.sample.asm.ClazzStub")
+                val instance: Any = loadedClazz.newInstance()
+
+                println("----> instance type :${instance.javaClass.methods.map { it.name }}")
+
+                val method = instance.javaClass.getMethod("show")
+
+                method.invoke(instance)
 
             } catch (e: Exception) {
                 e.printStackTrace()

@@ -1,9 +1,11 @@
 package me.yangxiaobin.sample.asm
 
-import me.yangxiaobin.lib.asm.AbsClassVisitor
+import me.yangxiaobin.lib.asm.abs.AbsClassVisitor
+import me.yangxiaobin.lib.asm.wrappedWithTrace
 import org.objectweb.asm.*
+import org.objectweb.asm.util.ASMifier
 
-class SampleClassVisitor(cv:ClassVisitor) : AbsClassVisitor(cv) {
+class SampleClassVisitor(cv: ClassVisitor) : AbsClassVisitor(cv) {
 
     override fun visit(
         version: Int,
@@ -33,7 +35,8 @@ class SampleClassVisitor(cv:ClassVisitor) : AbsClassVisitor(cv) {
     }
 
     override fun visitAnnotation(descriptor: String?, visible: Boolean): AnnotationVisitor {
-        return super.visitAnnotation(descriptor, visible)
+        val originalAv = super.visitAnnotation(descriptor, visible)
+        return SampleAnnotationVisitor(originalAv).wrappedWithTrace()
     }
 
     override fun visitTypeAnnotation(
@@ -72,7 +75,10 @@ class SampleClassVisitor(cv:ClassVisitor) : AbsClassVisitor(cv) {
         signature: String?,
         value: Any?
     ): FieldVisitor {
-        return super.visitField(access, name, descriptor, signature, value)
+
+        val originalFv =super.visitField(access, name, descriptor, signature, value)
+
+        return SampleFieldVisitor(originalFv).wrappedWithTrace()
     }
 
     override fun visitMethod(
@@ -82,7 +88,11 @@ class SampleClassVisitor(cv:ClassVisitor) : AbsClassVisitor(cv) {
         signature: String?,
         exceptions: Array<out String>?
     ): MethodVisitor {
-        return super.visitMethod(access, name, descriptor, signature, exceptions)
+        println("----> method :$name/$descriptor")
+//        return super.visitMethod(access, name, descriptor, signature, exceptions)
+        val originalMv = super.visitMethod(access, name, descriptor, signature, exceptions)
+
+        return SampleMethodVisitor(originalMv).wrappedWithTrace()
     }
 
     override fun visitEnd() {

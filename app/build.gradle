@@ -16,7 +16,7 @@ dependencies {
     testImplementation deps.junit
     
     implementation deps.groovyAll
-    implementation deps.asm
+    implementation deps.bundles.asm
     implementation deps.ktStdJdk
     implementation deps.bundles.aspectj
 

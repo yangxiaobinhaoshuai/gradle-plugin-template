@@ -77,14 +77,13 @@ abstract class AbsLogger : ILog {
 
 }
 
-fun ILog.log(level: LogLevel, tag: String) =
-    fun(message: String) =
-        when (level) {
-            LogLevel.VERBOSE -> this.v(tag, message)
-            LogLevel.INFO -> this.i(tag, message)
-            LogLevel.DEBUG -> this.d(tag, message)
-            LogLevel.ERROR -> this.e(tag, message)
-        }
+fun ILog.log(level: LogLevel, tag: String) = fun(message: String) =
+    when (level) {
+        LogLevel.VERBOSE -> this.v(tag, message)
+        LogLevel.INFO -> this.i(tag, message)
+        LogLevel.DEBUG -> this.d(tag, message)
+        LogLevel.ERROR -> this.e(tag, message)
+    }
 
 class ILogImpl: AbsLogger()
 
