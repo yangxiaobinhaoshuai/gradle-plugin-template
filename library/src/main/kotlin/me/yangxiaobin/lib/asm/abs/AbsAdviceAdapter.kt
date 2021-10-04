@@ -7,7 +7,7 @@ import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.commons.AdviceAdapter
 
-class AbsAdviceAdapter(
+open class AbsAdviceAdapter(
     mv: MethodVisitor,
     access: Int,
     name: String,

@@ -1,9 +1,8 @@
 package me.yangxiaobin.lib.asm.annotation
 
-import me.yangxiaobin.lib.asm.abs.AbsMethodVisitor
+import me.yangxiaobin.lib.asm.abs.AbsAdviceAdapter
 import org.objectweb.asm.AnnotationVisitor
 import org.objectweb.asm.MethodVisitor
-import org.objectweb.asm.Opcodes.*
 import org.objectweb.asm.Type
 
 
@@ -12,9 +11,12 @@ import org.objectweb.asm.Type
 annotation class TimeAnalysis
 
 
-class TimeAnalysisMethodVisitor(mv: MethodVisitor) : AbsMethodVisitor(mv) {
+class TimeAnalysisMethodVisitor(access: Int, name: String, desc: String, mv: MethodVisitor) :
+    AbsAdviceAdapter(mv, access, name, desc) {
 
     private var insert = false
+    private var t1Index: Int = 0
+    private var t2Index: Int = 0
 
     override fun visitAnnotation(descriptor: String?, visible: Boolean): AnnotationVisitor {
         insert = descriptor == Type.getDescriptor(TimeAnalysis::class.java)
@@ -22,31 +24,33 @@ class TimeAnalysisMethodVisitor(mv: MethodVisitor) : AbsMethodVisitor(mv) {
         return super.visitAnnotation(descriptor, visible)
     }
 
-    override fun visitCode() {
-        super.visitCode()
-        val owner = Type.getInternalName(System::class.java)
-        val name = Type.getInternalName(System::out::class.java)
-        val desc = Type.getDescriptor(System::out::class.java)
-        println("----> enter enter :$owner   $name   $desc")
-//        mv.visitFieldInsn(Opcodes.GETSTATIC,Type.getInternalName(System::class.java),Type)
-
+    override fun onMethodEnter() {
+        super.onMethodEnter()
         if (insert) {
-            mv.visitLdcInsn("ana ana ana");
-            mv.visitVarInsn(ASTORE, 1);
-            mv.visitInsn(ICONST_0);
-            mv.visitVarInsn(ISTORE, 2);
-            mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-            mv.visitVarInsn(ALOAD, 1);
-            mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/Object;)V", false);
+            mv.visitMethodInsn(INVOKESTATIC, "java/lang/System", "currentTimeMillis", "()J", false);
+            t1Index = newLocal(Type.LONG_TYPE);
+            mv.visitVarInsn(LSTORE, t1Index);
         }
     }
 
-    override fun visitEnd() {
-        super.visitEnd()
+    override fun onMethodExit(opcode: Int) {
+        super.onMethodExit(opcode)
+        if (insert) {
+            mv.visitMethodInsn(INVOKESTATIC, "java/lang/System", "currentTimeMillis", "()J", false);
+            mv.visitVarInsn(LLOAD, t1Index);
+            mv.visitInsn(LSUB);
 
-        val owner = Type.getInternalName(System::class.java)
-        val name = "out"
-        val desc = Type.getDescriptor(System.out::class.java)
-        println("----> exit :$owner  $name  $desc")
+            t2Index = newLocal(Type.LONG_TYPE);
+            mv.visitVarInsn(LSTORE, t2Index)
+
+            mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+
+            mv.visitVarInsn(LLOAD, t2Index)
+
+            mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(J)V", false);
+
+        }
+
+
     }
 }

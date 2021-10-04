@@ -37,6 +37,9 @@ class AsmHelper {
 
                 val byteArray = ins.applyAsm { SampleClassVisitor(it) }
 
+                // write byte to file
+//                File("$currentWorkPath/app/newClazz.class")
+//                    .writeBytes(byteArray)
                 println("----> res size :${byteArray.size}")
 
                 val cl = ByteArrayClassLoader(byteArray)

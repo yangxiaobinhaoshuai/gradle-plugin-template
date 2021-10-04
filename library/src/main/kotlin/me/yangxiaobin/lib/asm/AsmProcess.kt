@@ -45,7 +45,7 @@ fun InputStream.applyAsm(func: (cw: ClassVisitor) -> ClassVisitor): ByteArray = 
 
     val parsingOptions = ClassReader.SKIP_DEBUG or ClassReader.SKIP_FRAMES
 
-    cr.accept(cv.wrappedWithTrace(), parsingOptions)
+    cr.accept(cv.wrappedWithTrace(), 0)
 
     cw.toByteArray()
 }.apply(this)

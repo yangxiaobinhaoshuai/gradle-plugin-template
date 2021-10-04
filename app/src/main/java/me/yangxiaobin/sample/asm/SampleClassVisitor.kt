@@ -1,12 +1,18 @@
 package me.yangxiaobin.sample.asm
 
 import me.yangxiaobin.lib.asm.abs.AbsClassVisitor
+import me.yangxiaobin.lib.asm.annotation.MethodAdviceVisitor
+import me.yangxiaobin.lib.asm.annotation.TimeAnalysis
 import me.yangxiaobin.lib.asm.annotation.TimeAnalysisMethodVisitor
+import me.yangxiaobin.lib.asm.wrappedWithCheck
 import me.yangxiaobin.lib.asm.wrappedWithTrace
+import org.gradle.internal.impldep.com.amazonaws.services.s3.model.Owner
 import org.objectweb.asm.*
 import org.objectweb.asm.util.ASMifier
 
 class SampleClassVisitor(cv: ClassVisitor) : AbsClassVisitor(cv) {
+
+    private var classFileName = ""
 
     override fun visit(
         version: Int,
@@ -17,6 +23,8 @@ class SampleClassVisitor(cv: ClassVisitor) : AbsClassVisitor(cv) {
         interfaces: Array<out String>?
     ) {
         super.visit(version, access, name, signature, superName, interfaces)
+        println("class visit ,name :$name")
+        classFileName = name ?: ""
     }
 
     override fun visitSource(source: String?, debug: String?) {
@@ -77,7 +85,7 @@ class SampleClassVisitor(cv: ClassVisitor) : AbsClassVisitor(cv) {
         value: Any?
     ): FieldVisitor {
 
-        val originalFv =super.visitField(access, name, descriptor, signature, value)
+        val originalFv = super.visitField(access, name, descriptor, signature, value)
 
         return SampleFieldVisitor(originalFv).wrappedWithTrace()
     }
@@ -89,12 +97,17 @@ class SampleClassVisitor(cv: ClassVisitor) : AbsClassVisitor(cv) {
         signature: String?,
         exceptions: Array<out String>?
     ): MethodVisitor {
-        println("----> method :$name/$descriptor")
+        descriptor ?: return super.visitMethod(access, name, descriptor, signature, exceptions)
+        name ?: return super.visitMethod(access, name, descriptor, signature, exceptions)
+
+        println("----> method :$name   $descriptor ,signature:$signature")
 //        return super.visitMethod(access, name, descriptor, signature, exceptions)
         val originalMv = super.visitMethod(access, name, descriptor, signature, exceptions)
 
+//        return TimeAnalysisMethodVisitor(access,name, descriptor, originalMv).wrappedWithTrace()
+
+        return MethodAdviceVisitor(originalMv, classFileName, access, name, descriptor)
         //return SampleMethodVisitor(originalMv).wrappedWithTrace()
-        return TimeAnalysisMethodVisitor(originalMv).wrappedWithTrace()
     }
 
     override fun visitEnd() {

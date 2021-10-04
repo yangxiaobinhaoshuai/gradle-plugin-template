@@ -1,5 +1,7 @@
 //package me.yangxiaobin.sample.asm
 //
+//import me.yangxiaobin.lib.asm.annotation.MethodAdvice
+//import me.yangxiaobin.lib.asm.annotation.MethodAdviceInstrument
 //import me.yangxiaobin.lib.asm.annotation.TimeAnalysis
 //
 //class ClazzStub : Runnable, java.util.function.LongConsumer {
@@ -8,6 +10,7 @@
 //    private val intField = 1024
 //    private val nullableStub: ClazzStub? = null
 //    private val runnable = Runnable {
+//        Thread.sleep(200)
 //        println("---> I'm a runnable run.")
 //    }
 //
@@ -23,9 +26,13 @@
 //        println("accept accept accept")
 //    }
 //
-//    @TimeAnalysis
+//    @MethodAdvice
 //    fun show() {
+//        //val p = MethodAdviceInstrument.before()
+//
 //        println("----> I'm showing.")
 //        runnable.run()
+//
+//        //MethodAdviceInstrument.after(p)
 //    }
 //}
