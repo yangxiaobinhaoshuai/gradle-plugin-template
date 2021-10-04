@@ -1,4 +1,4 @@
-package me.yangxiaobin.lib.asm
+package me.yangxiaobin.lib.asm.api
 
 import me.yangxiaobin.lib.asm.abs.AbsAdviceAdapter
 import org.objectweb.asm.*
@@ -36,7 +36,8 @@ fun AnnotationVisitor.wrappedWithTrace() = run { TraceAnnotationVisitor(this, Te
 
 fun AnnotationVisitor.wrappedWithCheck() = run { CheckAnnotationAdapter(this) }
 
-fun InputStream.applyAsm(func: (cw: ClassVisitor) -> ClassVisitor): ByteArray = Function<InputStream, ByteArray> {
+fun InputStream.applyAsm(func: (cw: ClassVisitor) -> ClassVisitor = { DefaultClassVisitor(it) })
+        : ByteArray = Function<InputStream, ByteArray> {
 
     val cr = ClassReader(this)
     val cw = ClassWriter(cr, ClassWriter.COMPUTE_FRAMES)

@@ -1,7 +1,7 @@
 package me.yangxiaobin.sample.asm
 
 
-import me.yangxiaobin.lib.asm.applyAsm
+import me.yangxiaobin.lib.asm.api.applyAsm
 import me.yangxiaobin.lib.ext.currentWorkPath
 import me.yangxiaobin.lib.log.LogLevel
 import me.yangxiaobin.lib.log.Logger
@@ -35,7 +35,7 @@ class AsmHelper {
                 //val inputAsString = ins.bufferedReader().use { it.readText() }
                 //println("---> ins : $inputAsString")
 
-                val byteArray = ins.applyAsm { SampleClassVisitor(it) }
+                val byteArray = ins.applyAsm()
 
                 // write byte to file
 //                File("$currentWorkPath/app/newClazz.class")

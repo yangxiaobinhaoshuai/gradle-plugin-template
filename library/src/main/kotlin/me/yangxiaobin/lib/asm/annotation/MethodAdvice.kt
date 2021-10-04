@@ -77,9 +77,9 @@ object MethodAdviceInstrument : AdviceInstrument {
 class MethodAdviceVisitor(
     mv: MethodVisitor,
     private val classFileName: String,
-    private val methodAccess: Int,
-    private val methodName: String,
-    private val methodDesc: String
+    methodAccess: Int,
+    methodName: String,
+    methodDesc: String
 ) : AbsAdviceAdapter(mv, methodAccess, methodName, methodDesc) {
 
     private var shouldInsert = false
@@ -105,7 +105,7 @@ class MethodAdviceVisitor(
 
         mv.visitLdcInsn(classFileName)
         mv.visitLdcInsn(methodAccess)
-        mv.visitLdcInsn(methodName)
+        mv.visitLdcInsn(name)
         mv.visitLdcInsn(methodDesc)
 
         mv.visitMethodInsn(
@@ -128,7 +128,7 @@ class MethodAdviceVisitor(
         mv.visitFieldInsn(Opcodes.GETSTATIC, instrumentOwner, "INSTANCE", instrumentDesc)
         mv.visitLdcInsn(classFileName)
         mv.visitLdcInsn(methodAccess)
-        mv.visitLdcInsn(methodName)
+        mv.visitLdcInsn(name)
         mv.visitLdcInsn(methodDesc)
         mv.visitVarInsn(Opcodes.ALOAD, paramIndex)
         mv.visitMethodInsn(

@@ -2,13 +2,8 @@ package me.yangxiaobin.sample.asm
 
 import me.yangxiaobin.lib.asm.abs.AbsClassVisitor
 import me.yangxiaobin.lib.asm.annotation.MethodAdviceVisitor
-import me.yangxiaobin.lib.asm.annotation.TimeAnalysis
-import me.yangxiaobin.lib.asm.annotation.TimeAnalysisMethodVisitor
-import me.yangxiaobin.lib.asm.wrappedWithCheck
-import me.yangxiaobin.lib.asm.wrappedWithTrace
-import org.gradle.internal.impldep.com.amazonaws.services.s3.model.Owner
+import me.yangxiaobin.lib.asm.api.wrappedWithTrace
 import org.objectweb.asm.*
-import org.objectweb.asm.util.ASMifier
 
 class SampleClassVisitor(cv: ClassVisitor) : AbsClassVisitor(cv) {
 

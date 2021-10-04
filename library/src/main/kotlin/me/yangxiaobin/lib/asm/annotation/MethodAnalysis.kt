@@ -20,7 +20,6 @@ class TimeAnalysisMethodVisitor(access: Int, name: String, desc: String, mv: Met
 
     override fun visitAnnotation(descriptor: String?, visible: Boolean): AnnotationVisitor {
         insert = descriptor == Type.getDescriptor(TimeAnalysis::class.java)
-        println("---> should insert :$insert")
         return super.visitAnnotation(descriptor, visible)
     }
 
