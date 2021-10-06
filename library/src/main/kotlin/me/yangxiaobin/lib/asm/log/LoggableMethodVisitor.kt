@@ -1,11 +1,11 @@
-package me.yangxiaobin.lib.asm.abs
+package me.yangxiaobin.lib.asm.log
 
 import me.yangxiaobin.lib.log.LogLevel
 import me.yangxiaobin.lib.log.Logger
 import me.yangxiaobin.lib.log.log
 import org.objectweb.asm.*
 
-open class AbsMethodVisitor(mv: MethodVisitor) : MethodVisitor(Opcodes.ASM9, mv) {
+class LoggableMethodVisitor(mv: MethodVisitor) : MethodVisitor(Opcodes.ASM9, mv) {
 
     private val logV by lazy { Logger.log(LogLevel.VERBOSE, "AbsMv(${this.hashCode()})") }
 

@@ -1,11 +1,10 @@
 package me.yangxiaobin.sample.asm
 
-import me.yangxiaobin.lib.asm.abs.AbsClassVisitor
 import me.yangxiaobin.lib.asm.annotation.MethodAdviceVisitor
 import me.yangxiaobin.lib.asm.api.wrappedWithTrace
 import org.objectweb.asm.*
 
-class SampleClassVisitor(cv: ClassVisitor) : AbsClassVisitor(cv) {
+class SampleClassVisitor(cv: ClassVisitor) : ClassVisitor(Opcodes.ASM9, cv) {
 
     private var classFileName = ""
 

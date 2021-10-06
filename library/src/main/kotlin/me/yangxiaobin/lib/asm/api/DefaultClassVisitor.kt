@@ -1,11 +1,11 @@
 package me.yangxiaobin.lib.asm.api
 
-import me.yangxiaobin.lib.asm.abs.AbsClassVisitor
 import me.yangxiaobin.lib.asm.annotation.MethodAdviceVisitor
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.MethodVisitor
+import org.objectweb.asm.Opcodes
 
-class DefaultClassVisitor(cv: ClassVisitor) : AbsClassVisitor(cv) {
+class DefaultClassVisitor(cv: ClassVisitor) : ClassVisitor(Opcodes.ASM9, cv) {
 
     private var classFileName = ""
 
@@ -31,8 +31,8 @@ class DefaultClassVisitor(cv: ClassVisitor) : AbsClassVisitor(cv) {
     ): MethodVisitor {
         val superMv = super.visitMethod(access, name, descriptor, signature, exceptions)
 
-        requireNotNull(name){return superMv }
-        requireNotNull(descriptor){return superMv }
+        requireNotNull(name) { return superMv }
+        requireNotNull(descriptor) { return superMv }
 
         return MethodAdviceVisitor(superMv, classFileName, access, name, descriptor)
     }

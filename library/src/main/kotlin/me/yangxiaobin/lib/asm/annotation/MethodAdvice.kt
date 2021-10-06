@@ -1,10 +1,10 @@
 package me.yangxiaobin.lib.asm.annotation
 
-import me.yangxiaobin.lib.asm.abs.AbsAdviceAdapter
 import org.objectweb.asm.AnnotationVisitor
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
+import org.objectweb.asm.commons.AdviceAdapter
 
 
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
@@ -80,7 +80,7 @@ class MethodAdviceVisitor(
     methodAccess: Int,
     methodName: String,
     methodDesc: String
-) : AbsAdviceAdapter(mv, methodAccess, methodName, methodDesc) {
+) : AdviceAdapter(Opcodes.ASM9, mv, methodAccess, methodName, methodDesc) {
 
     private var shouldInsert = false
     private var paramIndex = 0

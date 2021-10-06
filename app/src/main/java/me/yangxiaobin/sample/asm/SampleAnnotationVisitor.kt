@@ -1,9 +1,9 @@
 package me.yangxiaobin.sample.asm
 
-import me.yangxiaobin.lib.asm.abs.AbsAnnotationVisitor
 import org.objectweb.asm.AnnotationVisitor
+import org.objectweb.asm.Opcodes
 
-class SampleAnnotationVisitor(av:AnnotationVisitor) : AbsAnnotationVisitor(av) {
+class SampleAnnotationVisitor(av: AnnotationVisitor) : AnnotationVisitor(Opcodes.ASM9, av) {
 
     override fun visit(name: String?, value: Any?) {
         super.visit(name, value)

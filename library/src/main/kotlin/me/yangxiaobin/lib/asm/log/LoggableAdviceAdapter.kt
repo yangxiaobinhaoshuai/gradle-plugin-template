@@ -1,4 +1,4 @@
-package me.yangxiaobin.lib.asm.abs
+package me.yangxiaobin.lib.asm.log
 
 import me.yangxiaobin.lib.log.LogLevel
 import me.yangxiaobin.lib.log.Logger
@@ -7,7 +7,7 @@ import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.commons.AdviceAdapter
 
-open class AbsAdviceAdapter(
+class LoggableAdviceAdapter(
     mv: MethodVisitor,
     access: Int,
     name: String,

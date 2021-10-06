@@ -1,9 +1,8 @@
 package me.yangxiaobin.sample.asm
 
-import me.yangxiaobin.lib.asm.abs.AbsMethodVisitor
 import org.objectweb.asm.*
 
-class SampleMethodVisitor(mv: MethodVisitor) : AbsMethodVisitor(mv) {
+class SampleMethodVisitor(mv: MethodVisitor) : MethodVisitor(Opcodes.ASM9, mv) {
 
     override fun visitParameter(name: String?, access: Int) {
         super.visitParameter(name, access)

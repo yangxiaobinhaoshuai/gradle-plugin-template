@@ -1,6 +1,9 @@
 package me.yangxiaobin.lib.asm.api
 
-import me.yangxiaobin.lib.asm.abs.AbsAdviceAdapter
+import me.yangxiaobin.lib.asm.log.LoggableAdviceAdapter
+import me.yangxiaobin.lib.asm.log.LoggableClassVisitor
+import me.yangxiaobin.lib.asm.log.LoggableFieldVisitor
+import me.yangxiaobin.lib.asm.log.LoggableMethodVisitor
 import org.objectweb.asm.*
 import org.objectweb.asm.util.*
 import java.io.InputStream
@@ -8,21 +11,23 @@ import java.io.PrintWriter
 import java.util.function.Function
 
 
-fun ClassVisitor.wrappedWithTrace() = run { TraceClassVisitor(this, PrintWriter(System.out)) }
+fun ClassVisitor.wrappedWithTrace() = TraceClassVisitor(this, PrintWriter(System.out))
 
-fun ClassVisitor.wrappedWithCheck() = run { CheckClassAdapter(this) }
+fun ClassVisitor.wrappedWithCheck() = CheckClassAdapter(this)
 
-fun MethodVisitor.wrappedWithTrace(printer: Printer = Textifier()) = run { TraceMethodVisitor(this, printer) }
+fun ClassVisitor.wrappedWithLog() = LoggableClassVisitor(this)
 
-fun FieldVisitor.wrappedWithTrace(printer: Printer = Textifier()) = run {
-    TraceFieldVisitor(this, printer)
-}
+fun MethodVisitor.wrappedWithTrace(printer: Printer = Textifier()) = TraceMethodVisitor(this, printer)
 
-fun FieldVisitor.wrappedWithCheck() = run {
-    CheckFieldAdapter(this)
-}
+fun FieldVisitor.wrappedWithTrace(printer: Printer = Textifier()) = TraceFieldVisitor(this, printer)
 
-fun MethodVisitor.wrappedWithCheck() = run { CheckMethodAdapter(this) }
+fun FieldVisitor.wrappedWithLog() = LoggableFieldVisitor(this)
+
+fun FieldVisitor.wrappedWithCheck() = CheckFieldAdapter(this)
+
+fun MethodVisitor.wrappedWithCheck() = CheckMethodAdapter(this)
+
+fun MethodVisitor.wrappedWithLog() = LoggableMethodVisitor(this)
 
 fun MethodVisitor.wrappedWithAdvice(
     access: Int,
@@ -30,7 +35,7 @@ fun MethodVisitor.wrappedWithAdvice(
     desc: String,
     onEnter: (() -> Unit)? = null,
     onExit: (() -> Unit)? = null
-) = run { AbsAdviceAdapter(this, access, name, desc, onEnter, onExit) }
+) = run { LoggableAdviceAdapter(this, access, name, desc, onEnter, onExit) }
 
 fun AnnotationVisitor.wrappedWithTrace() = run { TraceAnnotationVisitor(this, Textifier()) }
 
@@ -42,11 +47,11 @@ fun InputStream.applyAsm(func: (cw: ClassVisitor) -> ClassVisitor = { DefaultCla
     val cr = ClassReader(this)
     val cw = ClassWriter(cr, ClassWriter.COMPUTE_FRAMES)
 
-    val cv = func.invoke(cw.wrappedWithTrace())
+    val cv = func.invoke(cw.wrappedWithTrace().wrappedWithLog())
 
     val parsingOptions = ClassReader.SKIP_DEBUG or ClassReader.SKIP_FRAMES
 
-    cr.accept(cv.wrappedWithTrace(), 0)
+    cr.accept(cv.wrappedWithTrace().wrappedWithLog(), 0)
 
     cw.toByteArray()
 }.apply(this)

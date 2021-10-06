@@ -1,4 +1,4 @@
-package me.yangxiaobin.lib.asm.abs
+package me.yangxiaobin.lib.asm.log
 
 import me.yangxiaobin.lib.log.LogLevel
 import me.yangxiaobin.lib.log.Logger
@@ -6,7 +6,7 @@ import me.yangxiaobin.lib.log.log
 import org.objectweb.asm.AnnotationVisitor
 import org.objectweb.asm.Opcodes
 
-open class AbsAnnotationVisitor(av: AnnotationVisitor) : AnnotationVisitor(Opcodes.ASM9, av) {
+class LoggableAnnotationVisitor(av: AnnotationVisitor) : AnnotationVisitor(Opcodes.ASM9, av) {
 
     private val logV by lazy { Logger.log(LogLevel.VERBOSE, "AbsAv(${this.hashCode()})") }
 

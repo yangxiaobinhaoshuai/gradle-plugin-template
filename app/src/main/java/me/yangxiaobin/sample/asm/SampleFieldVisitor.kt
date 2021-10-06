@@ -1,12 +1,8 @@
 package me.yangxiaobin.sample.asm
 
-import me.yangxiaobin.lib.asm.abs.AbsFieldVisitor
-import org.objectweb.asm.AnnotationVisitor
-import org.objectweb.asm.Attribute
-import org.objectweb.asm.FieldVisitor
-import org.objectweb.asm.TypePath
+import org.objectweb.asm.*
 
-class SampleFieldVisitor(fv: FieldVisitor) : AbsFieldVisitor(fv) {
+class SampleFieldVisitor(fv: FieldVisitor) : FieldVisitor(Opcodes.ASM9, fv) {
 
     override fun visitAnnotation(descriptor: String?, visible: Boolean): AnnotationVisitor {
         return super.visitAnnotation(descriptor, visible)
