@@ -1,29 +1,29 @@
 plugins {
     id 'groovy'
-    id 'kotlin'
     id 'java-gradle-plugin'
-    id 'maven-publish'
+    //id 'org.jetbrains.kotlin.jvm' version'1.5.30'
+    alias(deps.plugins.kotlinJvm)
 }
 //apply from: "../gradle/mvn-publish.gradle"
 
-group = 'me.yangxiaobin.sample'
-description = "sample-library"
+group = 'me.yangxiaobin.lib'
+description = "yangxiaobin-lib"
 version = '1.0-SNAPSHOT'
 
 sourceCompatibility = 1.8
 
-// artifact coordinate : plugin.id:plugin.id.gradle.plugin:plugin.version
-gradlePlugin {
-    plugins {
-        simplePlugin {
-            id = project.description
-            implementationClass = 'me.yangxiaobin.lib.KtPlugin'
-        }
-    }
-}
-
 processResources{
     exclude 'META-INF/', 'META-INF/**'
+}
+
+gradlePlugin {
+    plugins {
+        // here we register our plugin with an ID
+        register("yxb-lib-plugin") {
+            id = "yxb-lib-plugin"
+            implementationClass = "me.yangxiaobin.lib.KtPlugin"
+        }
+    }
 }
 
 jar {
@@ -36,6 +36,11 @@ jar {
 
 configurations {
     fatJarCompile
+}
+
+repositories {
+    google()
+    mavenCentral()
 }
 
 dependencies {

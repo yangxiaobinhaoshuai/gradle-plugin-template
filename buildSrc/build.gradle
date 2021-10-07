@@ -1,0 +1,23 @@
+plugins {
+    //id 'org.jetbrains.kotlin.jvm' version'1.5.30'
+    alias(deps.plugins.kotlinJvm)
+    id 'java-gradle-plugin' // so we can assign and ID to our plugin
+}
+
+repositories {
+    mavenCentral()
+}
+
+gradlePlugin {
+    plugins {
+        // here we register our plugin with an ID
+        register("simple-plugin") {
+            id = "simple-plugin"
+            implementationClass = "me.yangxiaobin.plugin.BasePlugin"
+        }
+    }
+}
+
+dependencies {
+    implementation 'me.yangxiaobin.lib:library:1.0-SNAPSHOT'
+}

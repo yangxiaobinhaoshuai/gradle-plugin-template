@@ -8,11 +8,13 @@ buildscript {
     }
 
     dependencies {
-        classpath deps.ktGradlePlugin
+        classpath deps.kgp
+        classpath "me.yangxiaobin.sample:library:1.0"
     }
 }
 
 subprojects {
+
     repositories {
         google()
         mavenCentral()

@@ -2,11 +2,10 @@ plugins {
     id 'groovy'
     id 'java'
     id 'kotlin'
-//    id 'sample-library' version'1.0-SNAPSHOT'
+    id 'yxb-lib-plugin'
+    id 'simple-plugin'
 }
 
-
-//apply plugin: 'sample-library'
 version '0.0.1'
 
 sourceCompatibility = 1.8
@@ -14,13 +13,13 @@ sourceCompatibility = 1.8
 
 dependencies {
     testImplementation deps.junit
-    
+
     implementation deps.groovyAll
     implementation deps.bundles.asm
     implementation deps.ktStdJdk
     implementation deps.bundles.aspectj
 
-    implementation project(":library")
+    implementation 'me.yangxiaobin.lib:library:1.0-SNAPSHOT'
 }
 
 compileKotlin {

@@ -1,23 +1,14 @@
 import org.gradle.api.initialization.resolve.RepositoriesMode
 
 
-pluginManagement {
-    repositories {
-        mavenLocal()
-    }
-}
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
     defaultLibrariesExtensionName.set('deps')
-    repositories {
-        google()
-        mavenCentral()
-        jcenter() // Warning: this repository is going to shut down soon
-    }
 }
 
 rootProject.name = 'gradle-template'
 
-include 'app', 'library'
+include 'app'
+includeBuild 'library'
 
 enableFeaturePreview('VERSION_CATALOGS')

@@ -10,7 +10,7 @@ class KtPlugin : BasePlugin() {
 
     override fun apply(p: Project) {
         super.apply(p)
-        logI("${p.name} Applied KtPlugin.")
+        logI("${p.name} ==> Applied KtPlugin.")
     }
 
 }
