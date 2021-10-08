@@ -47,9 +47,9 @@ aspectj =['aspectj-lib','aspectj-jrt','aspectj-weaver','aspectj-tools','aspectj-
 asm =['asm-core','asm-util','asm-tree','asm-commons','asm-analysis','asm-debug-all','asm-xml','asm-parent','asm-all']
 
 
-[plugins]
+#[plugins]
 #short-notation = "some.plugin.id:1.4"
 #long-notation = { id = "some.plugin.id", version = "1.4" }
 #reference-notation = { id = "some.plugin.id", version.ref = "common" }
-kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlinV" }
+#kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlinV" }
 

@@ -1,5 +1,13 @@
 import org.gradle.api.initialization.resolve.RepositoriesMode
 
+//pluginManagement {
+//    repositories {
+//        //mavenLocal()
+//        google()
+//        mavenCentral()
+//        gradlePluginPortal()
+//    }
+//}
 
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
@@ -9,6 +17,7 @@ dependencyResolutionManagement {
 rootProject.name = 'gradle-template'
 
 include 'app'
+include ':androidapp'
 includeBuild 'library'
 
 enableFeaturePreview('VERSION_CATALOGS')

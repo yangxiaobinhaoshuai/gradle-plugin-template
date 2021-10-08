@@ -1,8 +1,8 @@
 plugins {
     id 'groovy'
     id 'java-gradle-plugin'
-    //id 'org.jetbrains.kotlin.jvm' version'1.5.30'
-    alias(deps.plugins.kotlinJvm)
+    id 'org.jetbrains.kotlin.jvm' version'1.5.30'
+    //alias(deps.plugins.kotlinJvm)
 }
 
 group = 'me.yangxiaobin.lib'

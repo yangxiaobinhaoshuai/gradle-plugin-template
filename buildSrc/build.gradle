@@ -1,6 +1,6 @@
 plugins {
-    //id 'org.jetbrains.kotlin.jvm' version'1.5.30'
-    alias(deps.plugins.kotlinJvm)
+    id 'org.jetbrains.kotlin.jvm' version'1.5.30'
+    //alias(deps.plugins.kotlinJvm)
     id 'java-gradle-plugin' // so we can assign and ID to our plugin
 }
 
