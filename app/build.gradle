@@ -18,6 +18,7 @@ dependencies {
     implementation deps.bundles.asm
     implementation deps.ktStdJdk
     implementation deps.bundles.aspectj
+    implementation "com.google.dagger:hilt-android-gradle-plugin:2.28-alpha"
 
     implementation 'me.yangxiaobin.lib:library:1.0-SNAPSHOT'
 }

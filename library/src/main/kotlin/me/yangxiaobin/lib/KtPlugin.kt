@@ -1,5 +1,6 @@
 package me.yangxiaobin.lib
 
+import com.android.build.gradle.AppPlugin
 import me.yangxiaobin.lib.base.BasePlugin
 import org.gradle.api.Project
 

@@ -4,11 +4,13 @@ plugins {
     //id 'org.jetbrains.kotlin.jvm' version'1.5.30'
     alias(deps.plugins.kotlinJvm)
 }
-//apply from: "../gradle/mvn-publish.gradle"
 
 group = 'me.yangxiaobin.lib'
 description = "yangxiaobin-lib"
 version = '1.0-SNAPSHOT'
+
+// Must after group / desc / version.
+apply from: "../gradle/mvn-publish.gradle"
 
 sourceCompatibility = 1.8
 

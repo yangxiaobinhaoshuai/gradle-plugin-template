@@ -7,7 +7,7 @@ junitV = "4.13.2"
 kotlinV = "1.5.30"
 asmCoreV = "9.2"
 groovy-allV = "3.0.9"
-agpV = "7.0.2"
+agpV = "7.1.0-alpha12"
 aspectjV = "1.9.7"
 
 

@@ -17,6 +17,7 @@ class AsmHelper {
         private const val TAG = "AsmHelper"
 
 
+        @Suppress("UNUSED_VARIABLE")
         @JvmStatic
         fun main(args: Array<String>) {
             println("----> SampleJava main")
@@ -26,7 +27,7 @@ class AsmHelper {
             val clazz: Class<AsmHelper> = AsmHelper::class.java
 
             val ins = try {
-                val abc = this.javaClass.getResourceAsStream("/abc.txt")
+                val abc = this::class.java.getResourceAsStream("/abc.txt")
                 println("----> ${abc.bufferedReader().use { it.readText() }}")
 
 

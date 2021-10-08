@@ -2,17 +2,14 @@
 apply plugin : 'maven-publish'
 apply plugin : 'java-library'
 
-group = 'me.yangxiaobin.sample'
-version = '1.0'
-description = "library"
-
 java {
     withSourcesJar()
 }
 
 publishing {
     publications {
-        maven(MavenPublication) {
+        myPublication(MavenPublication) {
+
             groupId = project.group
             artifactId = project.description
             version = project.version

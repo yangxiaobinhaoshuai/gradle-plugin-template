@@ -68,9 +68,6 @@ class SampleMethodVisitor(mv: MethodVisitor) : MethodVisitor(Opcodes.ASM9, mv) {
         super.visitFieldInsn(opcode, owner, name, descriptor)
     }
 
-    override fun visitMethodInsn(opcode: Int, owner: String?, name: String?, descriptor: String?) {
-        super.visitMethodInsn(opcode, owner, name, descriptor)
-    }
 
     override fun visitMethodInsn(
         opcode: Int,
