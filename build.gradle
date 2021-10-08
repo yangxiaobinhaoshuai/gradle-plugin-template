@@ -9,7 +9,6 @@ buildscript {
 
     dependencies {
         classpath deps.kgp
-        classpath "me.yangxiaobin.sample:library:1.0"
     }
 }
 
