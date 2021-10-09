@@ -2,6 +2,7 @@
 
 .gradle
 .idea
+*.hprof
 build/
 app/build
 base-lib/build

@@ -9,15 +9,34 @@ import org.gradle.api.initialization.resolve.RepositoriesMode
 //    }
 //}
 
+enableFeaturePreview('VERSION_CATALOGS')
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
-    defaultLibrariesExtensionName.set('deps')
+    defaultLibrariesExtensionName.set('libDeps')
+}
+
+dependencyResolutionManagement {
+    versionCatalogs {
+        deps {
+            from(files("Android-Template/gradle/libs.versions.toml"))
+        }
+    }
 }
 
 rootProject.name = 'gradle-template'
 
 include 'app'
-include ':androidapp'
-includeBuild 'library'
+//include ':androidapp'
 
-enableFeaturePreview('VERSION_CATALOGS')
+include 'codelab-kt'
+project(':codelab-kt').projectDir = new File(rootProject.projectDir, 'Android-Template/codelab-kt')
+
+include 'codelab-android-kt'
+project(':codelab-android-kt').projectDir = new File(rootProject.projectDir, 'Android-Template/codelab-android-kt')
+
+include 'Android-Template-App'
+project(':Android-Template-App').projectDir = new File(rootProject.projectDir, 'Android-Template/app')
+
+
+includeBuild 'library'

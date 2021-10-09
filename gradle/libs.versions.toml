@@ -14,7 +14,8 @@ aspectjV = "1.9.7"
 [libraries]
 junit = { module = "junit:junit", version.ref = "junitV" }
 
-agp = { module = "com.android.tools.build:gradle", version.ref = "agpV" }
+agp7 = { module = "com.android.tools.build:gradle", version.ref = "agpV" }
+agp4 = { module = "com.android.tools.build:gradle", version = "4.2.0" }
 kgp = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlinV" }
 ktStdJdk = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlinV" }
 

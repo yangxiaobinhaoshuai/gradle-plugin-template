@@ -8,8 +8,9 @@ buildscript {
     }
 
     dependencies {
-        classpath deps.kgp
-        classpath "com.android.tools.build:gradle:4.2.0"
+        classpath libDeps.kgp
+        classpath libDeps.agp4
+//        classpath "com.android.tools.build:gradle:4.2.0"
     }
 }
 

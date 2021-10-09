@@ -47,16 +47,16 @@ repositories {
 
 dependencies {
 
-    testImplementation deps.junit
+    testImplementation libDeps.junit
 
     implementation fileTree(dir: "libs", include: ["*.jar"])
 
     compileOnly gradleApi()
     compileOnly localGroovy()
-    compileOnly deps.groovyAll
-    compileOnly deps.bundles.asm
-    compileOnly deps.ktStdJdk
-    compileOnly deps.agp
+    compileOnly libDeps.groovyAll
+    compileOnly libDeps.bundles.asm
+    compileOnly libDeps.ktStdJdk
+    compileOnly libDeps.agp7
 }
 
 compileKotlin {

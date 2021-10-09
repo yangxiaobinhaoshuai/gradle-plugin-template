@@ -3,7 +3,7 @@ enableFeaturePreview('VERSION_CATALOGS')
 
 dependencyResolutionManagement {
     versionCatalogs {
-        deps {
+        libDeps {
             from(files("../gradle/libs.versions.toml"))
         }
     }
