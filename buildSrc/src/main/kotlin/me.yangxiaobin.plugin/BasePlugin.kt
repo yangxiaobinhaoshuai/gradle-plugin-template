@@ -36,7 +36,6 @@ class BasePlugin : Plugin<Project> {
             .filterNot { it.name.startsWith("test") }
             .filterNot { it.name.startsWith("compileOnly") }
             .forEach { config ->
-                println("---> config name :${config.name}")
                 p.afterEvaluate {
                     if (config.isCanBeResolved) {
                         config.attributes.attribute(hooked, true)

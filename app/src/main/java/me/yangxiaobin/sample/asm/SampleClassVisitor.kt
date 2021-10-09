@@ -100,7 +100,7 @@ class SampleClassVisitor(cv: ClassVisitor) : ClassVisitor(Opcodes.ASM9, cv) {
 
 //        return TimeAnalysisMethodVisitor(access,name, descriptor, originalMv).wrappedWithTrace()
 
-        return MethodAdviceVisitor(originalMv, classFileName, access, name, descriptor)
+        return MethodAdviceVisitor(api,originalMv, classFileName, access, name, descriptor)
         //return SampleMethodVisitor(originalMv).wrappedWithTrace()
     }
 

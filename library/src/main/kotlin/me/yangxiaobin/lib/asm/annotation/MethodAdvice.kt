@@ -73,12 +73,13 @@ object MethodAdviceInstrument : AdviceInstrument {
 }
 
 class MethodAdviceVisitor(
-    mv: MethodVisitor,
+    api:Int,
+    mv: MethodVisitor?,
     private val classFileName: String,
     methodAccess: Int,
     methodName: String,
     methodDesc: String
-) : AdviceAdapter(Opcodes.ASM9, mv, methodAccess, methodName, methodDesc) {
+) : AdviceAdapter(api, mv, methodAccess, methodName, methodDesc) {
 
     private var shouldInsert = false
     private var paramIndex = 0

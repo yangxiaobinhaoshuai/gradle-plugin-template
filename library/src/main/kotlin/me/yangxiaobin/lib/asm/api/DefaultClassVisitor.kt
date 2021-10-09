@@ -11,6 +11,7 @@ class DefaultClassVisitor(api: Int = Opcodes.ASM9, cv: ClassVisitor) : ClassVisi
 
         println("---> DefaultClassVisitor init : ${this.api} , ${Opcodes.ASM9}")
     }
+
     private var classFileName = ""
 
 
@@ -32,13 +33,14 @@ class DefaultClassVisitor(api: Int = Opcodes.ASM9, cv: ClassVisitor) : ClassVisi
         descriptor: String?,
         signature: String?,
         exceptions: Array<out String>?
-    ): MethodVisitor {
-        val superMv = super.visitMethod(access, name, descriptor, signature, exceptions)
+    ): MethodVisitor? {
+
+        val superMv: MethodVisitor? = super.visitMethod(access, name, descriptor, signature, exceptions)
 
         requireNotNull(name) { return superMv }
         requireNotNull(descriptor) { return superMv }
 
-        return MethodAdviceVisitor(superMv, classFileName, access, name, descriptor)
+        return MethodAdviceVisitor(api, superMv, classFileName, access, name, descriptor)
     }
 
 }

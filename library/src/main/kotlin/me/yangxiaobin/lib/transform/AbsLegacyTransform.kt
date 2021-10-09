@@ -16,6 +16,7 @@ class AbsLegacyTransform : Transform() {
     override fun getScopes(): MutableSet<QualifiedContent.Scope> = mutableSetOf(QualifiedContent.Scope.PROJECT)
 
     override fun transform(invocation: TransformInvocation) {
+        println("---> ab legancy trance")
         if (!invocation.isIncremental) {
             // Remove any lingering files on a non-incremental invocation since everything has to be
             // transformed.

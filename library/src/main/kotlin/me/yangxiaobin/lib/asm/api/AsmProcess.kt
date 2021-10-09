@@ -43,7 +43,7 @@ fun AnnotationVisitor.wrappedWithTrace() = run { TraceAnnotationVisitor(this, Te
 fun AnnotationVisitor.wrappedWithCheck() = run { CheckAnnotationAdapter(this) }
 
 fun InputStream.applyAsm(
-    func: (cw: ClassVisitor) -> ClassVisitor = { DefaultClassVisitor(Opcodes.ASM9, it) }
+    func: (cw: ClassVisitor) -> ClassVisitor = { DefaultClassVisitor(Opcodes.ASM5, it) }
 ): ByteArray = Function<InputStream, ByteArray> {
 
     val cr = ClassReader(this)
