@@ -7,6 +7,10 @@ import org.objectweb.asm.Opcodes
 
 class DefaultClassVisitor(api: Int = Opcodes.ASM9, cv: ClassVisitor) : ClassVisitor(api, cv) {
 
+    init {
+
+        println("---> DefaultClassVisitor init : ${this.api} , ${Opcodes.ASM9}")
+    }
     private var classFileName = ""
 
 

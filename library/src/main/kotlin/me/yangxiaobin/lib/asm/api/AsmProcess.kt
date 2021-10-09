@@ -49,11 +49,11 @@ fun InputStream.applyAsm(
     val cr = ClassReader(this)
     val cw = ClassWriter(cr, ClassWriter.COMPUTE_FRAMES)
 
-    val cv = func.invoke(cw.wrappedWithTrace().wrappedWithLog())
+    val cv = func.invoke(cw.wrappedWithCheck())
 
     val parsingOptions = ClassReader.SKIP_DEBUG or ClassReader.SKIP_FRAMES
 
-    cr.accept(cv.wrappedWithTrace().wrappedWithLog(), 0)
+    cr.accept(cv.wrappedWithCheck(), 0)
 
     cw.toByteArray()
 }.apply(this)

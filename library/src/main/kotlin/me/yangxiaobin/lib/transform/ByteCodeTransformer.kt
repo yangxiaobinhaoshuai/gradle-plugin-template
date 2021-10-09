@@ -17,10 +17,10 @@ class AbsByteCodeTransformer(
     override fun transformFile(inputFile: File) {
         println("---> transformFile input :${inputFile.absolutePath}")
         val transformedByteArray: ByteArray = inputFile.inputStream().use {
-            it.applyAsm()
+            it.readAllBytes()
         }
-        File(sourceRootOutputDir.path)
-            .also { println("----> output file name :${it.name}") }
+        File(sourceRootOutputDir.path).mkdirs()
+        File(sourceRootOutputDir.path + File.separator + inputFile.name)
             .writeBytes(transformedByteArray)
     }
 

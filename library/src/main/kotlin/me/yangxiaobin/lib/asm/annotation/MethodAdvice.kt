@@ -1,9 +1,7 @@
 package me.yangxiaobin.lib.asm.annotation
 
-import org.objectweb.asm.AnnotationVisitor
-import org.objectweb.asm.MethodVisitor
-import org.objectweb.asm.Opcodes
-import org.objectweb.asm.Type
+import org.gradle.internal.impldep.com.amazonaws.services.s3.model.Owner
+import org.objectweb.asm.*
 import org.objectweb.asm.commons.AdviceAdapter
 
 
@@ -140,4 +138,13 @@ class MethodAdviceVisitor(
         )
     }
 
+    override fun visitInvokeDynamicInsn(
+        name: String?,
+        descriptor: String?,
+        bootstrapMethodHandle: Handle?,
+        vararg bootstrapMethodArguments: Any?
+    ) {
+        println("---> method :api :$api  $name :$descriptor")
+        super.visitInvokeDynamicInsn(name, descriptor, bootstrapMethodHandle, *bootstrapMethodArguments)
+    }
 }
