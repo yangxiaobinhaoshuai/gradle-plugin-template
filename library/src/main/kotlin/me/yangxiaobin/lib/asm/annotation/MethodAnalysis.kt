@@ -17,7 +17,7 @@ class TimeAnalysisMethodVisitor(
     name: String,
     desc: String,
     mv: MethodVisitor
-) : AdviceAdapter(Opcodes.ASM9, mv, access, name, desc) {
+) : AdviceAdapter(Opcodes.ASM5, mv, access, name, desc) {
 
     private var insert = false
     private var t1Index: Int = 0

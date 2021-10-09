@@ -8,7 +8,7 @@ import org.objectweb.asm.Opcodes
 import org.objectweb.asm.commons.AdviceAdapter
 
 class LoggableAdviceAdapter(
-    api: Int = Opcodes.ASM9,
+    api: Int = Opcodes.ASM5,
     mv: MethodVisitor,
     access: Int,
     name: String,

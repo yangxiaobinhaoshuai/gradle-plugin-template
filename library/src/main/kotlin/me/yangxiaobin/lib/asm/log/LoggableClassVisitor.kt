@@ -5,7 +5,7 @@ import me.yangxiaobin.lib.log.Logger
 import me.yangxiaobin.lib.log.log
 import org.objectweb.asm.*
 
-class LoggableClassVisitor(api: Int = Opcodes.ASM9, cv: ClassVisitor) : ClassVisitor(api, cv) {
+class LoggableClassVisitor(api: Int, cv: ClassVisitor) : ClassVisitor(api, cv) {
 
     private val logV by lazy { Logger.log(LogLevel.VERBOSE, "AbsCv(${this.hashCode()})") }
 

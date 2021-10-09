@@ -15,22 +15,22 @@ fun ClassVisitor.wrappedWithTrace() = TraceClassVisitor(this, PrintWriter(System
 
 fun ClassVisitor.wrappedWithCheck() = CheckClassAdapter(this)
 
-fun ClassVisitor.wrappedWithLog(api: Int = Opcodes.ASM9) = LoggableClassVisitor(api, this)
+fun ClassVisitor.wrappedWithLog(api: Int = Opcodes.ASM5) = LoggableClassVisitor(api, this)
 
 fun MethodVisitor.wrappedWithTrace(printer: Printer = Textifier()) = TraceMethodVisitor(this, printer)
 
 fun FieldVisitor.wrappedWithTrace(printer: Printer = Textifier()) = TraceFieldVisitor(this, printer)
 
-fun FieldVisitor.wrappedWithLog(api: Int = Opcodes.ASM9) = LoggableFieldVisitor(api, this)
+fun FieldVisitor.wrappedWithLog(api: Int = Opcodes.ASM5) = LoggableFieldVisitor(api, this)
 
 fun FieldVisitor.wrappedWithCheck() = CheckFieldAdapter(this)
 
 fun MethodVisitor.wrappedWithCheck() = CheckMethodAdapter(this)
 
-fun MethodVisitor.wrappedWithLog(api: Int = Opcodes.ASM9) = LoggableMethodVisitor(api, this)
+fun MethodVisitor.wrappedWithLog(api: Int = Opcodes.ASM5) = LoggableMethodVisitor(api, this)
 
 fun MethodVisitor.wrappedWithAdvice(
-    api: Int = Opcodes.ASM9,
+    api: Int = Opcodes.ASM5,
     access: Int,
     name: String,
     desc: String,
@@ -49,11 +49,11 @@ fun InputStream.applyAsm(
     val cr = ClassReader(this)
     val cw = ClassWriter(cr, ClassWriter.COMPUTE_FRAMES)
 
-    val cv = func.invoke(cw.wrappedWithCheck())
+    val cv = func.invoke(cw.wrappedWithCheck().wrappedWithTrace().wrappedWithLog())
 
     val parsingOptions = ClassReader.SKIP_DEBUG or ClassReader.SKIP_FRAMES
 
-    cr.accept(cv.wrappedWithCheck(), 0)
+    cr.accept(cv.wrappedWithCheck().wrappedWithTrace().wrappedWithLog(), 0)
 
     cw.toByteArray()
 }.apply(this)
