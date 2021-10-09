@@ -5,7 +5,7 @@ import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 
-class DefaultClassVisitor(cv: ClassVisitor) : ClassVisitor(Opcodes.ASM9, cv) {
+class DefaultClassVisitor(api: Int = Opcodes.ASM9, cv: ClassVisitor) : ClassVisitor(api, cv) {
 
     private var classFileName = ""
 

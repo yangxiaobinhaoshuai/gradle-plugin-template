@@ -1,5 +1,5 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version'1.5.30'
+    id 'org.jetbrains.kotlin.jvm' version'1.5.31'
     //alias(deps.plugins.kotlinJvm)
     id 'java-gradle-plugin' // so we can assign and ID to our plugin
 }
@@ -19,5 +19,5 @@ gradlePlugin {
 }
 
 dependencies {
-    implementation 'me.yangxiaobin.lib:library:1.0-SNAPSHOT'
+//    implementation 'me.yangxiaobin.lib:library:1.0-SNAPSHOT'
 }

@@ -8,13 +8,14 @@ import org.objectweb.asm.Opcodes
 import org.objectweb.asm.commons.AdviceAdapter
 
 class LoggableAdviceAdapter(
+    api: Int = Opcodes.ASM9,
     mv: MethodVisitor,
     access: Int,
     name: String,
     desc: String,
     private val enterFunc: (() -> Unit)? = null,
     private val exitFunc: (() -> Unit)? = null,
-) : AdviceAdapter(Opcodes.ASM9, mv, access, name, desc) {
+) : AdviceAdapter(api, mv, access, name, desc) {
 
 
     private val logV by lazy { Logger.log(LogLevel.VERBOSE, "AbsAdvice(${this.hashCode()})") }

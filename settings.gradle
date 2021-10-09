@@ -26,17 +26,17 @@ dependencyResolutionManagement {
 
 rootProject.name = 'gradle-template'
 
-include 'app'
-//include ':androidapp'
+//include 'app'
+include ':androidapp'
 
-include 'codelab-kt'
-project(':codelab-kt').projectDir = new File(rootProject.projectDir, 'Android-Template/codelab-kt')
-
-include 'codelab-android-kt'
-project(':codelab-android-kt').projectDir = new File(rootProject.projectDir, 'Android-Template/codelab-android-kt')
-
-include 'Android-Template-App'
-project(':Android-Template-App').projectDir = new File(rootProject.projectDir, 'Android-Template/app')
+//include 'codelab-kt'
+//project(':codelab-kt').projectDir = new File(rootProject.projectDir, 'Android-Template/codelab-kt')
+//
+//include 'codelab-android-kt'
+//project(':codelab-android-kt').projectDir = new File(rootProject.projectDir, 'Android-Template/codelab-android-kt')
+//
+//include 'Android-Template-App'
+//project(':Android-Template-App').projectDir = new File(rootProject.projectDir, 'Android-Template/app')
 
 
 includeBuild 'library'

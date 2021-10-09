@@ -7,4 +7,5 @@ build/
 app/build
 base-lib/build
 library/build
+**/build
 

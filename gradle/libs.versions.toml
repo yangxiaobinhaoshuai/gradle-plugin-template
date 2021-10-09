@@ -4,7 +4,7 @@
 
 [versions]
 junitV = "4.13.2"
-kotlinV = "1.5.30"
+kotlinV = "1.5.31"
 asmCoreV = "9.2"
 groovy-allV = "3.0.9"
 agpV = "7.1.0-alpha12"
@@ -15,7 +15,7 @@ aspectjV = "1.9.7"
 junit = { module = "junit:junit", version.ref = "junitV" }
 
 agp7 = { module = "com.android.tools.build:gradle", version.ref = "agpV" }
-agp4 = { module = "com.android.tools.build:gradle", version = "4.2.0" }
+agp4 = { module = "com.android.tools.build:gradle", version = "4.1.0" }
 kgp = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlinV" }
 ktStdJdk = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlinV" }
 

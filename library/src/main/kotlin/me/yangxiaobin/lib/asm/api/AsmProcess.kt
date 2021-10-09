@@ -15,34 +15,36 @@ fun ClassVisitor.wrappedWithTrace() = TraceClassVisitor(this, PrintWriter(System
 
 fun ClassVisitor.wrappedWithCheck() = CheckClassAdapter(this)
 
-fun ClassVisitor.wrappedWithLog() = LoggableClassVisitor(this)
+fun ClassVisitor.wrappedWithLog(api: Int = Opcodes.ASM9) = LoggableClassVisitor(api, this)
 
 fun MethodVisitor.wrappedWithTrace(printer: Printer = Textifier()) = TraceMethodVisitor(this, printer)
 
 fun FieldVisitor.wrappedWithTrace(printer: Printer = Textifier()) = TraceFieldVisitor(this, printer)
 
-fun FieldVisitor.wrappedWithLog() = LoggableFieldVisitor(this)
+fun FieldVisitor.wrappedWithLog(api: Int = Opcodes.ASM9) = LoggableFieldVisitor(api, this)
 
 fun FieldVisitor.wrappedWithCheck() = CheckFieldAdapter(this)
 
 fun MethodVisitor.wrappedWithCheck() = CheckMethodAdapter(this)
 
-fun MethodVisitor.wrappedWithLog() = LoggableMethodVisitor(this)
+fun MethodVisitor.wrappedWithLog(api: Int = Opcodes.ASM9) = LoggableMethodVisitor(api, this)
 
 fun MethodVisitor.wrappedWithAdvice(
+    api: Int = Opcodes.ASM9,
     access: Int,
     name: String,
     desc: String,
     onEnter: (() -> Unit)? = null,
     onExit: (() -> Unit)? = null
-) = run { LoggableAdviceAdapter(this, access, name, desc, onEnter, onExit) }
+) = run { LoggableAdviceAdapter(api, this, access, name, desc, onEnter, onExit) }
 
 fun AnnotationVisitor.wrappedWithTrace() = run { TraceAnnotationVisitor(this, Textifier()) }
 
 fun AnnotationVisitor.wrappedWithCheck() = run { CheckAnnotationAdapter(this) }
 
-fun InputStream.applyAsm(func: (cw: ClassVisitor) -> ClassVisitor = { DefaultClassVisitor(it) })
-        : ByteArray = Function<InputStream, ByteArray> {
+fun InputStream.applyAsm(
+    func: (cw: ClassVisitor) -> ClassVisitor = { DefaultClassVisitor(Opcodes.ASM9, it) }
+): ByteArray = Function<InputStream, ByteArray> {
 
     val cr = ClassReader(this)
     val cw = ClassWriter(cr, ClassWriter.COMPUTE_FRAMES)
