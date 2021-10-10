@@ -28,10 +28,10 @@ fun ClassVisitor.wrappedWithTreeAdapter(api: Int = ASM_API, transform: Action<Cl
 
 //region MethodVisitor ext
 
+internal val innerTextifier = InternalTextifier(ASM_API)
+internal val innerASMifier = InternalASMifier(ASM_API)
 
-internal val innerPrinter = InternalPrinter(ASM_API)
-
-fun MethodVisitor.wrappedWithTrace(printer: Printer = innerPrinter) = TraceMethodVisitor(this, printer)
+fun MethodVisitor.wrappedWithTrace(printer: Printer = innerTextifier) = TraceMethodVisitor(this, printer)
 
 fun MethodVisitor.wrappedWithCheck() = CheckMethodAdapter(this)
 
@@ -58,7 +58,7 @@ fun MethodVisitor.wrappedWithTreeAdapter(
 //endregion
 
 //region FieldVisitor ext
-fun FieldVisitor.wrappedWithTrace(printer: Printer = innerPrinter) = TraceFieldVisitor(this, printer)
+fun FieldVisitor.wrappedWithTrace(printer: Printer = innerTextifier) = TraceFieldVisitor(this, printer)
 
 fun FieldVisitor.wrappedWithLog(api: Int = ASM_API) = LoggableFieldVisitor(api, this)
 
@@ -66,7 +66,7 @@ fun FieldVisitor.wrappedWithCheck() = CheckFieldAdapter(this)
 //endregion
 
 //region AnnotationVisitor ext
-fun AnnotationVisitor.wrappedWithTrace() = TraceAnnotationVisitor(this, innerPrinter)
+fun AnnotationVisitor.wrappedWithTrace() = TraceAnnotationVisitor(this, innerTextifier)
 
 fun AnnotationVisitor.wrappedWithCheck() = CheckAnnotationAdapter(this)
 //endregion
@@ -83,7 +83,7 @@ fun InputStream.applyAsm(
     val cv = func.invoke(
         cw
             .wrappedWithCheck()
-            .wrappedWithTrace()
+//            .wrappedWithTrace()
             .wrappedWithLog()
     )
 
@@ -92,7 +92,7 @@ fun InputStream.applyAsm(
     cr.accept(
         cv
             .wrappedWithCheck()
-            .wrappedWithTrace()
+//            .wrappedWithTrace()
             .wrappedWithLog(),
         parsingOptions
     )

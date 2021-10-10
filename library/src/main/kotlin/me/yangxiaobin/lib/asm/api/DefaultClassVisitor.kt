@@ -1,9 +1,14 @@
 package me.yangxiaobin.lib.asm.api
 
 import me.yangxiaobin.lib.asm.annotation.MethodAdviceVisitor
-import me.yangxiaobin.lib.asm.log.InternalPrinter
+import me.yangxiaobin.lib.asm.log.InternalASMifier
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.MethodVisitor
+import org.objectweb.asm.Opcodes
+import org.objectweb.asm.tree.AbstractInsnNode
+import org.objectweb.asm.tree.FieldInsnNode
+import org.objectweb.asm.tree.MethodInsnNode
+import org.objectweb.asm.tree.TypeInsnNode
 
 class DefaultClassVisitor(api: Int, cv: ClassVisitor) : ClassVisitor(api, cv) {
 
@@ -35,8 +40,9 @@ class DefaultClassVisitor(api: Int, cv: ClassVisitor) : ClassVisitor(api, cv) {
         requireNotNull(name) { return superMv }
         requireNotNull(descriptor) { return superMv }
 
-//        println("---> method :$name")
+        println("---> method :$name")
         return MethodAdviceVisitor(api, superMv, classFileName, access, name, descriptor)
+            .let { if (name == "init\$lambda-0") it.wrappedWithTrace() else it }
             .wrappedWithTreeAdapter(
                 api,
                 access,
@@ -45,6 +51,39 @@ class DefaultClassVisitor(api: Int, cv: ClassVisitor) : ClassVisitor(api, cv) {
                 signature,
                 exceptions
             ) {
+                val insnList = it.instructions
+                val iter = insnList.iterator()
+                while (iter.hasNext()) {
+                    val insn = iter.next()
+                    if (insn is MethodInsnNode && insn.name == "show") {
+
+                        //GETSTATIC me/yangxiaobin/androidapp/Instrumentation.INSTANCE : Lme/yangxiaobin/androidapp/Instrumentation;
+                        //ALOAD 2
+                        //INVOKEVIRTUAL me/yangxiaobin/androidapp/Instrumentation.recordDialog (Ljava/lang/Object;)Ljava/lang/Object;
+                        //CHECKCAST android/app/Dialog
+                        //INVOKEVIRTUAL android/app/Dialog.show ()V
+
+                        val aLoadInsn: AbstractInsnNode = insn.previous
+
+                        println("---> aloadInsn ,${aLoadInsn.opcode}:${aLoadInsn.opcode == Opcodes.ALOAD}")
+
+                        val getFieldInsnNode = FieldInsnNode(
+                            Opcodes.GETSTATIC,
+                            "me/yangxiaobin/androidapp/Instrumentation",
+                            "INSTANCE",
+                            "Lme/yangxiaobin/androidapp/Instrumentation;"
+                        )
+
+                        val invokeSpecialNode = MethodInsnNode(Opcodes.INVOKEVIRTUAL,"me/yangxiaobin/androidapp/Instrumentation","recordDialog","(Ljava/lang/Object;)Ljava/lang/Object;",false)
+
+                        val checkCastInsnNode = TypeInsnNode(Opcodes.CHECKCAST,"android/app/Dialog")
+
+                        insnList.insertBefore(aLoadInsn,getFieldInsnNode)
+                        insnList.insertBefore(insn,checkCastInsnNode)
+                        insnList.insertBefore(checkCastInsnNode,invokeSpecialNode)
+//                        println("-----> find show !!! ${insn.previous} , ${insn.next.opcode == Opcodes.RETURN}")
+                    }
+                }
             }
     }
 
