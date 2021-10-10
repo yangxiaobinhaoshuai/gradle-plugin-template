@@ -1,9 +1,9 @@
 package me.yangxiaobin.lib.asm.api
 
 import me.yangxiaobin.lib.asm.annotation.MethodAdviceVisitor
+import me.yangxiaobin.lib.asm.log.InternalPrinter
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.MethodVisitor
-import org.objectweb.asm.Opcodes
 
 class DefaultClassVisitor(api: Int, cv: ClassVisitor) : ClassVisitor(api, cv) {
 
@@ -27,7 +27,7 @@ class DefaultClassVisitor(api: Int, cv: ClassVisitor) : ClassVisitor(api, cv) {
         name: String?,
         descriptor: String?,
         signature: String?,
-        exceptions: Array<out String>?
+        exceptions: Array<String>?
     ): MethodVisitor? {
 
         val superMv: MethodVisitor? = super.visitMethod(access, name, descriptor, signature, exceptions)
@@ -35,7 +35,17 @@ class DefaultClassVisitor(api: Int, cv: ClassVisitor) : ClassVisitor(api, cv) {
         requireNotNull(name) { return superMv }
         requireNotNull(descriptor) { return superMv }
 
+//        println("---> method :$name")
         return MethodAdviceVisitor(api, superMv, classFileName, access, name, descriptor)
+            .wrappedWithTreeAdapter(
+                api,
+                access,
+                name,
+                descriptor,
+                signature,
+                exceptions
+            ) {
+            }
     }
 
 }

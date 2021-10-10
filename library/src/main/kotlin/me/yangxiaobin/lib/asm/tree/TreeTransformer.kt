@@ -1,6 +1,6 @@
 @file:Suppress("MemberVisibilityCanBePrivate")
 
-package me.yangxiaobin.lib.asm.api.tree
+package me.yangxiaobin.lib.asm.tree
 
 import org.objectweb.asm.tree.ClassNode
 import org.objectweb.asm.tree.FieldNode
