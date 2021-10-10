@@ -1,8 +1,6 @@
 package me.yangxiaobin.lib.transform
 
 import me.yangxiaobin.lib.asm.api.applyAsm
-import org.objectweb.asm.ClassVisitor
-import org.objectweb.asm.Opcodes
 import java.io.File
 
 interface ByteCodeTransformer {
@@ -17,9 +15,9 @@ class AbsByteCodeTransformer(
 ) : ByteCodeTransformer {
 
     override fun transformFile(inputFile: File) {
-        println("---> transformFile input :${inputFile.absolutePath}")
         val transformedByteArray: ByteArray = inputFile.inputStream().use {
-//            it.readAllBytes()
+            // For Testing.
+            //it.readAllBytes()
             it.applyAsm()
         }
         File(sourceRootOutputDir.path).mkdirs()

@@ -2,7 +2,6 @@ package me.yangxiaobin.lib.asm.annotation
 
 import org.objectweb.asm.AnnotationVisitor
 import org.objectweb.asm.MethodVisitor
-import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 import org.objectweb.asm.commons.AdviceAdapter
 
@@ -13,11 +12,12 @@ annotation class TimeAnalysis
 
 
 class TimeAnalysisMethodVisitor(
+    api: Int,
     access: Int,
     name: String,
     desc: String,
     mv: MethodVisitor
-) : AdviceAdapter(Opcodes.ASM5, mv, access, name, desc) {
+) : AdviceAdapter(api, mv, access, name, desc) {
 
     private var insert = false
     private var t1Index: Int = 0

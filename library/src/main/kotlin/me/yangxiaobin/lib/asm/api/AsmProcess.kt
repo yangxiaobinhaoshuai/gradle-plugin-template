@@ -1,9 +1,11 @@
 package me.yangxiaobin.lib.asm.api
 
+import me.yangxiaobin.lib.asm.adapter.TreeClassAdapter
 import me.yangxiaobin.lib.asm.log.LoggableAdviceAdapter
 import me.yangxiaobin.lib.asm.log.LoggableClassVisitor
 import me.yangxiaobin.lib.asm.log.LoggableFieldVisitor
 import me.yangxiaobin.lib.asm.log.LoggableMethodVisitor
+import me.yangxiaobin.lib.constant.ASM_API
 import org.objectweb.asm.*
 import org.objectweb.asm.util.*
 import java.io.InputStream
@@ -11,39 +13,48 @@ import java.io.PrintWriter
 import java.util.function.Function
 
 
+//region ClassVisitor ext
 fun ClassVisitor.wrappedWithTrace() = TraceClassVisitor(this, PrintWriter(System.out))
 
 fun ClassVisitor.wrappedWithCheck() = CheckClassAdapter(this)
 
-fun ClassVisitor.wrappedWithLog(api: Int = Opcodes.ASM5) = LoggableClassVisitor(api, this)
+fun ClassVisitor.wrappedWithLog(api: Int = ASM_API) = LoggableClassVisitor(api, this)
+//endregion
 
+
+//region MethodVisitor ext
 fun MethodVisitor.wrappedWithTrace(printer: Printer = Textifier()) = TraceMethodVisitor(this, printer)
-
-fun FieldVisitor.wrappedWithTrace(printer: Printer = Textifier()) = TraceFieldVisitor(this, printer)
-
-fun FieldVisitor.wrappedWithLog(api: Int = Opcodes.ASM5) = LoggableFieldVisitor(api, this)
-
-fun FieldVisitor.wrappedWithCheck() = CheckFieldAdapter(this)
 
 fun MethodVisitor.wrappedWithCheck() = CheckMethodAdapter(this)
 
-fun MethodVisitor.wrappedWithLog(api: Int = Opcodes.ASM5) = LoggableMethodVisitor(api, this)
+fun MethodVisitor.wrappedWithLog(api: Int = ASM_API) = LoggableMethodVisitor(api, this)
 
 fun MethodVisitor.wrappedWithAdvice(
-    api: Int = Opcodes.ASM5,
+    api: Int = ASM_API,
     access: Int,
     name: String,
     desc: String,
     onEnter: (() -> Unit)? = null,
     onExit: (() -> Unit)? = null
 ) = run { LoggableAdviceAdapter(api, this, access, name, desc, onEnter, onExit) }
+//endregion
 
+//region FieldVisitor ext
+fun FieldVisitor.wrappedWithTrace(printer: Printer = Textifier()) = TraceFieldVisitor(this, printer)
+
+fun FieldVisitor.wrappedWithLog(api: Int = ASM_API) = LoggableFieldVisitor(api, this)
+
+fun FieldVisitor.wrappedWithCheck() = CheckFieldAdapter(this)
+//endregion
+
+//region AnnotationVisitor ext
 fun AnnotationVisitor.wrappedWithTrace() = run { TraceAnnotationVisitor(this, Textifier()) }
 
 fun AnnotationVisitor.wrappedWithCheck() = run { CheckAnnotationAdapter(this) }
+//endregion
 
 fun InputStream.applyAsm(
-    func: (cw: ClassVisitor) -> ClassVisitor = { DefaultClassVisitor(Opcodes.ASM5, it) }
+    func: (cw: ClassVisitor) -> ClassVisitor = { DefaultClassVisitor(ASM_API, it) }
 ): ByteArray = Function<InputStream, ByteArray> {
 
     val cr = ClassReader(this)
@@ -51,9 +62,11 @@ fun InputStream.applyAsm(
 
     val cv = func.invoke(cw.wrappedWithCheck().wrappedWithTrace().wrappedWithLog())
 
-    val parsingOptions = ClassReader.SKIP_DEBUG or ClassReader.SKIP_FRAMES
+    val actualCv = TreeClassAdapter(ASM_API, cv)
 
-    cr.accept(cv.wrappedWithCheck().wrappedWithTrace().wrappedWithLog(), 0)
+    val parsingOptions = ClassReader.SKIP_DEBUG or ClassReader.EXPAND_FRAMES
+
+    cr.accept(actualCv.wrappedWithCheck().wrappedWithTrace().wrappedWithLog(), parsingOptions)
 
     cw.toByteArray()
 }.apply(this)

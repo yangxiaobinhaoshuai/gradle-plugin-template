@@ -1,14 +1,14 @@
 package me.yangxiaobin.lib.asm.log
 
+import me.yangxiaobin.lib.constant.ASM_API
 import me.yangxiaobin.lib.log.LogLevel
 import me.yangxiaobin.lib.log.Logger
 import me.yangxiaobin.lib.log.log
 import org.objectweb.asm.MethodVisitor
-import org.objectweb.asm.Opcodes
 import org.objectweb.asm.commons.AdviceAdapter
 
 class LoggableAdviceAdapter(
-    api: Int = Opcodes.ASM5,
+    api: Int = ASM_API,
     mv: MethodVisitor,
     access: Int,
     name: String,
