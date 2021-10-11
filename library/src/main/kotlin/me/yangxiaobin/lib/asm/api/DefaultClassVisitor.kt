@@ -76,7 +76,7 @@ class DefaultClassVisitor(api: Int, cv: ClassVisitor) : ClassVisitor(api, cv) {
 
                         val invokeSpecialNode = MethodInsnNode(Opcodes.INVOKEVIRTUAL,"me/yangxiaobin/androidapp/Instrumentation","recordDialog","(Ljava/lang/Object;)Ljava/lang/Object;",false)
 
-                        val checkCastInsnNode = TypeInsnNode(Opcodes.CHECKCAST,"android/app/Dialog")
+                        val checkCastInsnNode = TypeInsnNode(Opcodes.CHECKCAST,insn.owner)
 
                         insnList.insertBefore(aLoadInsn,getFieldInsnNode)
                         insnList.insertBefore(insn,checkCastInsnNode)
