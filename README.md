@@ -18,5 +18,6 @@
 
 - [Aspect On Android](https://fernandocejas.com/blog/engineering/2014-08-03-aspect-oriented-programming-in-android/)
 - [ASM HomePage](https://asm.ow2.io/)
+- [ASM FAQ](https://asm.ow2.io/faq.html#Q4)
 
 - [Git submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules)

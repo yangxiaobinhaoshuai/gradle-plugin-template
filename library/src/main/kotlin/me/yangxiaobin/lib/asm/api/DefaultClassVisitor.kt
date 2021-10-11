@@ -5,10 +5,7 @@ import me.yangxiaobin.lib.asm.log.InternalASMifier
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
-import org.objectweb.asm.tree.AbstractInsnNode
-import org.objectweb.asm.tree.FieldInsnNode
-import org.objectweb.asm.tree.MethodInsnNode
-import org.objectweb.asm.tree.TypeInsnNode
+import org.objectweb.asm.tree.*
 
 class DefaultClassVisitor(api: Int, cv: ClassVisitor) : ClassVisitor(api, cv) {
 
@@ -62,6 +59,13 @@ class DefaultClassVisitor(api: Int, cv: ClassVisitor) : ClassVisitor(api, cv) {
                         //INVOKEVIRTUAL me/yangxiaobin/androidapp/Instrumentation.recordDialog (Ljava/lang/Object;)Ljava/lang/Object;
                         //CHECKCAST android/app/Dialog
                         //INVOKEVIRTUAL android/app/Dialog.show ()V
+
+                        var nearestLineNumNode = insn.previous
+
+                        while (nearestLineNumNode!=null && nearestLineNumNode !is LineNumberNode){
+                            nearestLineNumNode = nearestLineNumNode.previous
+                        }
+                        println("----> nearest line nume :${(nearestLineNumNode as? LineNumberNode)?.line}")
 
                         val aLoadInsn: AbstractInsnNode = insn.previous
 

@@ -87,7 +87,7 @@ fun InputStream.applyAsm(
             .wrappedWithLog()
     )
 
-    val parsingOptions = ClassReader.SKIP_DEBUG or ClassReader.EXPAND_FRAMES
+    val parsingOptions = ClassReader.EXPAND_FRAMES
 
     cr.accept(
         cv
