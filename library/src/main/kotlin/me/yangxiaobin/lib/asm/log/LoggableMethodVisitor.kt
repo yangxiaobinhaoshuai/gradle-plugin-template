@@ -1,6 +1,6 @@
 package me.yangxiaobin.lib.asm.log
 
-import me.yangxiaobin.lib.constant.ASM_API
+import me.yangxiaobin.lib.asm.constant.ASM_API
 import me.yangxiaobin.lib.log.LogLevel
 import me.yangxiaobin.lib.log.Logger
 import me.yangxiaobin.lib.log.log

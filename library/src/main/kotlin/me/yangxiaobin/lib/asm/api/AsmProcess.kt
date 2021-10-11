@@ -3,7 +3,7 @@ package me.yangxiaobin.lib.asm.api
 import me.yangxiaobin.lib.asm.adapter.TreeClassAdapter
 import me.yangxiaobin.lib.asm.adapter.TreeMethodAdapter
 import me.yangxiaobin.lib.asm.log.*
-import me.yangxiaobin.lib.constant.ASM_API
+import me.yangxiaobin.lib.asm.constant.ASM_API
 import org.gradle.api.Action
 import org.objectweb.asm.*
 import org.objectweb.asm.tree.ClassNode

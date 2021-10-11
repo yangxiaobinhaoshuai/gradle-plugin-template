@@ -1,9 +1,9 @@
-package me.yangxiaobin.lib.constant
+package me.yangxiaobin.lib.asm.constant
 
 import org.objectweb.asm.Opcodes
 
 
-const val ASM_API = Opcodes.ASM5
+const val ASM_API = Opcodes.ASM6
 
 const val EXT_CLASS = "class"
 
