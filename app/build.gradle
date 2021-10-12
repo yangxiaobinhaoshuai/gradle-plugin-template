@@ -2,8 +2,8 @@ plugins {
     id 'groovy'
     id 'java'
     id 'kotlin'
-    //id 'yxb-lib-plugin'
-    id 'simple-plugin'
+    id 'artifact-transform-plugin'
+    id 'java-aspectj-plugin'
 }
 
 version '0.0.1'

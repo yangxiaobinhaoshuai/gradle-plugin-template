@@ -8,4 +8,5 @@ app/build
 base-lib/build
 library/build
 **/build
+ajcore.**.txt
 

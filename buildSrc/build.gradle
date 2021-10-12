@@ -11,13 +11,23 @@ repositories {
 gradlePlugin {
     plugins {
         // here we register our plugin with an ID
-        register("simple-plugin") {
-            id = "simple-plugin"
-            implementationClass = "me.yangxiaobin.plugin.BasePlugin"
+        register("artifact-transform-plugin") {
+            id = "artifact-transform-plugin"
+            implementationClass = "me.yangxiaobin.plugin.plugins.ArtifactTransformPlugin"
+        }
+    }
+
+    plugins {
+        // here we register our plugin with an ID
+        register("java-aspectj-plugin") {
+            id = "java-aspectj-plugin"
+            implementationClass = "me.yangxiaobin.plugin.plugins.JavaAspectJPlugin"
         }
     }
 }
 
+
 dependencies {
+    implementation libDeps.bundles.aspectj
     implementation 'me.yangxiaobin.lib:library:1.0-SNAPSHOT'
 }

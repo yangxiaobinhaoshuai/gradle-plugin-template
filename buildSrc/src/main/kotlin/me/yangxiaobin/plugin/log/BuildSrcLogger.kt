@@ -6,5 +6,5 @@ import me.yangxiaobin.lib.log.LogLevel
 
 
 object BuildSrcLogger : ILog by (ILogImpl().apply {
-    this.setGlobalSuffix("BuildSrc :: ").setLevel(LogLevel.INFO)
+    this.setGlobalPrefix("BuildSrc/").setLevel(LogLevel.INFO)
 })

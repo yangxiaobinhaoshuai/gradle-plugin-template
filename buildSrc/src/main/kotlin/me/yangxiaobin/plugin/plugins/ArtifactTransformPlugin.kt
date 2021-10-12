@@ -1,4 +1,4 @@
-package me.yangxiaobin.plugin
+package me.yangxiaobin.plugin.plugins
 
 import me.yangxiaobin.lib.log.LogLevel
 import me.yangxiaobin.lib.log.log
@@ -11,13 +11,13 @@ import org.gradle.api.artifacts.transform.TransformSpec
 import org.gradle.api.attributes.Attribute
 import org.gradle.api.attributes.AttributesSchema
 
-class BasePlugin : Plugin<Project> {
+class ArtifactTransformPlugin : Plugin<Project> {
 
-    private val logI = BuildSrcLogger.log(LogLevel.INFO,"")
+    private val logI = BuildSrcLogger.log(LogLevel.INFO,"ATP")
 
     override fun apply(p: Project) {
 
-        logI("applied buildSrc basePlugin")
+        logI("applied ATP.")
 
         val artifactType = Attribute.of("artifactType", String::class.java)
         val hooked = Attribute.of("hooked", Boolean::class.javaObjectType)
