@@ -18,7 +18,7 @@ abstract class HookArtifactTransform : TransformAction<TransformParameters.None>
 
     override fun transform(outputs: TransformOutputs) {
         val inputName = inputArtifact.get().asFile.name
-        println("-------> input file name :$inputName , deps :${transitiveDependencies.asPath}")
+        //println("-------> input file name :$inputName , deps :${transitiveDependencies.asPath}")
         outputs.file(inputArtifact)
     }
 }

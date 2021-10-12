@@ -82,19 +82,19 @@ fun InputStream.applyAsm(
 
     val cv = func.invoke(
         cw
-            .wrappedWithCheck()
+            //.wrappedWithCheck()
 //            .wrappedWithTrace()
-            .wrappedWithLog()
+//            .wrappedWithLog()
     )
 
     val parsingOptions = ClassReader.EXPAND_FRAMES
 
     cr.accept(
         cv
-            .wrappedWithCheck()
+            //.wrappedWithCheck()
 //            .wrappedWithTrace()
-            .wrappedWithLog(),
-        parsingOptions
+//            .wrappedWithLog()
+        , parsingOptions
     )
 
     cw.toByteArray()

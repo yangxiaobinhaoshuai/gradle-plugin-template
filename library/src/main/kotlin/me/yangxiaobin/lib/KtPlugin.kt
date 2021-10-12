@@ -1,6 +1,5 @@
 package me.yangxiaobin.lib
 
-import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.BaseExtension
 import me.yangxiaobin.lib.base.BasePlugin
 import me.yangxiaobin.lib.transform.AbsLegacyTransform

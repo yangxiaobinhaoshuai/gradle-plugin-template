@@ -26,8 +26,8 @@ dependencyResolutionManagement {
 
 rootProject.name = 'gradle-template'
 
-//include 'app'
-include ':androidapp'
+include 'app'
+//include ':androidapp'
 
 //include 'codelab-kt'
 //project(':codelab-kt').projectDir = new File(rootProject.projectDir, 'Android-Template/codelab-kt')

@@ -19,5 +19,5 @@ gradlePlugin {
 }
 
 dependencies {
-//    implementation 'me.yangxiaobin.lib:library:1.0-SNAPSHOT'
+    implementation 'me.yangxiaobin.lib:library:1.0-SNAPSHOT'
 }

@@ -14,10 +14,10 @@ sourceCompatibility = 1.8
 dependencies {
     testImplementation libDeps.junit
 
-//    implementation libDeps.groovyAll
+    implementation libDeps.groovyAll
     implementation libDeps.bundles.asm
     implementation libDeps.ktStdJdk
-//    implementation libDeps.bundles.aspectj
+    implementation libDeps.bundles.aspectj
     implementation "com.google.dagger:hilt-android-gradle-plugin:2.28-alpha"
 
     implementation 'me.yangxiaobin.lib:library:1.0-SNAPSHOT'

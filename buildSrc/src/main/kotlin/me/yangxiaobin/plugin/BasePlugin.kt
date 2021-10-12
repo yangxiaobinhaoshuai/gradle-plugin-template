@@ -1,5 +1,8 @@
 package me.yangxiaobin.plugin
 
+import me.yangxiaobin.lib.log.LogLevel
+import me.yangxiaobin.lib.log.log
+import me.yangxiaobin.plugin.log.BuildSrcLogger
 import me.yangxiaobin.plugin.transform.HookArtifactTransform
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -10,9 +13,11 @@ import org.gradle.api.attributes.AttributesSchema
 
 class BasePlugin : Plugin<Project> {
 
+    private val logI = BuildSrcLogger.log(LogLevel.INFO,"")
+
     override fun apply(p: Project) {
 
-        println("---> applied buildSrc basePlugin")
+        logI("applied buildSrc basePlugin")
 
         val artifactType = Attribute.of("artifactType", String::class.java)
         val hooked = Attribute.of("hooked", Boolean::class.javaObjectType)
@@ -24,7 +29,6 @@ class BasePlugin : Plugin<Project> {
         // 2. All JAR files are not minified
         p.dependencies
             .artifactTypes
-            .also { container -> println("----> artifactTypes :${container.joinToString { it.name }}") }
             .getByName("jar")
             .attributes
             .attribute(hooked, false)
