@@ -3,7 +3,8 @@ plugins {
     id 'java'
     id 'kotlin'
     id 'artifact-transform-plugin'
-    id 'java-aspectj-plugin'
+    //id 'java-aspectj-plugin'
+    id 'groovy-aspectj-plugin'
 }
 
 version '0.0.1'
@@ -30,8 +31,6 @@ compileJava {
     targetCompatibility="1.7"
 
     doLast{
-
-        println "----> ${build}"
 
         ant.taskdef( resource:"org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties", classpath: configurations.ajc.asPath)
 
