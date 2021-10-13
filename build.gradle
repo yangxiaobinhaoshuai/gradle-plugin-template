@@ -11,6 +11,7 @@ buildscript {
         classpath libDeps.kgp
         classpath libDeps.agp4
         classpath libDeps.bundles.aspectj
+        classpath 'me.yangxiaobin.plugin:gap:1.0'
 //        classpath "com.android.tools.build:gradle:4.2.0"
     }
 }

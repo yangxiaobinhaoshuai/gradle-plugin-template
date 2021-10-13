@@ -33,9 +33,9 @@ asm-xml = { module = "org.ow2.asm:asm-xml", version = "6.2.1" }
 # aspectJ : https://github.com/eclipse/org.aspectj
 aspectj-lib = { module = "org.aspectj:aspectjlib", version = "1.6.2" }
 
-aspectj-jrt = { module = "org.aspectj:aspectjrt", version.ref = "aspectjV" }
+aspectjJrt = { module = "org.aspectj:aspectjrt", version.ref = "aspectjV" }
 aspectj-weaver = { module = "org.aspectj:aspectjweaver", version.ref = "aspectjV" }
-aspectj-tools = { module = "org.aspectj:aspectjtools", version.ref = "aspectjV" }
+aspectjTools = { module = "org.aspectj:aspectjtools", version.ref = "aspectjV" }
 aspectj-matcher = { module = "org.aspectj:aspectjmatcher", version.ref = "aspectjV" }
 
 groovyAll = { module = "org.codehaus.groovy:groovy-all", version.ref = "groovy-allV" }
@@ -44,7 +44,7 @@ groovyAll = { module = "org.codehaus.groovy:groovy-all", version.ref = "groovy-a
 
 [bundles]
 base =['ktStdJdk','groovyAll']
-aspectj =['aspectj-lib','aspectj-jrt','aspectj-weaver','aspectj-tools','aspectj-matcher']
+aspectj =['aspectj-lib','aspectjJrt','aspectj-weaver','aspectjTools','aspectj-matcher']
 asm =['asm-core','asm-util','asm-tree','asm-commons','asm-analysis',]
 
 

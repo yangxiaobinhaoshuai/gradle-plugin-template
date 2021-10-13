@@ -11,16 +11,62 @@ version '0.0.1'
 sourceCompatibility = 1.8
 
 
+configurations {
+    ajc
+    aspects
+    aspectCompile
+    compile{
+        extendsFrom aspects
+    }
+}
+
+
+
+// executed cmd :   /Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/jre/bin/java -classpath /Users/yangxiaobin/.gradle/caches/modules-2/files-2.1/org.aspectj/aspectjtools/1.9.7/1eb5dbd0fe0fcf7b93b149127b0604c482f46aec/aspectjtools-1.9.7.jar org.aspectj.tools.ajc.Main -source 1.7 -target 1.7 -d /Users/yangxiaobin/DevelopSpace/IDEA/gradle-plugin-template/app/build/custom -sourceroots /Users/yangxiaobin/DevelopSpace/IDEA/gradle-plugin-template/app/src/main/java
+
+compileJava {
+
+    sourceCompatibility="1.7"
+    targetCompatibility="1.7"
+
+    doLast{
+
+        println "----> ${build}"
+
+        ant.taskdef( resource:"org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties", classpath: configurations.ajc.asPath)
+
+        ant.iajc(
+                source:"1.8",
+                target:"1.8",
+                destDir:"$buildDir/classes/java/main",
+                maxmem:"512m",
+                fork:"true",
+        ) {
+            sourceroots{
+                sourceSets.main.java.srcDirs.each{
+                    println " file :$it.absolutePath"
+                    pathelement(location:it.absolutePath)
+                }
+            }
+        }
+    }
+}
+
+
+
+
 dependencies {
     testImplementation libDeps.junit
 
-    implementation libDeps.groovyAll
+    //implementation libDeps.groovyAll
     implementation libDeps.bundles.asm
     implementation libDeps.ktStdJdk
     implementation libDeps.bundles.aspectj
-    implementation "com.google.dagger:hilt-android-gradle-plugin:2.28-alpha"
+    compileOnly "com.google.dagger:hilt-android-gradle-plugin:2.28-alpha"
 
     implementation 'me.yangxiaobin.lib:library:1.0-SNAPSHOT'
+
+    ajc "org.aspectj:aspectjtools:1.9.7"
 }
 
 compileKotlin {

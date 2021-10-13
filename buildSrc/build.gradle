@@ -28,6 +28,7 @@ gradlePlugin {
 
 
 dependencies {
-    implementation libDeps.bundles.aspectj
+    implementation libDeps.aspectjTools
     implementation 'me.yangxiaobin.lib:library:1.0-SNAPSHOT'
+    implementation 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.31'
 }
