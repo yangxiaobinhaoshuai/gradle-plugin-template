@@ -1,10 +1,10 @@
-package me.yangxiaobin.sample.aspectj;
+package me.yangxiaobin.sample.aspectj.helper;
 
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 
 @Aspect
-class AspectJHelper {
+public class AspectJHelper {
 
     @Before("execution(public * *(..))")
     public void beforeExecute () {
