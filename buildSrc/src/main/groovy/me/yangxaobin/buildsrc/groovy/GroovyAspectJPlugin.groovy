@@ -1,12 +1,13 @@
 package me.yangxaobin.buildsrc.groovy
 
-import kotlin.reflect.jvm.internal.ReflectProperties.Val
+import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.execution.TaskExecutionGraph
 import org.gradle.api.logging.Logger
 import org.gradle.api.tasks.compile.AbstractCompile
 
-class GroovyAspectJPlugin implements org.gradle.api.Plugin<org.gradle.api.Project> {
+class GroovyAspectJPlugin implements Plugin<Project> {
 
     private static final TAG = "GAP"
 
@@ -19,16 +20,44 @@ class GroovyAspectJPlugin implements org.gradle.api.Plugin<org.gradle.api.Projec
 
         logI("$target.name Applied GroovyAspectJPlugin")
 
-        target.gradle.taskGraph.whenReady { TaskExecutionGraph graph ->
+        resolveAspectJJrtClasspath(target)
 
-            List<AbstractCompile> compiles = graph.allTasks.findAll { it instanceof AbstractCompile }
+        setupAspectJCompilerArgs(target)
 
+    }
+
+    private void resolveAspectJJrtClasspath(Project project) {
+
+        project.configurations {
+            ajc
+        }
+
+        project.dependencies.add("ajc","org.aspectj:aspectjtools:1.9.7")
+    }
+
+    private void setupAspectJCompilerArgs(Project project) {
+
+        project.gradle.taskGraph.whenReady { TaskExecutionGraph graph ->
+
+            List<AbstractCompile> compiles = graph.allTasks.findAll { it instanceof AbstractCompile } as List<AbstractCompile>
+
+            String aspectJJrtClasspath = project.configurations.ajc.asPath
+            // TODO
+            String destDir = "$project.buildDir/classes/java/main"
+
+            logI("""
+compiles are :${compiles.collect { it.name }}
+jrtClasspath :$aspectJJrtClasspath
+destDir :$destDir
+""")
 
             compiles.forEach { AbstractCompile compile ->
 
-//                compile.doLast { t ->
-//
-//                    t.ant.taskdef(resource: "org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties", classpath: configurations.ajc.asPath)
+                compile.doLast { Task t ->
+
+                    logI("${t.name} do last begins.")
+
+                    t.ant.taskdef(resource: "org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties", classpath: aspectJJrtClasspath)
 //
 //                    t.ant.iajc(
 //                            source: "1.8",
@@ -44,18 +73,18 @@ class GroovyAspectJPlugin implements org.gradle.api.Plugin<org.gradle.api.Projec
 //                            }
 //                        }
 //                    }
-//
-//                }
+
+                }
 
             }
-
 
         }
     }
 
-    private void logI(String message){
+    private static void logI(String message) {
         println "$TAG/$message"
     }
+
     private void logD(String message) {
         mLogger.debug("$TAG/$message")
     }
