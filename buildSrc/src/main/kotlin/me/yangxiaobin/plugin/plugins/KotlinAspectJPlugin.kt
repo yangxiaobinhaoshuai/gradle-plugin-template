@@ -5,9 +5,13 @@ import me.yangxiaobin.lib.log.LogLevel
 import me.yangxiaobin.lib.log.log
 import me.yangxiaobin.plugin.log.BuildSrcLogger
 import org.aspectj.bridge.IMessage
+import org.aspectj.bridge.MessageHandler
+import org.aspectj.tools.ajc.Main
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.execution.TaskExecutionGraph
+import org.gradle.api.logging.Logger
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.compile.AbstractCompile
@@ -19,7 +23,12 @@ import java.util.function.Consumer
 class JavaAspectJPlugin : Plugin<Project> {
 
     private val TAG = "JAP"
+
     private val logI = BuildSrcLogger.log(LogLevel.INFO, TAG)
+
+    private lateinit var mProject: Project
+
+    private lateinit var mLogger: Logger
 
 
     //ajc args: [
@@ -44,101 +53,104 @@ class JavaAspectJPlugin : Plugin<Project> {
     // -bootclasspath, /Users/yangxiaobin/Library/Android/sdk/platforms/android-29/android.jar]
     override fun apply(p: Project) {
 
+        logI("Applied JAP.")
+
+        mProject = p
+        mLogger = p.logger
+
         val logger by lazy { p.logger }
+
+        resolveAspectJJrtClasspath(p)
 
         val sourceSets = p.properties["sourceSets"] as SourceSetContainer
         val main: SourceSet = sourceSets.getByName("main")
 
-        resolveAspectJJrtClasspath(p)
+        val sourceroots = p.projectDir.absolutePath + "/src/main"
 
-        val jreClassPath = currentJreClasspath
+
+        val jreClassPath = (currentJreClasspath ?: "")
             .split(File.pathSeparator)
-            .filterNot { it.endsWith(SUN_RSA_SIGN_JAR) || it.endsWith(CLASSES)  }
+            .filterNot { it.endsWith(SUN_RSA_SIGN_JAR) || it.endsWith(CLASSES) }
             .joinToString(separator = File.pathSeparator)
 
 
-
-        logI("Applied JAP. ${main.name}")
-
-
         p.gradle.taskGraph.whenReady { graph: TaskExecutionGraph ->
-            // compileKotlin, compileJava, compileGroovy, processResources, classes, inspectClassesForKotlinIC, jar, assemble
-            //logI("when ready graph.allTasks : ${graph.allTasks.joinToString { it::class.java.name }}")
 
             val javaCompile: AbstractCompile =
                 (graph.allTasks.find { it is JavaCompile } as? JavaCompile) ?: return@whenReady
 
 
-            val kotlinCompile: AbstractCompile =
-                (graph.allTasks.find { it is KotlinCompile } as? KotlinCompile) ?: return@whenReady
-
             val compiles = graph.allTasks.filterIsInstance<AbstractCompile>()
 
 
             val javaInpath = javaCompile.destinationDir.toString()
-            val javaClasspath = javaCompile.classpath.asPath
 
             // same as destDir
             val inpath: String = compiles.joinToString { it.destinationDir.toString() }
-            println("---> inpath :$inpath")
-
-            // same as aspectpath
-            val classpath = javaCompile.classpath.asPath
 
             javaCompile.doLast {
-
-                val ajcToolPath = p.configurations.getByName("ajc").asPath
-                val ajcJrtPath = p.configurations.getByName("ajcJrt").asPath
-
-                println("---> ajrJrt path :$ajcJrtPath")
-
-                logI("Java compile do last begins.")
-
-                val args = arrayOf(
-                    "-showWeaveInfo",
-                    "-source", "1.8",
-                    "-target", "1.8",
-                    "-verbose",
-                    "-d", javaInpath,
-                    "-inpath", ajcJrtPath,
-                    "-aspectpath", ajcToolPath,
-                    "-sourceroots","/Users/yangxiaobin/DevelopSpace/IDEA/gradle-plugin-template/app/src/main/java",
-                    "-bootclasspath", jreClassPath
-                )
-
-                // log the ajc options
-                for (i in args.indices) {
-                    logI(TAG + ":" + i + " : " + args[i])
-                }
-
-                val msgHandler: org.aspectj.bridge.MessageHandler = org.aspectj.bridge.MessageHandler()
-                // use ajc
-                org.aspectj.tools.ajc.Main().run(args, msgHandler)
-                for (message: IMessage in msgHandler.getMessages(null, true)) {
-
-                    message.thrown.printStackTrace()
-
-
-
-                    logger.error("""
-                         message handler msg : ${message.message} 
-                         message.class : ${message.javaClass}
-                         message.sourceStart : ${message.sourceStart}
-                         message.sourceEnd : ${message.sourceEnd}
-                         thrown: ${message.thrown}
-                    """.trimIndent())
-                }
+                compileDoLastAction(javaInpath, sourceroots)
             }
         }
     }
 
-    private fun resolveAspectJJrtClasspath(project: Project){
+    private fun compileDoLastAction(
+        javaInpath: String,
+        sourceroots: String,
+    ) {
+        val ajcToolPath = mProject.configurations.getByName("ajc").asPath
+        val ajcJrtPath = mProject.configurations.getByName("ajcJrt").asPath
+
+        logI("Java compile do last begins.")
+
+        val args = arrayOf(
+            "-showWeaveInfo",
+            "-source", "1.8",
+            "-target", "1.8",
+            "-verbose",
+            "-d", javaInpath,
+            "-inpath", ajcJrtPath,
+            "-aspectpath", ajcToolPath,
+            "-sourceroots", sourceroots,
+            //"-bootclasspath", jreClassPath
+        )
+
+        // log the ajc options
+        for (i in args.indices) {
+            logI(TAG + ":" + i + " : " + args[i])
+        }
+
+        val msgHandler: MessageHandler = MessageHandler()
+        // use ajc
+        Main().run(args, msgHandler)
+        for (message: IMessage in msgHandler.getMessages(null, true)) {
+
+            message.thrown?.printStackTrace()
+
+            mLogger.error(
+                """
+                     message handler msg : ${message.message} 
+                     message.class : ${message.javaClass}
+                     message.sourceStart : ${message.sourceStart}
+                     message.sourceEnd : ${message.sourceEnd}
+                     thrown: ${message.thrown}
+                """.trimIndent()
+            )
+        }
+    }
+
+    private fun resolveAspectJJrtClasspath(project: Project) {
 
         project.configurations.create("ajc")
         project.configurations.create("ajcJrt")
 
-        project.dependencies.add("ajc","org.aspectj:aspectjtools:1.9.7")
-        project.dependencies.add("ajcJrt","org.aspectj:aspectjrt:1.9.6")
+        project.dependencies.add("ajc", "org.aspectj:aspectjtools:1.9.7")
+        project.dependencies.add("ajcJrt", "org.aspectj:aspectjrt:1.9.7")
+
+    }
+
+    // TODO
+    private fun doLastAction(task: Task) {
 
     }
 

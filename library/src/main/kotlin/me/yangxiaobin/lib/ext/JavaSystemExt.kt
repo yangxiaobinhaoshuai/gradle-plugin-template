@@ -5,4 +5,4 @@ val currentWorkPath: String = System.getProperty("user.dir")
 
 val currentUserHomePath: String = System.getProperty("user.home")
 
-val currentJreClasspath = System.getProperty("sun.boot.class.path")
+val currentJreClasspath: String? = System.getProperty("sun.boot.class.path")
