@@ -1,8 +1,10 @@
 package me.yangxiaobin.plugin.plugins
 
+import me.yangxiaobin.lib.ext.currentJreClasspath
 import me.yangxiaobin.lib.log.LogLevel
 import me.yangxiaobin.lib.log.log
 import me.yangxiaobin.plugin.log.BuildSrcLogger
+import org.aspectj.bridge.IMessage
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.execution.TaskExecutionGraph
@@ -12,7 +14,6 @@ import org.gradle.api.tasks.compile.AbstractCompile
 import org.gradle.api.tasks.compile.JavaCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.File
-import java.util.*
 import java.util.function.Consumer
 
 class JavaAspectJPlugin : Plugin<Project> {
@@ -45,10 +46,16 @@ class JavaAspectJPlugin : Plugin<Project> {
 
         val logger by lazy { p.logger }
 
-
         val sourceSets = p.properties["sourceSets"] as SourceSetContainer
         val main: SourceSet = sourceSets.getByName("main")
-        println("----> classes dir :${main.output.classesDirs}")
+
+        resolveAspectJJrtClasspath(p)
+
+        val jreClassPath = currentJreClasspath
+            .split(File.pathSeparator)
+            .filterNot { it.endsWith(SUN_RSA_SIGN_JAR) || it.endsWith(CLASSES)  }
+            .joinToString(separator = File.pathSeparator)
+
 
 
         logI("Applied JAP. ${main.name}")
@@ -73,41 +80,66 @@ class JavaAspectJPlugin : Plugin<Project> {
 
             // same as destDir
             val inpath: String = compiles.joinToString { it.destinationDir.toString() }
+            println("---> inpath :$inpath")
 
             // same as aspectpath
             val classpath = javaCompile.classpath.asPath
 
             javaCompile.doLast {
 
+                val ajcToolPath = p.configurations.getByName("ajc").asPath
+                val ajcJrtPath = p.configurations.getByName("ajcJrt").asPath
+
+                println("---> ajrJrt path :$ajcJrtPath")
+
                 logI("Java compile do last begins.")
 
                 val args = arrayOf(
                     "-showWeaveInfo",
-                    "-source", "1.7",
-                    "-target", "1.7",
+                    "-source", "1.8",
+                    "-target", "1.8",
                     "-verbose",
-                    "-proceedOnError",
                     "-d", javaInpath,
-                    "-inpath", javaInpath,
-                    "-aspectpath", javaClasspath,
-                    "-classpath", javaClasspath,
-                    "-sourceroots","/Users/yangxiaobin/DevelopSpace/IDEA/gradle-plugin-template/app/src/main/java"
-//                    "-bootclasspath", jreClassPath
+                    "-inpath", ajcJrtPath,
+                    "-aspectpath", ajcToolPath,
+                    "-sourceroots","/Users/yangxiaobin/DevelopSpace/IDEA/gradle-plugin-template/app/src/main/java",
+                    "-bootclasspath", jreClassPath
                 )
 
                 // log the ajc options
                 for (i in args.indices) {
-//                    logI(TAG + ":" + i + " : " + args[i])
+                    logI(TAG + ":" + i + " : " + args[i])
                 }
 
                 val msgHandler: org.aspectj.bridge.MessageHandler = org.aspectj.bridge.MessageHandler()
                 // use ajc
                 org.aspectj.tools.ajc.Main().run(args, msgHandler)
-                for (message in msgHandler.getMessages(null, true)) {
-                    logger.error("message handler :" + message.message + ", err: " + message.thrown)
+                for (message: IMessage in msgHandler.getMessages(null, true)) {
+
+                    message.thrown.printStackTrace()
+
+
+
+                    logger.error("""
+                         message handler msg : ${message.message} 
+                         message.class : ${message.javaClass}
+                         message.sourceStart : ${message.sourceStart}
+                         message.sourceEnd : ${message.sourceEnd}
+                         thrown: ${message.thrown}
+                    """.trimIndent())
                 }
             }
         }
+    }
+
+    private fun resolveAspectJJrtClasspath(project: Project){
+
+        project.configurations.create("ajc")
+        project.configurations.create("ajcJrt")
+
+        project.dependencies.add("ajc","org.aspectj:aspectjtools:1.9.7")
+        project.dependencies.add("ajcJrt","org.aspectj:aspectjrt:1.9.6")
+
     }
 
 
@@ -126,5 +158,15 @@ class JavaAspectJPlugin : Plugin<Project> {
         )
         val lastIndexOf = sb.lastIndexOf(File.pathSeparator)
         return sb.toString().substring(0, lastIndexOf)
+    }
+
+    private companion object {
+        /**
+         *  Jre classpath maybe different among different versions, some of them maybe absence.
+         *
+         *  Refer to : https://stackoverflow.com/questions/5971964/when-should-i-use-file-separator-and-when-file-pathseparator
+         */
+        private const val SUN_RSA_SIGN_JAR = "sunrsasign.jar"
+        private const val CLASSES = "classes"
     }
 }
