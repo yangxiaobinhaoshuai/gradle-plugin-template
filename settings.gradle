@@ -40,3 +40,5 @@ include 'app'
 
 
 includeBuild 'library'
+includeBuild 'java-aspectj-plugin'
+

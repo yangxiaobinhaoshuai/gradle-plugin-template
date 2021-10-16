@@ -20,14 +20,6 @@ gradlePlugin {
 
     plugins {
         // here we register our plugin with an ID
-        register("java-aspectj-plugin") {
-            id = "java-aspectj-plugin"
-            implementationClass = "me.yangxiaobin.plugin.plugins.JavaAspectJPlugin"
-        }
-    }
-
-    plugins {
-        // here we register our plugin with an ID
         register("groovy-aspectj-plugin") {
             id = "groovy-aspectj-plugin"
             implementationClass = "me.yangxaobin.buildsrc.groovy.GroovyAspectJPlugin"

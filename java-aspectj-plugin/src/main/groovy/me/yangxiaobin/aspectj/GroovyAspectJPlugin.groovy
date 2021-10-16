@@ -1,7 +1,6 @@
-package me.yangxaobin.buildsrc.groovy
+package me.yangxiaobin.aspectj
 
 import me.yangxiaobin.lib.base.BasePlugin
-import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.execution.TaskExecutionGraph
@@ -13,12 +12,9 @@ class GroovyAspectJPlugin extends BasePlugin {
 
     private static final TAG = "GAP"
 
-    private Logger mLogger
-
     @Override
     void apply(Project target) {
-
-        mLogger = target.getLogger()
+        super.apply(target)
 
         logI("$target.name Applied GroovyAspectJPlugin")
 
