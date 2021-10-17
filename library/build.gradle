@@ -56,6 +56,7 @@ dependencies {
     compileOnly libDeps.groovyAll
     compileOnly libDeps.bundles.asm
     compileOnly libDeps.ktStdJdk
+    compileOnly libDeps.kgp
     //compileOnly libDeps.agp7
     compileOnly libDeps.agp4
 }

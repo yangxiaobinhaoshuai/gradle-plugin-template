@@ -1,5 +1,6 @@
 plugins {
     id 'groovy'
+    id 'org.jetbrains.kotlin.jvm' version'1.5.31'
     //alias(deps.plugins.kotlinJvm)
     id 'java-gradle-plugin' // so we can assign and ID to our plugin
 }
@@ -12,6 +13,14 @@ gradlePlugin {
         register("java-aspectj-plugin") {
             id = "java-aspectj-plugin"
             implementationClass = "me.yangxiaobin.aspectj.GroovyAspectJPlugin"
+        }
+    }
+
+    plugins {
+        // here we register our plugin with an ID
+        register("java-aspectj-plugin-v2") {
+            id = "java-aspectj-plugin-v2"
+            implementationClass = "me.yangxiaobin.aspectjv2.JavaAspectJPlugin"
         }
     }
 }

@@ -1,4 +1,4 @@
-package me.yangxiaobin.plugin.plugins
+package me.yangxiaobin.aspectjv2
 
 import me.yangxiaobin.lib.base.BasePlugin
 import me.yangxiaobin.lib.ext.SourceLanguage
@@ -11,7 +11,6 @@ import org.gradle.api.tasks.AbstractCopyTask
 import org.gradle.api.tasks.compile.AbstractCompile
 import java.io.File
 
-@Deprecated(message = "replaced with java-aspectj-plugin/JavaAspectJPlugin")
 class JavaAspectJPlugin : BasePlugin() {
 
     override val TAG = "JAP"
@@ -63,7 +62,7 @@ class JavaAspectJPlugin : BasePlugin() {
 
         val curCompileName = t.name
 
-//        logI("current compile :$curCompileName")
+        logI("current compile :$curCompileName")
 
         val (destDir, sourceroots, jrtPath, toolPath) = calculateAjcParams(t)
 
@@ -95,15 +94,15 @@ class JavaAspectJPlugin : BasePlugin() {
         val ajcToolsClasspath: String = mProject.configurations.getByName("ajc").asPath
 
 
-  /*      logI(
-            """
-            ajc params:
-            destDir     :$destDir
-            sourceroots :$sourceroots
-            jrt         :$ajcJrtClasspath
-            tools       :$ajcToolsClasspath
-        """.trimIndent()
-        )*/
+        /*      logI(
+                  """
+                  ajc params:
+                  destDir     :$destDir
+                  sourceroots :$sourceroots
+                  jrt         :$ajcJrtClasspath
+                  tools       :$ajcToolsClasspath
+              """.trimIndent()
+              )*/
 
         return AjcParam(destDir, sourceroots, ajcJrtClasspath, ajcToolsClasspath)
     }

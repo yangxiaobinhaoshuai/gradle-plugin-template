@@ -15,3 +15,19 @@ fun ZipEntry.isClassFile() = !this.isDirectory && this.name.endsWith(DOT_CLASS)
 
 /* CHecks if a file is a .jar file. */
 fun File.isJarFile() = this.isFile && this.extension == EXT_JAR
+
+
+/**
+ * convert bootClassPath<File>  to String separated by ":"
+</File> */
+private fun List<File>?.toPath(): String {
+    require(!(this == null || this.isEmpty())) { "The parameters can't be null." }
+    val sb = StringBuilder()
+    this.forEach { s: File ->
+        sb.append(s.absolutePath).append(File.pathSeparator)
+    }
+    val lastIndexOf = sb.lastIndexOf(File.pathSeparator)
+    return sb.toString().substring(0, lastIndexOf)
+}
+
+

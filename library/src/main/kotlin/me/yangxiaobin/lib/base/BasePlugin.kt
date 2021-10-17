@@ -17,8 +17,7 @@ abstract class BasePlugin : Plugin<Project> {
     protected lateinit var mLogger: org.gradle.api.logging.Logger
         private set
 
-    @Suppress("LeakingThis")
-    val logI = Logger.log(LogLevel.INFO, TAG)
+    val logI by lazy { Logger.log(LogLevel.INFO, TAG) }
 
     // @callsuper
     override fun apply(p: Project) {

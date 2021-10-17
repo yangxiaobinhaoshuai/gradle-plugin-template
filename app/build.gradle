@@ -3,8 +3,8 @@ plugins {
     id 'java'
     id 'kotlin'
     id 'artifact-transform-plugin'
-    id 'java-aspectj-plugin' version '1.0-SNAPSHOT'
-    //id 'groovy-aspectj-plugin'
+    //id 'java-aspectj-plugin' version '1.0-SNAPSHOT'
+    id 'java-aspectj-plugin-v2'
 }
 
 version '0.0.1'
@@ -12,39 +12,8 @@ version '0.0.1'
 sourceCompatibility = 1.8
 
 
-// executed cmd :   /Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/jre/bin/java -classpath /Users/yangxiaobin/.gradle/caches/modules-2/files-2.1/org.aspectj/aspectjtools/1.9.7/1eb5dbd0fe0fcf7b93b149127b0604c482f46aec/aspectjtools-1.9.7.jar org.aspectj.tools.ajc.Main -source 1.7 -target 1.7 -d /Users/yangxiaobin/DevelopSpace/IDEA/gradle-plugin-template/app/build/custom -sourceroots /Users/yangxiaobin/DevelopSpace/IDEA/gradle-plugin-template/app/src/main/java
-
-compileJava {
-
-    sourceCompatibility="1.8"
-    targetCompatibility="1.8"
-//
-//    doLast{
-//
-//        ant.taskdef( resource:"org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties", classpath: configurations.ajc.asPath)
-//
-//        ant.iajc(
-//                source:"1.8",
-//                target:"1.8",
-//                destDir:"$buildDir/classes/java/main",
-//                maxmem:"512m",
-//                fork:"true",
-//        ) {
-//            sourceroots{
-//                sourceSets.main.java.srcDirs.each{
-//                    println " file :$it.absolutePath"
-//                    pathelement(location:it.absolutePath)
-//                }
-//            }
-//        }
-//    }
-}
-
-
-
-
 dependencies {
-    testImplementation libDeps.junit
+    testImplementation libDeps.junitx
 
     //implementation libDeps.groovyAll
     implementation libDeps.bundles.asm
