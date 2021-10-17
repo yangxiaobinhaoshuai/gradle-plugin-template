@@ -4,7 +4,7 @@ plugins {
     id 'kotlin'
     id 'artifact-transform-plugin'
     //id 'java-aspectj-plugin' version '1.0-SNAPSHOT'
-    id 'java-aspectj-plugin-v2'
+    //id 'java-aspectj-plugin-v2'
 }
 
 version '0.0.1'

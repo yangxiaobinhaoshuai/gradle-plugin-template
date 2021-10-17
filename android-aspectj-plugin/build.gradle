@@ -1,0 +1,37 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.5.31'
+    id 'groovy'
+    id 'java'
+
+    //alias(deps.plugins.kotlinJvm)
+    id 'java-gradle-plugin' // so we can assign and ID to our plugin
+}
+
+version '1.0-SNAPSHOT'
+
+gradlePlugin {
+    plugins {
+        // here we register our plugin with an ID
+        register("aspect-android") {
+            id = "aspect-android"
+            implementationClass = "me.yangxiaobin.aspectandroid.AspectAndroidPlugin"
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+    implementation 'org.codehaus.groovy:groovy-all:3.0.5'
+    implementation 'me.yangxiaobin.lib:library:1.0-SNAPSHOT'
+}
+
+test {
+    useJUnitPlatform()
+}

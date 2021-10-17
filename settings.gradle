@@ -26,7 +26,7 @@ dependencyResolutionManagement {
 
 rootProject.name = 'gradle-template'
 
-include 'app'
+//include 'app'
 //include ':androidapp'
 
 //include 'codelab-kt'
@@ -40,5 +40,6 @@ include 'app'
 
 
 includeBuild 'library'
-includeBuild 'java-aspectj-plugin'
+//includeBuild 'java-aspectj-plugin'
+includeBuild 'android-aspectj-plugin'
 
