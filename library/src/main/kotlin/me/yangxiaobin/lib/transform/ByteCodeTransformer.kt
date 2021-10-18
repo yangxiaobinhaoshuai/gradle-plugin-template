@@ -2,16 +2,10 @@ package me.yangxiaobin.lib.transform
 
 import me.yangxiaobin.lib.asm.api.applyAsm
 
-interface ByteCodeTransformer {
+class DefaultByteCodeTransformer : java.util.function.Function<ByteArray, ByteArray> {
 
-    fun transformByteArray(raw: ByteArray):ByteArray
-}
-
-
-class DefaultByteCodeTransformer : ByteCodeTransformer {
-
-    override fun transformByteArray(raw: ByteArray): ByteArray {
-        return raw.applyAsm()
+    override fun apply(t: ByteArray): ByteArray {
+        return t.applyAsm()
     }
 }
 

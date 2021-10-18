@@ -45,14 +45,14 @@ fun File.touch() = apply {
 }
 
 
-fun ZipFile.parallelTransformTo(output: File, transform: (ByteArray) -> ByteArray) = apply {
+fun ZipFile.parallelTransformTo(output: File, transform: (ByteArray) -> ByteArray) {
     val creator = ParallelScatterZipCreator()
 
     this.entries().asSequence().forEach { entry: ZipEntry ->
         val stream = InputStreamSupplier {
             this.getInputStream(ZipEntry(entry.name))
                 .transformIf(entry.isClassFile()) { ins ->
-                    transform.invoke(ins.readBytes()).applyAsm().inputStream()
+                    transform.invoke(ins.readBytes()).inputStream()
                 }
         }
         creator.addArchiveEntry(ZipArchiveEntry(entry), stream)
@@ -62,7 +62,7 @@ fun ZipFile.parallelTransformTo(output: File, transform: (ByteArray) -> ByteArra
 }
 
 
-fun ZipFile.simpleTransformTo(output: File, transform: (ByteArray) -> ByteArray) = apply {
+fun ZipFile.simpleTransformTo(output: File, transform: (ByteArray) -> ByteArray) {
 
     output.outputStream().buffered().let { ZipOutputStream(it) }
         .use { zos ->
@@ -70,7 +70,7 @@ fun ZipFile.simpleTransformTo(output: File, transform: (ByteArray) -> ByteArray)
                 zos.putNextEntry(ZipEntry(entry.name))
                 this.getInputStream(entry)
                     .transformIf(entry.isClassFile()) { ins ->
-                        transform.invoke(ins.readBytes()).applyAsm().inputStream()
+                        transform.invoke(ins.readBytes()).inputStream()
                     }
                     .use { it.copyTo(zos) }
             }

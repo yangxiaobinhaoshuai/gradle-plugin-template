@@ -6,6 +6,7 @@ import me.yangxiaobin.lib.log.LogLevel
 import me.yangxiaobin.lib.log.Logger
 import me.yangxiaobin.lib.log.log
 import java.io.File
+import java.util.function.Function
 import java.util.zip.ZipFile
 
 
@@ -15,7 +16,7 @@ open class AbsLegacyTransform : Transform() {
 
     protected val logI = logger.log(LogLevel.INFO, name)
 
-    protected val logV = logger.log(LogLevel.VERBOSE,name)
+    protected val logV = logger.log(LogLevel.VERBOSE, name)
 
     override fun getInputTypes() = setOf(QualifiedContent.DefaultContentType.CLASSES)
 
@@ -28,7 +29,7 @@ open class AbsLegacyTransform : Transform() {
     override fun transform(invocation: TransformInvocation) {
 
         val t1 = System.currentTimeMillis()
-        logI("${invocation.context.variantName} transform begins.")
+        logI("variant:${invocation.context.variantName}(isIncremental:${invocation.isIncremental}) transform begins.")
 
         if (!invocation.isIncremental) {
             // Remove any lingering files on a non-incremental invocation since everything has to be
@@ -41,21 +42,25 @@ open class AbsLegacyTransform : Transform() {
             // 1. Process vendor jars.
             transformInput.jarInputs.forEach { jarInput: JarInput ->
 
-                logV("input jar file :${jarInput.file.name}")
+                logV("transform process jar file :${jarInput.file.name}")
 
-                val outputJar: File =
-                    invocation.outputProvider.getContentLocation(
-                        jarInput.name,
-                        jarInput.contentTypes,
-                        jarInput.scopes,
-                        Format.JAR
-                    )
+                val outputJar: File = invocation.outputProvider.getContentLocation(
+                    jarInput.name,
+                    jarInput.contentTypes,
+                    jarInput.scopes,
+                    Format.JAR
+                )
 
-                val jarTransformer: ByteCodeTransformer? = getJarTransformer()
+                val jarTransformer = getJarTransformer()
 
                 if (invocation.isIncremental) {
                     when (jarInput.status) {
-                        Status.ADDED, Status.CHANGED -> transformJarFile(jarInput.file, outputJar, jarTransformer)
+                        Status.ADDED, Status.CHANGED -> transformJarFile(
+                            jarInput.file,
+                            outputJar,
+                            jarTransformer,
+                            jarInput.status
+                        )
                         Status.REMOVED -> outputJar.delete()
                         Status.NOTCHANGED -> {
                             // No need to transform.
@@ -65,26 +70,34 @@ open class AbsLegacyTransform : Transform() {
                         }
                     }
                 } else {
-                    transformJarFile(jarInput.file, outputJar, jarTransformer)
+                    transformJarFile(jarInput.file, outputJar, jarTransformer, jarInput.status)
                 }
             }
 
             // 2. Process source classes.
             transformInput.directoryInputs.forEach { directoryInput ->
+
                 val outputDir = invocation.outputProvider.getContentLocation(
                     directoryInput.name,
                     directoryInput.contentTypes,
                     directoryInput.scopes,
                     Format.DIRECTORY
                 )
+
                 val classTransformer = getClassTransformer()
 
                 if (invocation.isIncremental) {
                     directoryInput.changedFiles.forEach { (file, status) ->
+
                         val outputFile = toOutputFile(outputDir, directoryInput.file, file)
+
                         when (status) {
-                            Status.ADDED, Status.CHANGED ->
-                                transformClassFile(file, outputFile.parentFile, classTransformer)
+                            Status.ADDED, Status.CHANGED -> transformClassFile(
+                                file,
+                                outputFile.parentFile,
+                                classTransformer,
+                                status
+                            )
                             Status.REMOVED -> outputFile.delete()
                             Status.NOTCHANGED -> {
                                 // No need to transform.
@@ -95,10 +108,10 @@ open class AbsLegacyTransform : Transform() {
                         }
                     }
                 } else {
+                    val status: DirectoryInput = directoryInput
                     directoryInput.file.walkTopDown().forEach { file ->
-                        logV("input class file  :${file.name}")
                         val outputFile = toOutputFile(outputDir, directoryInput.file, file)
-                        transformClassFile(file, outputFile.parentFile, classTransformer)
+                        transformClassFile(file, outputFile.parentFile, classTransformer, null)
                     }
                 }
             }
@@ -108,19 +121,26 @@ open class AbsLegacyTransform : Transform() {
     }
 
 
-    protected open fun getClassTransformer(): ByteCodeTransformer = DefaultByteCodeTransformer()
+    protected open fun getClassTransformer(): Function<ByteArray, ByteArray> = DefaultByteCodeTransformer()
 
-    protected open fun getJarTransformer(): ByteCodeTransformer? = null
+    protected open fun getJarTransformer(): Function<ByteArray, ByteArray>? = null
+
+    protected open fun isClassValid(f: File): Boolean = true
+
+    protected open fun isJarValid(jar: File): Boolean = true
 
     // Transform a single file. If the file is not a class file it is just copied to the output dir.
     private fun transformClassFile(
         inputFile: File,
         outputDir: File,
-        transformer: ByteCodeTransformer
+        transformer: Function<ByteArray, ByteArray>,
+        status: Status?,
     ) {
-        if (inputFile.isClassFile()) {
+        if (inputFile.isClassFile() && isClassValid(inputFile)) {
 
-            val transformedByteArr = inputFile.readBytes().let(transformer::transformByteArray)
+            logV("transforming class file:${inputFile.name} incremental status :$status")
+
+            val transformedByteArr = inputFile.readBytes().let(transformer::apply)
 
             outputDir.mkdirs()
             val outputFile = File(outputDir, inputFile.name)
@@ -137,19 +157,23 @@ open class AbsLegacyTransform : Transform() {
     private fun transformJarFile(
         inputJarFile: File,
         outputJarFile: File,
-        transformer: ByteCodeTransformer?
+        transformer: Function<ByteArray, ByteArray>?,
+        status: Status,
     ) {
         if (transformer == null) {
             copyJar(inputJarFile, outputJarFile)
             return
         }
 
-        if (inputJarFile.isJarFile()) {
+        if (inputJarFile.isJarFile() && isJarValid(inputJarFile)) {
+
+            logV("transforming jar:${inputJarFile.name} incremental status :$status")
+
             // 1. Unzip jar.
             // 2. Do transformation.
             // 3. Write jar.
 
-            ZipFile(inputJarFile.touch()).parallelTransformTo(outputJarFile,transformer::transformByteArray)
+            ZipFile(inputJarFile).parallelTransformTo(outputJarFile, transformer::apply)
 
         } else if (inputJarFile.isFile) {
             copyJar(inputJarFile, outputJarFile)
@@ -159,10 +183,7 @@ open class AbsLegacyTransform : Transform() {
 
     // We are only interested in project compiled classes but we have to copy received jars to the
     // output.
-    private fun copyJar(inputJar: File, outputJar: File) {
-        outputJar.parentFile?.mkdirs()
-        inputJar.copyTo(target = outputJar, overwrite = true)
-    }
+    private fun copyJar(inputJar: File, outputJar: File) = inputJar.copyTo(target = outputJar.touch(), overwrite = true)
 
 
     private fun toOutputFile(outputDir: File, inputDir: File, inputFile: File) =
