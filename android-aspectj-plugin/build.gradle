@@ -1,6 +1,6 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.5.31'
-    id 'groovy'
+    //id 'groovy'
     id 'java'
 
     //alias(deps.plugins.kotlinJvm)
@@ -20,6 +20,7 @@ gradlePlugin {
 }
 
 repositories {
+    google()
     mavenCentral()
 }
 
@@ -30,6 +31,12 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
     implementation 'org.codehaus.groovy:groovy-all:3.0.5'
     implementation 'me.yangxiaobin.lib:library:1.0-SNAPSHOT'
+
+    compileOnly libDeps.agp4
+
+
+    // For reading its source code.
+    compileOnly "com.google.dagger:hilt-android-gradle-plugin:2.28-alpha"
 }
 
 test {

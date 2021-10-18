@@ -1,5 +1,6 @@
 package me.yangxiaobin.lib.ext
 
+import com.android.build.gradle.AppExtension
 import org.gradle.api.Project
 import org.gradle.api.internal.tasks.DefaultGroovySourceSet
 import org.gradle.api.plugins.Convention
@@ -11,6 +12,9 @@ import java.io.File
 
 val Project.mainSourceSet: SourceSet
     get() = (this.properties["sourceSets"] as SourceSetContainer).getByName("main")
+
+val Project.getAppExtension: AppExtension?
+    get() = this.extensions.getByName("android") as? AppExtension
 
 fun Project.getProjectProp(key: String): String? = this.gradle.startParameter.projectProperties[key]
 

@@ -38,7 +38,7 @@ fun Long.toFormat(
     if (millSecond) longList + TimeUnit.MILLISECONDS.toMillis(this) % TimeUnit.SECONDS.toMillis(1)
 
     val longArray: Array<Long> = longList.toTypedArray()
-    //logV("Long.toFormat,longArray : ${longArray.contentToString()}")
+    logV("Long.toFormat,longArray : ${longArray.contentToString()}")
 
     return String.format(actualFormat, *longArray)
 }

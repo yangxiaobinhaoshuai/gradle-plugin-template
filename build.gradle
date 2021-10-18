@@ -1,7 +1,7 @@
 buildscript {
 
     repositories {
-        mavenLocal()
+        //mavenLocal()
 
         google()
         mavenCentral()
@@ -11,7 +11,6 @@ buildscript {
         classpath libDeps.kgp
         classpath libDeps.agp4
         classpath libDeps.bundles.aspectj
-//        classpath "com.android.tools.build:gradle:4.2.0"
     }
 }
 

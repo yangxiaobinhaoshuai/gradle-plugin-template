@@ -1,7 +1,7 @@
 package me.yangxiaobin.lib
 
-import com.android.build.gradle.BaseExtension
 import me.yangxiaobin.lib.base.BasePlugin
+import me.yangxiaobin.lib.ext.getAppExtension
 import me.yangxiaobin.lib.transform.AbsLegacyTransform
 import org.gradle.api.Project
 
@@ -15,7 +15,7 @@ class KtPlugin : BasePlugin() {
         logI("${p.name} ==> Applied KtPlugin.")
 
         p.afterEvaluate {
-            (p.extensions.getByName("android") as BaseExtension).registerTransform(AbsLegacyTransform())
+            p.getAppExtension?.registerTransform(AbsLegacyTransform())
         }
 
     }

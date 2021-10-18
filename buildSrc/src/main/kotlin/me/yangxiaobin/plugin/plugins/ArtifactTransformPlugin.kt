@@ -13,7 +13,7 @@ import org.gradle.api.attributes.AttributesSchema
 
 class ArtifactTransformPlugin : Plugin<Project> {
 
-    private val logI = BuildSrcLogger.log(LogLevel.INFO,"ATP")
+    private val logI = BuildSrcLogger.log(LogLevel.INFO, "ATP")
 
     override fun apply(p: Project) {
 
@@ -61,5 +61,6 @@ class ArtifactTransformPlugin : Plugin<Project> {
                 .attribute(hooked, true)
 
         }
+
     }
 }

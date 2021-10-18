@@ -10,7 +10,6 @@ interface ByteCodeTransformer {
 
 
 class AbsByteCodeTransformer(
-    private val allInputs: List<File>,
     private val sourceRootOutputDir: File,
 ) : ByteCodeTransformer {
 
