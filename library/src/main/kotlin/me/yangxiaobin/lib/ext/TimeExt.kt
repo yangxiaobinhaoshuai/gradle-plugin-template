@@ -15,7 +15,7 @@ fun Long.toFormat(
     millSecond: Boolean = true
 ): String {
 
-    if (hour && minute && second && millSecond) return ""
+    if (!(hour || minute || second || millSecond)) return ""
 
     val hourStr = if (hour) "%02dh:" else ""
     val minuteStr = if (minute) "%02dm:" else ""
@@ -29,16 +29,16 @@ fun Long.toFormat(
 
     val longList = mutableListOf<Long>()
 
-    if (hour) longList + TimeUnit.MILLISECONDS.toHours(this)
+    if (hour) longList += TimeUnit.MILLISECONDS.toHours(this)
 
-    if (minute) longList + TimeUnit.MILLISECONDS.toMinutes(this) % TimeUnit.HOURS.toMinutes(1)
+    if (minute) longList += TimeUnit.MILLISECONDS.toMinutes(this) % TimeUnit.HOURS.toMinutes(1)
 
-    if (second) longList + TimeUnit.MILLISECONDS.toSeconds(this) % TimeUnit.MINUTES.toSeconds(1)
+    if (second) longList += TimeUnit.MILLISECONDS.toSeconds(this) % TimeUnit.MINUTES.toSeconds(1)
 
-    if (millSecond) longList + TimeUnit.MILLISECONDS.toMillis(this) % TimeUnit.SECONDS.toMillis(1)
+    if (millSecond) longList += TimeUnit.MILLISECONDS.toMillis(this) % TimeUnit.SECONDS.toMillis(1)
 
     val longArray: Array<Long> = longList.toTypedArray()
-    logV("Long.toFormat,longArray : ${longArray.contentToString()}")
+    //logV("Long.toFormat,longArray : ${longArray.contentToString()}")
 
     return String.format(actualFormat, *longArray)
 }

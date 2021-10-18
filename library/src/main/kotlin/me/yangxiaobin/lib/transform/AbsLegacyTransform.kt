@@ -96,7 +96,7 @@ open class AbsLegacyTransform : Transform() {
                 }
             }
         }
-        logI("${invocation.context.variantName} transform ends in ${(System.currentTimeMillis() - t1).toFormat(true,true,true,true)}")
+        logI("${invocation.context.variantName} transform ends in ${(System.currentTimeMillis() - t1).toFormat(false)}")
     }
 
     // Create a transformer given an invocation inputs. Note that since this is a PROJECT scoped
