@@ -23,6 +23,8 @@ interface ILog {
 
     fun e(tag: String, message: String)
 
+    fun copy(): ILog
+
 }
 
 enum class LogLevel { VERBOSE, INFO, DEBUG, ERROR }
@@ -66,6 +68,15 @@ abstract class AbsLogger : ILog {
 
     override fun e(tag: String, message: String) = logPriority(LogLevel.ERROR, tag, message)
 
+    override fun copy(): ILog {
+        return ILogImpl().apply {
+            this.setGlobalPrefix(this@AbsLogger.globalPrefix ?: "")
+            this.setGlobalSuffix(this@AbsLogger.globalSuffix ?: "")
+            this.setLevel(this@AbsLogger.curLevel)
+            this.setPrinter(this@AbsLogger.curPrinter ?: return@apply)
+            this.isEnable(this@AbsLogger.enable)
+        }
+    }
 
     private fun logPriority(level: LogLevel, tag: String, message: String) {
         var actualTag = if (globalPrefix != null) "$globalPrefix$tag" else tag

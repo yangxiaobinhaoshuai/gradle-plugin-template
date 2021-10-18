@@ -11,7 +11,11 @@ import java.util.zip.ZipFile
 
 open class AbsLegacyTransform : Transform() {
 
-    private val logI = Logger.log(LogLevel.INFO, "AbsLegacyTransform")
+    protected val logger = Logger.copy().setLevel(LogLevel.INFO)
+
+    protected val logI = logger.log(LogLevel.INFO, name)
+
+    protected val logV = logger.log(LogLevel.VERBOSE,name)
 
     override fun getInputTypes() = setOf(QualifiedContent.DefaultContentType.CLASSES)
 
@@ -37,7 +41,7 @@ open class AbsLegacyTransform : Transform() {
             // 1. Process vendor jars.
             transformInput.jarInputs.forEach { jarInput: JarInput ->
 
-                println("----> input jar file :${jarInput.file.name}")
+                logV("input jar file :${jarInput.file.name}")
 
                 val outputJar: File =
                     invocation.outputProvider.getContentLocation(
@@ -92,13 +96,14 @@ open class AbsLegacyTransform : Transform() {
                     }
                 } else {
                     directoryInput.file.walkTopDown().forEach { file ->
-                        println("---> input file  :${file.name}")
+                        logV("input class file  :${file.name}")
                         val outputFile = toOutputFile(outputDir, directoryInput.file, file)
                         transformClassFile(file, outputFile.parentFile, classTransformer)
                     }
                 }
             }
         }
+
         logI("${invocation.context.variantName} transform ends in ${(System.currentTimeMillis() - t1).toFormat(false)}")
     }
 
