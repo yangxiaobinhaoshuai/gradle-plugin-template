@@ -37,9 +37,9 @@ class DefaultClassVisitor(api: Int, cv: ClassVisitor) : ClassVisitor(api, cv) {
         requireNotNull(name) { return superMv }
         requireNotNull(descriptor) { return superMv }
 
-        println("---> method :$name")
+        //println("---> method :$name")
         return MethodAdviceVisitor(api, superMv, classFileName, access, name, descriptor)
-            .let { if (name == "init\$lambda-0") it.wrappedWithTrace() else it }
+            //.let { if (name == "init\$lambda-0") it.wrappedWithTrace() else it }
             .wrappedWithTreeAdapter(
                 api,
                 access,

@@ -2,8 +2,8 @@ package me.yangxiaobin.lib.asm.api
 
 import me.yangxiaobin.lib.asm.adapter.TreeClassAdapter
 import me.yangxiaobin.lib.asm.adapter.TreeMethodAdapter
-import me.yangxiaobin.lib.asm.log.*
 import me.yangxiaobin.lib.asm.constant.ASM_API
+import me.yangxiaobin.lib.asm.log.*
 import org.gradle.api.Action
 import org.objectweb.asm.*
 import org.objectweb.asm.tree.ClassNode
@@ -11,7 +11,6 @@ import org.objectweb.asm.tree.MethodNode
 import org.objectweb.asm.util.*
 import java.io.InputStream
 import java.io.PrintWriter
-import java.util.function.Function
 
 
 //region ClassVisitor ext
@@ -71,31 +70,62 @@ fun AnnotationVisitor.wrappedWithTrace() = TraceAnnotationVisitor(this, innerTex
 fun AnnotationVisitor.wrappedWithCheck() = CheckAnnotationAdapter(this)
 //endregion
 
+// region asm api
 fun InputStream.applyAsm(
-    func: (cw: ClassVisitor) -> ClassVisitor = { DefaultClassVisitor(ASM_API, it) }
-): ByteArray = Function<InputStream, ByteArray> {
+    writeFlag: Int = ClassWriter.COMPUTE_FRAMES,
+    parsingOptions: Int = ClassReader.EXPAND_FRAMES,
+    wrap: (cw: ClassVisitor) -> ClassVisitor = { DefaultClassVisitor(ASM_API, it) },
+): ByteArray = run {
 
     //Logger.setLevel(LogLevel.VERBOSE)
 
     val cr = ClassReader(this)
-    val cw = ClassWriter(cr, ClassWriter.COMPUTE_FRAMES)
+    val cw = ClassWriter(cr, writeFlag)
 
-    val cv = func.invoke(
+    val cv = wrap.invoke(
         cw
-            //.wrappedWithCheck()
+        //.wrappedWithCheck()
 //            .wrappedWithTrace()
 //            .wrappedWithLog()
     )
 
-    val parsingOptions = ClassReader.EXPAND_FRAMES
 
     cr.accept(
         cv
-            //.wrappedWithCheck()
+        //.wrappedWithCheck()
 //            .wrappedWithTrace()
 //            .wrappedWithLog()
         , parsingOptions
     )
 
     cw.toByteArray()
-}.apply(this)
+}
+
+fun ByteArray.applyAsm(
+    writeFlag: Int = ClassWriter.COMPUTE_FRAMES,
+    parsingOptions: Int = ClassReader.EXPAND_FRAMES,
+    wrap: (cw: ClassVisitor) -> ClassVisitor = { DefaultClassVisitor(ASM_API, it) },
+): ByteArray = run {
+
+    val cr = ClassReader(this)
+    val cw = ClassWriter(cr, writeFlag)
+
+    val cv = wrap.invoke(
+        cw
+        //.wrappedWithCheck()
+//            .wrappedWithTrace()
+//            .wrappedWithLog()
+    )
+
+
+    cr.accept(
+        cv
+        //.wrappedWithCheck()
+//            .wrappedWithTrace()
+//            .wrappedWithLog()
+        , parsingOptions
+    )
+
+    cw.toByteArray()
+}
+// endregion

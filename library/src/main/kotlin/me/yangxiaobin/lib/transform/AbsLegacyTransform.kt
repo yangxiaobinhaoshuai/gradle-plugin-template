@@ -1,12 +1,19 @@
 package me.yangxiaobin.lib.transform
 
 import com.android.build.api.transform.*
-import me.yangxiaobin.lib.ext.isClassFile
-import me.yangxiaobin.lib.ext.toFormat
+import me.yangxiaobin.lib.asm.api.applyAsm
+import me.yangxiaobin.lib.ext.*
 import me.yangxiaobin.lib.log.LogLevel
 import me.yangxiaobin.lib.log.Logger
 import me.yangxiaobin.lib.log.log
+import org.apache.commons.compress.archivers.zip.ParallelScatterZipCreator
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream
+import org.apache.commons.compress.parallel.InputStreamSupplier
 import java.io.File
+import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
+import java.util.zip.ZipOutputStream
 
 
 open class AbsLegacyTransform : Transform() {
@@ -35,8 +42,9 @@ open class AbsLegacyTransform : Transform() {
         invocation.inputs.forEach { transformInput ->
 
             // 1. Process vendor jars.
-            transformInput.jarInputs.forEach { jarInput ->
-                val outputJar =
+            transformInput.jarInputs.forEach { jarInput: JarInput ->
+
+                val outputJar: File =
                     invocation.outputProvider.getContentLocation(
                         jarInput.name,
                         jarInput.contentTypes,
@@ -44,11 +52,11 @@ open class AbsLegacyTransform : Transform() {
                         Format.JAR
                     )
 
-                val jarTransformer: ByteCodeTransformer? = getJarTransformer(outputJar)
+                val jarTransformer: ByteCodeTransformer? = getJarTransformer()
 
                 if (invocation.isIncremental) {
                     when (jarInput.status) {
-                        Status.ADDED, Status.CHANGED -> jarTransformer?.transformFile(jarInput.file) ?: copyJar(jarInput.file, outputJar)
+                        Status.ADDED, Status.CHANGED -> transformJarFile(jarInput.file, outputJar, jarTransformer)
                         Status.REMOVED -> outputJar.delete()
                         Status.NOTCHANGED -> {
                             // No need to transform.
@@ -58,7 +66,7 @@ open class AbsLegacyTransform : Transform() {
                         }
                     }
                 } else {
-                    jarTransformer?.transformFile(jarInput.file) ?: copyJar(jarInput.file, outputJar)
+                    transformJarFile(jarInput.file, outputJar, jarTransformer)
                 }
             }
 
@@ -70,8 +78,7 @@ open class AbsLegacyTransform : Transform() {
                     directoryInput.scopes,
                     Format.DIRECTORY
                 )
-                val classTransformer =
-                    createAbsClassTransformer(invocation.inputs, invocation.referencedInputs, outputDir)
+                val classTransformer = getClassTransformer()
 
                 if (invocation.isIncremental) {
                     directoryInput.changedFiles.forEach { (file, status) ->
@@ -99,22 +106,10 @@ open class AbsLegacyTransform : Transform() {
         logI("${invocation.context.variantName} transform ends in ${(System.currentTimeMillis() - t1).toFormat(false)}")
     }
 
-    // Create a transformer given an invocation inputs. Note that since this is a PROJECT scoped
-    // transform the actual transformation is only done on project files and not its dependencies.
-    private fun createAbsClassTransformer(
-        inputs: Collection<TransformInput>,
-        referencedInputs: Collection<TransformInput>,
-        outputDir: File
-    ): ByteCodeTransformer {
-        val classFiles = (inputs + referencedInputs).flatMap { input ->
-            (input.directoryInputs + input.jarInputs).map { it.file }
-        }
-        return AbsByteCodeTransformer(sourceRootOutputDir = outputDir,)
-    }
 
-    protected open fun getClassTransformer(outputDir: File): ByteCodeTransformer = AbsByteCodeTransformer(outputDir)
+    protected open fun getClassTransformer(): ByteCodeTransformer = DefaultByteCodeTransformer()
 
-    protected open fun getJarTransformer(outputJar: File): ByteCodeTransformer? = null
+    protected open fun getJarTransformer(): ByteCodeTransformer? = null
 
     // Transform a single file. If the file is not a class file it is just copied to the output dir.
     private fun transformClassFile(
@@ -123,13 +118,58 @@ open class AbsLegacyTransform : Transform() {
         transformer: ByteCodeTransformer
     ) {
         if (inputFile.isClassFile()) {
-            transformer.transformFile(inputFile)
+
+            val transformedByteArr = inputFile.readBytes().let(transformer::transformByteArray)
+
+            outputDir.mkdirs()
+            val outputFile = File(outputDir, inputFile.name)
+            outputFile.writeBytes(transformedByteArr)
+
         } else if (inputFile.isFile) {
             // Copy all non .class files to the output.
             outputDir.mkdirs()
             val outputFile = File(outputDir, inputFile.name)
             inputFile.copyTo(target = outputFile, overwrite = true)
         }
+    }
+
+    private fun transformJarFile(
+        inputJarFile: File,
+        outputJarFile: File,
+        transformer: ByteCodeTransformer?
+    ) {
+        if (transformer == null) {
+            copyJar(inputJarFile, outputJarFile)
+            return
+        }
+
+        if (inputJarFile.isJarFile()) {
+            // 1. Unzip jar.
+            // 2. Do transformation.
+            // 3. Write jar.
+
+            ZipFile(inputJarFile).transformTo(outputJarFile)
+
+        } else if (inputJarFile.isFile) {
+            copyJar(inputJarFile, outputJarFile)
+        }
+    }
+
+
+    private fun ZipFile.transformTo(output: File) = apply {
+        val creator = ParallelScatterZipCreator()
+
+        this.entries().asSequence().forEach { entry ->
+            val stream = InputStreamSupplier {
+                this.getInputStream(entry)
+                    .transformIf(entry.isClassFile()) {
+                        it.applyAsm().inputStream()
+                    }
+            }
+            creator.addArchiveEntry(ZipArchiveEntry(entry), stream)
+        }
+
+        ZipArchiveOutputStream(output.outputStream()).use(creator::writeTo)
     }
 
 
