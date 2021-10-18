@@ -11,6 +11,7 @@ import org.apache.commons.compress.parallel.InputStreamSupplier
 import java.io.File
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
+import java.util.zip.ZipOutputStream
 
 
 /* Checks if a file is a .class file. */
@@ -41,6 +42,41 @@ fun File.touch() = apply {
         this.parentFile?.mkdirs()
         this.createNewFile()
     }
+}
+
+
+fun ZipFile.parallelTransformTo(output: File, transform: (ByteArray) -> ByteArray) = apply {
+    val creator = ParallelScatterZipCreator()
+
+    this.entries().asSequence().forEach { entry: ZipEntry ->
+        val stream = InputStreamSupplier {
+            this.getInputStream(ZipEntry(entry.name))
+                .transformIf(entry.isClassFile()) { ins ->
+                    transform.invoke(ins.readBytes()).applyAsm().inputStream()
+                }
+        }
+        creator.addArchiveEntry(ZipArchiveEntry(entry), stream)
+    }
+
+    ZipArchiveOutputStream(output.outputStream().buffered()).use(creator::writeTo)
+}
+
+
+fun ZipFile.simpleTransformTo(output: File, transform: (ByteArray) -> ByteArray) = apply {
+
+    output.outputStream().buffered().let { ZipOutputStream(it) }
+        .use { zos ->
+            this.entries().asSequence().forEach { entry: ZipEntry ->
+                zos.putNextEntry(ZipEntry(entry.name))
+                this.getInputStream(entry)
+                    .transformIf(entry.isClassFile()) { ins ->
+                        transform.invoke(ins.readBytes()).applyAsm().inputStream()
+                    }
+                    .use { it.copyTo(zos) }
+            }
+
+            zos.closeEntry()
+        }
 }
 
 

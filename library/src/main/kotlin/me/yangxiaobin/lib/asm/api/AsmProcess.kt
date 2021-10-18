@@ -72,7 +72,7 @@ fun AnnotationVisitor.wrappedWithCheck() = CheckAnnotationAdapter(this)
 
 // region asm api
 fun InputStream.applyAsm(
-    writeFlag: Int = ClassWriter.COMPUTE_FRAMES,
+    writeFlag: Int = ClassWriter.COMPUTE_MAXS,
     parsingOptions: Int = ClassReader.EXPAND_FRAMES,
     wrap: (cw: ClassVisitor) -> ClassVisitor = { DefaultClassVisitor(ASM_API, it) },
 ): ByteArray = run {
@@ -102,7 +102,7 @@ fun InputStream.applyAsm(
 }
 
 fun ByteArray.applyAsm(
-    writeFlag: Int = ClassWriter.COMPUTE_FRAMES,
+    writeFlag: Int = ClassWriter.COMPUTE_MAXS,
     parsingOptions: Int = ClassReader.EXPAND_FRAMES,
     wrap: (cw: ClassVisitor) -> ClassVisitor = { DefaultClassVisitor(ASM_API, it) },
 ): ByteArray = run {

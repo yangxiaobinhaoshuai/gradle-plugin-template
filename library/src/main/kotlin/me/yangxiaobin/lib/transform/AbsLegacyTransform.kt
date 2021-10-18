@@ -1,19 +1,12 @@
 package me.yangxiaobin.lib.transform
 
 import com.android.build.api.transform.*
-import me.yangxiaobin.lib.asm.api.applyAsm
 import me.yangxiaobin.lib.ext.*
 import me.yangxiaobin.lib.log.LogLevel
 import me.yangxiaobin.lib.log.Logger
 import me.yangxiaobin.lib.log.log
-import org.apache.commons.compress.archivers.zip.ParallelScatterZipCreator
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntry
-import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream
-import org.apache.commons.compress.parallel.InputStreamSupplier
 import java.io.File
-import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
-import java.util.zip.ZipOutputStream
 
 
 open class AbsLegacyTransform : Transform() {
@@ -26,7 +19,7 @@ open class AbsLegacyTransform : Transform() {
 
     override fun isIncremental() = true
 
-    override fun getScopes(): MutableSet<QualifiedContent.Scope> = mutableSetOf(QualifiedContent.Scope.PROJECT)
+    override fun getScopes(): MutableSet<QualifiedContent.ScopeType> = mutableSetOf(QualifiedContent.Scope.PROJECT)
 
     override fun transform(invocation: TransformInvocation) {
 
@@ -43,6 +36,8 @@ open class AbsLegacyTransform : Transform() {
 
             // 1. Process vendor jars.
             transformInput.jarInputs.forEach { jarInput: JarInput ->
+
+                println("----> input jar file :${jarInput.file.name}")
 
                 val outputJar: File =
                     invocation.outputProvider.getContentLocation(
@@ -97,6 +92,7 @@ open class AbsLegacyTransform : Transform() {
                     }
                 } else {
                     directoryInput.file.walkTopDown().forEach { file ->
+                        println("---> input file  :${file.name}")
                         val outputFile = toOutputFile(outputDir, directoryInput.file, file)
                         transformClassFile(file, outputFile.parentFile, classTransformer)
                     }
@@ -148,28 +144,11 @@ open class AbsLegacyTransform : Transform() {
             // 2. Do transformation.
             // 3. Write jar.
 
-            ZipFile(inputJarFile).transformTo(outputJarFile)
+            ZipFile(inputJarFile.touch()).parallelTransformTo(outputJarFile,transformer::transformByteArray)
 
         } else if (inputJarFile.isFile) {
             copyJar(inputJarFile, outputJarFile)
         }
-    }
-
-
-    private fun ZipFile.transformTo(output: File) = apply {
-        val creator = ParallelScatterZipCreator()
-
-        this.entries().asSequence().forEach { entry ->
-            val stream = InputStreamSupplier {
-                this.getInputStream(entry)
-                    .transformIf(entry.isClassFile()) {
-                        it.applyAsm().inputStream()
-                    }
-            }
-            creator.addArchiveEntry(ZipArchiveEntry(entry), stream)
-        }
-
-        ZipArchiveOutputStream(output.outputStream()).use(creator::writeTo)
     }
 
 
