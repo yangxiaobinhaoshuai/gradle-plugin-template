@@ -17,9 +17,11 @@ abstract class BasePlugin : Plugin<Project> {
     protected lateinit var mLogger: org.gradle.api.logging.Logger
         private set
 
-    val logI by lazy { Logger.log(LogLevel.INFO, TAG) }
+    protected val logV by lazy { Logger.log(LogLevel.VERBOSE, TAG) }
+    protected val logI by lazy { Logger.log(LogLevel.INFO, TAG) }
+    protected val logD by lazy { Logger.log(LogLevel.DEBUG, TAG) }
+    protected val logE by lazy { Logger.log(LogLevel.ERROR, TAG) }
 
-    // @callsuper
     override fun apply(p: Project) {
         logI("${p.name} Applied basePlugin")
         mProject = p

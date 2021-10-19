@@ -33,6 +33,7 @@ dependencies {
     implementation 'me.yangxiaobin.lib:library:1.0-SNAPSHOT'
 
     compileOnly libDeps.agp4
+    compileOnly libDeps.aspectjTools
 
 
     // For reading its source code.

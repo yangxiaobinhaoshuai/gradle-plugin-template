@@ -15,7 +15,7 @@ class KtPlugin : BasePlugin() {
         logI("${p.name} ==> Applied KtPlugin.")
 
         p.afterEvaluate {
-            p.getAppExtension?.registerTransform(AbsLegacyTransform())
+            p.getAppExtension?.registerTransform(AbsLegacyTransform(mProject))
         }
 
     }

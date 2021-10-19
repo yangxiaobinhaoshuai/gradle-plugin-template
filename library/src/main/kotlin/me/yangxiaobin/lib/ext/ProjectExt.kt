@@ -10,8 +10,8 @@ import org.jetbrains.kotlin.gradle.plugin.sources.DefaultKotlinSourceSet
 import java.io.File
 
 
-val Project.mainSourceSet: SourceSet
-    get() = (this.properties["sourceSets"] as SourceSetContainer).getByName("main")
+val Project.mainSourceSet: SourceSet?
+    get() = (this.properties["sourceSets"] as SourceSetContainer).findByName("main")
 
 val Project.getAppExtension: AppExtension?
     get() = this.extensions.getByName("android") as? AppExtension
@@ -21,9 +21,14 @@ fun Project.getProjectProp(key: String): String? = this.gradle.startParameter.pr
 
 enum class SourceLanguage { JAVA, KOTLIN, GROOVY }
 
-fun Project.getSourceSetDirs(language: SourceLanguage): List<File> =
-    when (language) {
-        SourceLanguage.JAVA -> this.mainSourceSet.java.srcDirs
-        SourceLanguage.KOTLIN -> ((this.mainSourceSet.extensions as Convention).plugins["kotlin"] as DefaultKotlinSourceSet).kotlin.srcDirs
-        SourceLanguage.GROOVY -> ((this.mainSourceSet.extensions as Convention).plugins["groovy"] as DefaultGroovySourceSet).groovy.srcDirs
+fun Project.getSourceSetDirs(language: SourceLanguage): List<File> {
+
+    val mainSourceSet = this.mainSourceSet
+    requireNotNull(mainSourceSet) { return emptyList() }
+
+    return when (language) {
+        SourceLanguage.JAVA -> mainSourceSet.java.srcDirs
+        SourceLanguage.KOTLIN -> ((mainSourceSet.extensions as Convention).plugins["kotlin"] as DefaultKotlinSourceSet).kotlin.srcDirs
+        SourceLanguage.GROOVY -> ((mainSourceSet.extensions as Convention).plugins["groovy"] as DefaultGroovySourceSet).groovy.srcDirs
     }.filter { it.exists() }
+}

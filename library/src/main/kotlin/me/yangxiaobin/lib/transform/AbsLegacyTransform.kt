@@ -5,14 +5,19 @@ import me.yangxiaobin.lib.ext.*
 import me.yangxiaobin.lib.log.LogLevel
 import me.yangxiaobin.lib.log.Logger
 import me.yangxiaobin.lib.log.log
+import org.gradle.api.Project
 import java.io.File
 import java.util.function.Function
 import java.util.zip.ZipFile
 
 
-open class AbsLegacyTransform : Transform() {
+open class AbsLegacyTransform(protected val project: Project) : Transform() {
 
     protected val logger = Logger.copy().setLevel(LogLevel.INFO)
+
+    protected val logE = logger.log(LogLevel.ERROR, name)
+
+    protected val logD = logger.log(LogLevel.DEBUG, name)
 
     protected val logI = logger.log(LogLevel.INFO, name)
 
@@ -30,6 +35,8 @@ open class AbsLegacyTransform : Transform() {
 
         val t1 = System.currentTimeMillis()
         logI("variant: ${invocation.context.variantName}(isIncremental:${invocation.isIncremental}) transform begins.")
+
+        beforeTransform()
 
         if (!invocation.isIncremental) {
             // Remove any lingering files on a non-incremental invocation since everything has to be
@@ -114,14 +121,19 @@ open class AbsLegacyTransform : Transform() {
             }
         }
 
+        afterTransform()
+
         logI("${invocation.context.variantName} transform ends in ${(System.currentTimeMillis() - t1).toFormat(false)}")
     }
 
 
-    protected open fun getClassTransformer(): Function<ByteArray, ByteArray> = DefaultByteCodeTransformer()
+    protected open fun getClassTransformer(): Function<ByteArray, ByteArray>? = DefaultByteCodeTransformer()
 
     protected open fun getJarTransformer(): Function<ByteArray, ByteArray>? = null
 
+    protected open fun beforeTransform() {}
+
+    protected open fun afterTransform() {}
 
     /**
      * Black list array.
@@ -138,28 +150,37 @@ open class AbsLegacyTransform : Transform() {
         "jetified-annotations-.+.jar",
     ).fold(true) { acc: Boolean, regex: String -> acc && !regex.toRegex().matches(jar.name) }
 
+
     // Transform a single file. If the file is not a class file it is just copied to the output dir.
     private fun transformClassFile(
         inputFile: File,
         outputDir: File,
-        transformer: Function<ByteArray, ByteArray>,
+        transformer: Function<ByteArray, ByteArray>?,
         status: Status?,
     ) {
-        if (inputFile.isClassFile() && isClassValid(inputFile)) {
 
-            logV("transforming class file: ${inputFile.name}, incremental status :$status")
-
-            val transformedByteArr = inputFile.readBytes().let(transformer::apply)
-
-            outputDir.mkdirs()
-            val outputFile = File(outputDir, inputFile.name)
-            outputFile.writeBytes(transformedByteArr)
-
-        } else if (inputFile.isFile) {
+        fun copyClassFile() {
             // Copy all non .class files to the output.
             outputDir.mkdirs()
             val outputFile = File(outputDir, inputFile.name)
             inputFile.copyTo(target = outputFile, overwrite = true)
+        }
+
+        when {
+            transformer == null -> copyClassFile()
+
+            inputFile.isClassFile() && isClassValid(inputFile) -> {
+                logV("transforming class file: ${inputFile.name}, incremental status :$status")
+
+                val transformedByteArr = inputFile.readBytes().let(transformer::apply)
+
+                outputDir.mkdirs()
+                val outputFile = File(outputDir, inputFile.name)
+                outputFile.writeBytes(transformedByteArr)
+            }
+
+            // Copy all non .class files to the output.
+            inputFile.isFile -> copyClassFile()
         }
     }
 
@@ -169,23 +190,21 @@ open class AbsLegacyTransform : Transform() {
         transformer: Function<ByteArray, ByteArray>?,
         status: Status,
     ) {
-        if (transformer == null) {
-            copyJar(inputJarFile, outputJarFile)
-            return
-        }
+        when {
+            transformer == null -> copyJar(inputJarFile, outputJarFile)
 
-        if (inputJarFile.isJarFile() && isJarValid(inputJarFile)) {
+            inputJarFile.isJarFile() && isJarValid(inputJarFile) -> {
 
-            logV("transforming jar: ${inputJarFile.name}, incremental status :$status")
+                logV("transforming jar: ${inputJarFile.name}, incremental status :$status")
 
-            // 1. Unzip jar.
-            // 2. Do transformation.
-            // 3. Write jar.
+                // 1. Unzip jar.
+                // 2. Do transformation.
+                // 3. Write jar.
 
-            ZipFile(inputJarFile).parallelTransformTo(outputJarFile, transformer::apply)
+                ZipFile(inputJarFile).parallelTransformTo(outputJarFile, transformer::apply)
+            }
 
-        } else if (inputJarFile.isFile) {
-            copyJar(inputJarFile, outputJarFile)
+            inputJarFile.isFile -> copyJar(inputJarFile, outputJarFile)
         }
     }
 

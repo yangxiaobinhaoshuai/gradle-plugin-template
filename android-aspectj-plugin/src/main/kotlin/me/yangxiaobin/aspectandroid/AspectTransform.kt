@@ -4,12 +4,12 @@ import com.android.build.api.transform.QualifiedContent
 import com.android.build.gradle.internal.pipeline.TransformManager
 import me.yangxiaobin.lib.log.LogLevel
 import me.yangxiaobin.lib.transform.AbsLegacyTransform
+import org.gradle.api.Project
 import java.io.File
 import java.util.function.Function
 
 
-class AspectTransform : AbsLegacyTransform() {
-
+class AspectTransform(project: Project) : AbsLegacyTransform(project) {
 
     init {
         logger.setLevel(LogLevel.VERBOSE)
@@ -22,7 +22,11 @@ class AspectTransform : AbsLegacyTransform() {
     override fun isIncremental(): Boolean = true
 
     override fun getJarTransformer(): Function<ByteArray, ByteArray>? {
-        return getClassTransformer()
+        return null
+    }
+
+    override fun getClassTransformer(): Function<ByteArray, ByteArray>? {
+        return null
     }
 
     override fun isClassValid(f: File): Boolean {
@@ -32,4 +36,5 @@ class AspectTransform : AbsLegacyTransform() {
     override fun isJarValid(jar: File): Boolean {
         return super.isJarValid(jar)
     }
+
 }
