@@ -19,6 +19,8 @@ class AspectTransform : AbsLegacyTransform() {
 
     override fun getScopes(): MutableSet<QualifiedContent.ScopeType> = TransformManager.SCOPE_FULL_PROJECT
 
+    override fun isIncremental(): Boolean = true
+
     override fun getJarTransformer(): Function<ByteArray, ByteArray>? {
         return getClassTransformer()
     }

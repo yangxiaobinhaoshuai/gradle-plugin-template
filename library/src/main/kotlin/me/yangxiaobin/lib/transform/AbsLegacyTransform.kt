@@ -29,7 +29,7 @@ open class AbsLegacyTransform : Transform() {
     override fun transform(invocation: TransformInvocation) {
 
         val t1 = System.currentTimeMillis()
-        logI("variant:${invocation.context.variantName}(isIncremental:${invocation.isIncremental}) transform begins.")
+        logI("variant: ${invocation.context.variantName}(isIncremental:${invocation.isIncremental}) transform begins.")
 
         if (!invocation.isIncremental) {
             // Remove any lingering files on a non-incremental invocation since everything has to be
@@ -41,8 +41,6 @@ open class AbsLegacyTransform : Transform() {
 
             // 1. Process vendor jars.
             transformInput.jarInputs.forEach { jarInput: JarInput ->
-
-                logV("transform process jar file :${jarInput.file.name}")
 
                 val outputJar: File = invocation.outputProvider.getContentLocation(
                     jarInput.name,
@@ -108,7 +106,6 @@ open class AbsLegacyTransform : Transform() {
                         }
                     }
                 } else {
-                    val status: DirectoryInput = directoryInput
                     directoryInput.file.walkTopDown().forEach { file ->
                         val outputFile = toOutputFile(outputDir, directoryInput.file, file)
                         transformClassFile(file, outputFile.parentFile, classTransformer, null)
@@ -125,9 +122,21 @@ open class AbsLegacyTransform : Transform() {
 
     protected open fun getJarTransformer(): Function<ByteArray, ByteArray>? = null
 
-    protected open fun isClassValid(f: File): Boolean = true
 
-    protected open fun isJarValid(jar: File): Boolean = true
+    /**
+     * Black list array.
+     */
+    protected open fun isClassValid(f: File): Boolean = arrayOf("BuildConfig.class")
+        .fold(true) { acc: Boolean, regex: String -> acc && !regex.toRegex().matches(f.name) }
+
+    /**
+     * Black list array.
+     */
+    protected open fun isJarValid(jar: File): Boolean = arrayOf(
+        "R.jar",
+        "annotation-.+.jar",
+        "jetified-annotations-.+.jar",
+    ).fold(true) { acc: Boolean, regex: String -> acc && !regex.toRegex().matches(jar.name) }
 
     // Transform a single file. If the file is not a class file it is just copied to the output dir.
     private fun transformClassFile(
@@ -138,7 +147,7 @@ open class AbsLegacyTransform : Transform() {
     ) {
         if (inputFile.isClassFile() && isClassValid(inputFile)) {
 
-            logV("transforming class file:${inputFile.name} incremental status :$status")
+            logV("transforming class file: ${inputFile.name}, incremental status :$status")
 
             val transformedByteArr = inputFile.readBytes().let(transformer::apply)
 
@@ -167,7 +176,7 @@ open class AbsLegacyTransform : Transform() {
 
         if (inputJarFile.isJarFile() && isJarValid(inputJarFile)) {
 
-            logV("transforming jar:${inputJarFile.name} incremental status :$status")
+            logV("transforming jar: ${inputJarFile.name}, incremental status :$status")
 
             // 1. Unzip jar.
             // 2. Do transformation.
