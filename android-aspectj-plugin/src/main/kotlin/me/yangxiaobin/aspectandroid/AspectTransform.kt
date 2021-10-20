@@ -12,7 +12,7 @@ import java.util.function.Function
 class AspectTransform(project: Project) : AbsLegacyTransform(project) {
 
     init {
-        logger.setLevel(LogLevel.VERBOSE)
+        logger.setLevel(LogLevel.INFO)
     }
 
     override fun getName(): String = "AspectTransform"
@@ -22,11 +22,11 @@ class AspectTransform(project: Project) : AbsLegacyTransform(project) {
     override fun isIncremental(): Boolean = true
 
     override fun getJarTransformer(): Function<ByteArray, ByteArray>? {
-        return null
+        return getClassTransformer()
     }
 
     override fun getClassTransformer(): Function<ByteArray, ByteArray>? {
-        return null
+        return super.getClassTransformer()
     }
 
     override fun isClassValid(f: File): Boolean {

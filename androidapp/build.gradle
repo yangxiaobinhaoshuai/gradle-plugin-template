@@ -52,7 +52,7 @@ dependencies {
 
     implementation libDeps.ktStd
     implementation libDeps.ktReflect
-    implementation libDeps.aspectjJrt
+    compileOnly libDeps.aspectjJrt
     implementation "androidx.constraintlayout:constraintlayout:2.1.0"
     implementation "androidx.appcompat:appcompat:1.3.1"
 }

@@ -1,18 +1,21 @@
 package me.yangxiaobin.aspectandroid
 
 import me.yangxiaobin.lib.base.BasePlugin
-import me.yangxiaobin.lib.ext.SourceLanguage
 import me.yangxiaobin.lib.ext.getAppExtension
-import me.yangxiaobin.lib.ext.getSourceSetDirs
 import me.yangxiaobin.lib.ext.toPath
 import org.aspectj.bridge.IMessage
 import org.aspectj.bridge.MessageHandler
+import org.aspectj.tools.ajc.Main
 import org.gradle.api.Project
+import org.gradle.api.execution.TaskExecutionGraph
+import org.gradle.api.tasks.compile.AbstractCompile
+import org.gradle.api.tasks.compile.JavaCompile
 import java.io.File
 
 class AspectAndroidPlugin : BasePlugin() {
 
     override val TAG: String get() = "AAP"
+    private val sourcerootSet = mutableSetOf<String>()
 
     override fun apply(p: Project) {
         super.apply(p)
@@ -25,7 +28,7 @@ class AspectAndroidPlugin : BasePlugin() {
 
         p.afterEvaluate { p.getAppExtension?.registerTransform(aspectTransform) }
 
-        setupAjcCompilation()
+        configAjcCompileTask(aspectTransform.name)
     }
 
     private fun configAjcClasspath() {
@@ -34,29 +37,37 @@ class AspectAndroidPlugin : BasePlugin() {
         mProject.dependencies.add("ajc", "org.aspectj:aspectjrt:1.9.7")
     }
 
-    private fun setupAjcCompilation() {
 
-        mProject.afterEvaluate {
-            mProject.getAppExtension
-                ?.applicationVariants
-                ?.all {
-                    println("--->  all all variant :${it.name}")
+    private fun configAjcCompileTask(transformName: String) {
+
+        mProject.gradle.taskGraph.whenReady { graph: TaskExecutionGraph ->
+
+            graph.allTasks.filterIsInstance<AbstractCompile>()
+                .also { logI("abs compiles :$it") }
+                .forEach {  compile ->
+
+                    if (compile is JavaCompile) return@whenReady
+
+                    compile.doLast { doAjcCompilation(compile) }
                 }
 
         }
 
+
     }
 
 
-    private fun doAjcCompilation() {
+    private fun doAjcCompilation(compile: AbstractCompile) {
 
-        val destDir = mProject.buildDir
+        logI(" ${compile.name} doAjcCompilation begins.")
+
+        val destDir = compile.destinationDir.toString()
+
+        sourcerootSet.add(destDir)
+
+        val actualsourceroots = sourcerootSet.joinToString(separator = File.pathSeparator)
 
         val ajcJrtClasspath = mProject.configurations.getByName("ajc").asPath
-
-        val currentLanguage = "JAVA"
-        val sourceroots = mProject.getSourceSetDirs(SourceLanguage.valueOf(currentLanguage))
-            .joinToString(separator = File.pathSeparator)
 
         val bootclasspath: String = (mProject.getAppExtension?.bootClasspath ?: return).toPath()
 
@@ -65,15 +76,15 @@ class AspectAndroidPlugin : BasePlugin() {
             "-1.8",
             "-showWeaveInfo",
 
-            "-d", "",
+            "-d", destDir,
             "-inpath", ajcJrtClasspath,
-            "-sourceroots", sourceroots,
+            "-sourceroots", actualsourceroots,
             "-bootclasspath", bootclasspath,
         )
 
         logI("ajc params :${args.contentToString()}")
 
-        //Main().run(args, getLogMessageHandler())
+        Main().run(args, getLogMessageHandler())
     }
 
     private fun getLogMessageHandler(): MessageHandler {

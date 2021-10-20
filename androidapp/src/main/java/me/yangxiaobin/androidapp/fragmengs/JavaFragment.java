@@ -1,4 +1,4 @@
-package me.yangxiaobin.androidapp;
+package me.yangxiaobin.androidapp.fragmengs;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import me.yangxiaobin.androidapp.R;
 import org.jetbrains.annotations.NotNull;
 
 public class JavaFragment extends Fragment {
