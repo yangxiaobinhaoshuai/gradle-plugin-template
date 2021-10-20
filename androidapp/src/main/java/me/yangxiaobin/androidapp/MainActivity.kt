@@ -21,10 +21,16 @@ class MainActivity : AppCompatActivity() {
 //            myDialog.setContentView(android.R.layout.select_dialog_item)
 //            myDialog.show()
 
-            mDialog = Dialog(this)
-            mDialog?.setContentView(android.R.layout.select_dialog_item)
-            mDialog?.show()
+//            mDialog = Dialog(this)
+//            mDialog?.setContentView(android.R.layout.select_dialog_item)
+//            mDialog?.show()
 //            Instrumentation.recordDialog(myDialog).show()
+
+            supportFragmentManager
+                .beginTransaction()
+                .add(R.id.root_main_activity, JavaFragment())
+                .addToBackStack(null)
+                .commit()
         }
     }
 }

@@ -1,6 +1,5 @@
 package me.yangxiaobin.aspectandroid
 
-import com.android.build.gradle.api.ApplicationVariant
 import me.yangxiaobin.lib.base.BasePlugin
 import me.yangxiaobin.lib.ext.SourceLanguage
 import me.yangxiaobin.lib.ext.getAppExtension
@@ -9,8 +8,6 @@ import me.yangxiaobin.lib.ext.toPath
 import org.aspectj.bridge.IMessage
 import org.aspectj.bridge.MessageHandler
 import org.gradle.api.Project
-import org.gradle.api.Task
-import org.gradle.api.execution.TaskExecutionGraph
 import java.io.File
 
 class AspectAndroidPlugin : BasePlugin() {
