@@ -42,9 +42,10 @@ class AspectAndroidPlugin : BasePlugin() {
         mProject.afterEvaluate {
             mProject.getAppExtension
                 ?.applicationVariants
-                ?.forEach { variant: ApplicationVariant ->
-                    println("--->  variant :${variant.name}")
+                ?.all {
+                    println("--->  all all variant :${it.name}")
                 }
+
         }
 
     }
@@ -66,9 +67,10 @@ class AspectAndroidPlugin : BasePlugin() {
         val args = arrayOf(
             "-1.8",
             "-showWeaveInfo",
+
             "-d", "",
             "-inpath", ajcJrtClasspath,
-            "-sourceroots",
+            "-sourceroots", sourceroots,
             "-bootclasspath", bootclasspath,
         )
 

@@ -17,7 +17,7 @@ dependencies {
 
     //implementation libDeps.groovyAll
     implementation libDeps.bundles.asm
-    implementation libDeps.ktStdJdk
+    implementation libDeps.ktStd
     implementation libDeps.bundles.aspectj
     compileOnly "com.google.dagger:hilt-android-gradle-plugin:2.28-alpha"
 

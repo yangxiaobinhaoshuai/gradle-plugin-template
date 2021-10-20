@@ -7,7 +7,7 @@ interface ILog {
 
     fun setGlobalPrefix(prefix: String): ILog
 
-    fun setGlobalSuffix(prefix: String): ILog
+    fun setGlobalSuffix(suffix: String): ILog
 
     fun isEnable(enable: Boolean): ILog
 

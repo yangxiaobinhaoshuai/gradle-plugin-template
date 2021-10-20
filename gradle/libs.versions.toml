@@ -17,7 +17,10 @@ junit = { module = "junit:junit", version.ref = "junitV" }
 agp7 = { module = "com.android.tools.build:gradle", version.ref = "agpV" }
 agp4 = { module = "com.android.tools.build:gradle", version = "4.1.0" }
 kgp = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlinV" }
-ktStdJdk = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlinV" }
+
+# Kotlin std differnces : https://mbonnin.medium.com/the-different-kotlin-stdlibs-explained-83d7c6bf293
+ktStd = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlinV" }
+ktStdJdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlinV" }
 ktReflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlinV" }
 
 # asm : https://asm.ow2.io/
@@ -44,7 +47,7 @@ groovyAll = { module = "org.codehaus.groovy:groovy-all", version.ref = "groovy-a
 
 
 [bundles]
-base =['ktStdJdk','groovyAll']
+base =['ktStdJdk8','groovyAll']
 aspectj =['aspectj-lib','aspectjJrt','aspectj-weaver','aspectjTools','aspectj-matcher']
 asm =['asm-core','asm-util','asm-tree','asm-commons','asm-analysis',]
 

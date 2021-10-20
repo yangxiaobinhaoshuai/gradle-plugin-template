@@ -121,18 +121,6 @@ class LoggableMethodVisitor(api: Int = ASM_API, mv: MethodVisitor) : MethodVisit
         )
     }
 
-    override fun visitMethodInsn(opcode: Int, owner: String?, name: String?, descriptor: String?) {
-        super.visitMethodInsn(opcode, owner, name, descriptor)
-        logV(
-            """
-            visitMethodInsn:
-            opcode:$opcode
-            owner:$owner
-            name:$name
-            descriptor:$descriptor
-        """.trimIndent()
-        )
-    }
 
     override fun visitMethodInsn(
         opcode: Int,

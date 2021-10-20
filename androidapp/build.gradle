@@ -43,13 +43,17 @@ configurations.all {
     }
 }
 
+android.applicationVariants.all { variant ->
+    println "----> build file variant :$variant"
+}
+
 dependencies {
     testImplementation 'junit:junit:4.13.2'
 
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
-    implementation libDeps.ktStdJdk
+    implementation libDeps.ktStd
     implementation libDeps.ktReflect
     implementation libDeps.aspectjJrt
     implementation "androidx.constraintlayout:constraintlayout:2.1.0"
