@@ -17,7 +17,7 @@ class MainActivity : AppCompatActivity() {
         init()
     }
 
-    private fun init() {
+    public fun init() {
         bt1_android_app_main.setOnClickListener {
 //            val myDialog = Dialog(this)
 //            myDialog.setContentView(android.R.layout.select_dialog_item)

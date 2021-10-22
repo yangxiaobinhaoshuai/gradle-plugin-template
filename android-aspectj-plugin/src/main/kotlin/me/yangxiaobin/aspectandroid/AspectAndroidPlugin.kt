@@ -8,14 +8,15 @@ import org.aspectj.bridge.MessageHandler
 import org.aspectj.tools.ajc.Main
 import org.gradle.api.Project
 import org.gradle.api.execution.TaskExecutionGraph
+import org.gradle.api.tasks.StopExecutionException
 import org.gradle.api.tasks.compile.AbstractCompile
 import org.gradle.api.tasks.compile.JavaCompile
 import java.io.File
+import java.lang.NullPointerException
 
 class AspectAndroidPlugin : BasePlugin() {
 
     override val TAG: String get() = "AAP"
-    private val sourcerootSet = mutableSetOf<String>()
 
     override fun apply(p: Project) {
         super.apply(p)
@@ -43,7 +44,7 @@ class AspectAndroidPlugin : BasePlugin() {
         mProject.gradle.taskGraph.whenReady { graph: TaskExecutionGraph ->
 
             graph.allTasks.filterIsInstance<AbstractCompile>()
-                .also { logI("abs compiles :$it") }
+                .also { cs-> logI("abs compiles :${cs.map { it.javaClass }}") }
                 .forEach {  compile ->
 
                     if (compile is JavaCompile) return@whenReady
@@ -59,26 +60,28 @@ class AspectAndroidPlugin : BasePlugin() {
 
     private fun doAjcCompilation(compile: AbstractCompile) {
 
-        logI(" ${compile.name} doAjcCompilation begins.")
+        logI("""
+            ${compile.name} doAjcCompilation begins.
+            compile input :${compile.inputs.files.asPath}
+            compile output :${compile.outputs.files.asPath}
+        """.trimIndent())
 
         val destDir = compile.destinationDir.toString()
-
-        sourcerootSet.add(destDir)
-
-        val actualsourceroots = sourcerootSet.joinToString(separator = File.pathSeparator)
 
         val ajcJrtClasspath = mProject.configurations.getByName("ajc").asPath
 
         val bootclasspath: String = (mProject.getAppExtension?.bootClasspath ?: return).toPath()
 
 
-        val args = arrayOf(
+        val args = arrayOf<String>(
             "-1.8",
             "-showWeaveInfo",
+//            "-verbose",
 
             "-d", destDir,
+            "-aspectpath","/Users/yangxiaobin/DevelopSpace/IDEA/gradle-plugin-template/androidapp/build/intermediates/javac/debug/classes",
             "-inpath", ajcJrtClasspath,
-            "-sourceroots", actualsourceroots,
+            "-sourceroots", destDir,
             "-bootclasspath", bootclasspath,
         )
 
@@ -89,20 +92,23 @@ class AspectAndroidPlugin : BasePlugin() {
 
     private fun getLogMessageHandler(): MessageHandler {
 
-        val handler = MessageHandler(true)
+        val handler = MessageHandler(false)
 
-        for (message: IMessage in handler.unmodifiableListView) {
+        for (message: IMessage in handler.errors) {
 
             when (message.kind) {
                 IMessage.ABORT, IMessage.ERROR, IMessage.FAIL -> {
                     message.thrown?.printStackTrace()
                     logE(message.message)
+                    mLogger.error(message.message)
                 }
                 IMessage.WARNING, IMessage.INFO, IMessage.DEBUG -> {
                     logD(message.message)
+                    mLogger.debug(message.message)
                 }
                 else -> {
                     logI(message.message)
+                    mLogger.info(message.message)
                 }
             }
         }

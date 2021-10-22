@@ -14,7 +14,7 @@ class KotlinFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_kotlin, container, false)
     }
 
-    private fun initBeforeView() {
+    public fun initBeforeView() {
         println("----> init kotlin fragment")
     }
 }
