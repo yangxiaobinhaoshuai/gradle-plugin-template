@@ -10,6 +10,7 @@ import org.gradle.api.internal.tasks.DefaultGroovySourceSet
 import org.gradle.api.plugins.Convention
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.SourceSetContainer
+import org.gradle.internal.extensibility.DefaultExtraPropertiesExtension
 import org.jetbrains.kotlin.gradle.plugin.sources.DefaultKotlinSourceSet
 import java.io.File
 
@@ -22,6 +23,9 @@ val Project.mainSourceSet: SourceSet?
 @AfterEvaluation
 val Project.getAppExtension: AppExtension?
     get() = this.extensions.getByName("android") as? AppExtension
+
+val Project.getExtExtension: DefaultExtraPropertiesExtension?
+    get() = this.extensions.getByName("ext") as? DefaultExtraPropertiesExtension
 
 fun Project.getProjectProp(key: String): String? = this.gradle.startParameter.projectProperties[key]
 
