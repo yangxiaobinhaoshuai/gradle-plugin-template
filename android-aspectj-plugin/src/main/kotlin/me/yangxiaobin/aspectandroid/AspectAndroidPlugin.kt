@@ -3,7 +3,7 @@ package me.yangxiaobin.aspectandroid
 import com.android.build.gradle.internal.pipeline.TransformTask
 import me.yangxiaobin.lib.base.BasePlugin
 import me.yangxiaobin.lib.ext.getAppExtension
-import me.yangxiaobin.lib.ext.getExtExtension
+import me.yangxiaobin.lib.ext.isJarFile
 import me.yangxiaobin.lib.ext.toPath
 import org.aspectj.bridge.IMessage
 import org.aspectj.bridge.MessageHandler
@@ -11,7 +11,7 @@ import org.aspectj.tools.ajc.Main
 import org.gradle.api.Project
 import org.gradle.api.execution.TaskExecutionGraph
 import org.gradle.api.tasks.compile.AbstractCompile
-import org.gradle.api.tasks.compile.JavaCompile
+import java.io.File
 
 class AspectAndroidPlugin : BasePlugin() {
 
@@ -42,18 +42,9 @@ class AspectAndroidPlugin : BasePlugin() {
 
         mProject.gradle.taskGraph.whenReady { graph: TaskExecutionGraph ->
 
-//            graph.allTasks.filterIsInstance<AbstractCompile>()
-//                .also { cs-> logI("abs compiles :${cs.map { it.javaClass }}") }
-//                .forEach {  compile ->
-//
-//                    if (compile is JavaCompile) return@whenReady
-//
-//                    compile.doLast { buildAjcCompileArgs(compile) }
-//                }
-
             graph.allTasks
-                .find { it.name.contains(transformName,ignoreCase = true) }
-                ?.doLast { t->
+                .find { it.name.contains(transformName, ignoreCase = true) }
+                ?.doLast { t ->
 
                     logI("${t.name} do last begins. input :${t.inputs.files.asPath} , output :${t.outputs.files.asPath}")
 
@@ -64,12 +55,51 @@ class AspectAndroidPlugin : BasePlugin() {
 
     private fun doAjcCompilation(transform: TransformTask) {
 
-        val destDir: String = transform.outputs.files.asPath
+        val transformOutputFile = File(transform.outputs.files.asPath)
+
+        val dirs: List<File>? = transformOutputFile.listFiles()?.filter { it.isDirectory }
+        val jars = transformOutputFile.listFiles()?.filter { it.isJarFile() }
+
+        if (!dirs.isNullOrEmpty()) ajcCompileDir(dirs)
+
+    }
+
+    private fun ajcCompileDir(dirs: List<File>) {
+
+        logI("ajcCompileDir, dir :${dirs}")
+
+        val aspectpath = dirs.joinToString(separator = File.pathSeparator)
+
+        dirs.forEach { dir ->
+
+            val destDir: String = dir.absolutePath
+
+            val ajcJrtClasspath = mProject.configurations.getByName("ajc").asPath
+
+            val bootclasspath: String = (mProject.getAppExtension?.bootClasspath ?: return).toPath()
+
+            val args = arrayOf<String>(
+                "-1.8",
+                "-showWeaveInfo",
+                "-d", destDir,
+                "-inpath", destDir,
+                "-aspectpath", aspectpath,
+                "-classpath", ajcJrtClasspath,
+                "-bootclasspath", bootclasspath,
+            )
+
+            Main().run(args, getLogMessageHandler())
+        }
+
+    }
+
+    private fun ajcCompileJars(jarsPath: String, destDir: String) {
+
+        logI("ajcCompileDir, jars :${jarsPath}")
 
         val ajcJrtClasspath = mProject.configurations.getByName("ajc").asPath
 
         val bootclasspath: String = (mProject.getAppExtension?.bootClasspath ?: return).toPath()
-
 
         val args = arrayOf<String>(
             "-1.8",
@@ -77,22 +107,25 @@ class AspectAndroidPlugin : BasePlugin() {
 //            "-verbose",
             "-d", destDir,
             "-inpath", destDir,
-            "-aspectpath",destDir,
+            "-aspectpath", destDir,
             "-classpath", ajcJrtClasspath,
             "-bootclasspath", bootclasspath,
         )
 
         Main().run(args, getLogMessageHandler())
+
     }
 
 
     private fun buildAjcCompileArgs(compile: AbstractCompile): Array<String> {
 
-        logI("""
+        logI(
+            """
             ${compile.name} doAjcCompilation begins.
             compile input :${compile.inputs.files.asPath}
             compile output :${compile.outputs.files.asFileTree.elements.get()}
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         val destDir = compile.destinationDir.toString()
 
