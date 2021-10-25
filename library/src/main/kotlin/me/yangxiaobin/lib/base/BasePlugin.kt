@@ -1,5 +1,6 @@
 package me.yangxiaobin.lib.base
 
+import me.yangxiaobin.lib.log.ILog
 import me.yangxiaobin.lib.log.LogLevel
 import me.yangxiaobin.lib.log.Logger
 import me.yangxiaobin.lib.log.log
@@ -17,10 +18,12 @@ abstract class BasePlugin : Plugin<Project> {
     protected lateinit var mLogger: org.gradle.api.logging.Logger
         private set
 
-    protected val logV by lazy { Logger.log(LogLevel.VERBOSE, TAG) }
-    protected val logI by lazy { Logger.log(LogLevel.INFO, TAG) }
-    protected val logD by lazy { Logger.log(LogLevel.DEBUG, TAG) }
-    protected val logE by lazy { Logger.log(LogLevel.ERROR, TAG) }
+    protected open val myLogger :ILog get() = Logger
+
+    protected val logV by lazy { myLogger.log(LogLevel.VERBOSE, TAG) }
+    protected val logI by lazy { myLogger.log(LogLevel.INFO, TAG) }
+    protected val logD by lazy { myLogger.log(LogLevel.DEBUG, TAG) }
+    protected val logE by lazy { myLogger.log(LogLevel.ERROR, TAG) }
 
     override fun apply(p: Project) {
         logI("${p.name} Applied basePlugin")

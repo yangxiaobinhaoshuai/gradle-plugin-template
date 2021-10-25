@@ -4,23 +4,31 @@ import com.android.build.gradle.internal.pipeline.TransformTask
 import me.yangxiaobin.lib.base.BasePlugin
 import me.yangxiaobin.lib.ext.getAppExtension
 import me.yangxiaobin.lib.ext.isJarFile
+import me.yangxiaobin.lib.ext.toFormat
 import me.yangxiaobin.lib.ext.toPath
+import me.yangxiaobin.lib.log.ILog
+import me.yangxiaobin.lib.log.LogLevel
+import me.yangxiaobin.lib.log.Logger
 import org.aspectj.bridge.IMessage
 import org.aspectj.bridge.MessageHandler
 import org.aspectj.tools.ajc.Main
 import org.gradle.api.Project
 import org.gradle.api.execution.TaskExecutionGraph
-import org.gradle.api.tasks.compile.AbstractCompile
 import java.io.File
 
 class AspectAndroidPlugin : BasePlugin() {
 
     override val TAG: String get() = "AAP"
 
+    private val messageHandler by lazy { getLogMessageHandler() }
+
+    override val myLogger: ILog
+        get() = super.myLogger.copy().setLevel(LogLevel.VERBOSE)
+
     override fun apply(p: Project) {
         super.apply(p)
 
-        logI("${p.name} applied AspectAndroidPlugin.")
+        logI.invoke("${p.name} applied AspectAndroidPlugin.")
 
         configAjcClasspath()
 
@@ -46,7 +54,7 @@ class AspectAndroidPlugin : BasePlugin() {
                 .find { it.name.contains(transformName, ignoreCase = true) }
                 ?.doLast { t ->
 
-                    logI("${t.name} do last begins. input :${t.inputs.files.asPath} , output :${t.outputs.files.asPath}")
+                    logI("${t.name} do last begins. >>")
 
                     doAjcCompilation(t as TransformTask)
                 }
@@ -55,18 +63,20 @@ class AspectAndroidPlugin : BasePlugin() {
 
     private fun doAjcCompilation(transform: TransformTask) {
 
-        val transformOutputFile = File(transform.outputs.files.asPath)
+        val transformOutputPath = transform.outputs.files.asPath
+        val transformOutputFile = File(transformOutputPath)
 
         val dirs: List<File>? = transformOutputFile.listFiles()?.filter { it.isDirectory }
-        val jars = transformOutputFile.listFiles()?.filter { it.isJarFile() }
+        val jars: List<File>? = transformOutputFile.listFiles()?.filter { it.isJarFile() }
 
         if (!dirs.isNullOrEmpty()) ajcCompileDir(dirs)
-
+        if (!jars.isNullOrEmpty()) ajcCompileJars(jars, transformOutputPath)
     }
 
     private fun ajcCompileDir(dirs: List<File>) {
 
-        logI("ajcCompileDir, dir :${dirs}")
+        val t1 = System.currentTimeMillis()
+        logI("  ajcCompileDir begins.")
 
         val aspectpath = dirs.joinToString(separator = File.pathSeparator)
 
@@ -88,14 +98,21 @@ class AspectAndroidPlugin : BasePlugin() {
                 "-bootclasspath", bootclasspath,
             )
 
-            Main().run(args, getLogMessageHandler())
+            logV("  ajcCompileDir args :${args.contentToString()}")
+
+            Main().run(args, messageHandler)
         }
 
+        logI("  ajcCompileDir ends in ${(System.currentTimeMillis() - t1).toFormat(false)}.")
     }
 
-    private fun ajcCompileJars(jarsPath: String, destDir: String) {
+    // TODO 验证 jars weave 是否正确
+    private fun ajcCompileJars(jars: List<File>, destDir: String) {
 
-        logI("ajcCompileDir, jars :${jarsPath}")
+        val t1 = System.currentTimeMillis()
+        logI("  ajcCompileJars begins")
+
+        val jarsInpath = jars.joinToString(separator = File.pathSeparator)
 
         val ajcJrtClasspath = mProject.configurations.getByName("ajc").asPath
 
@@ -104,60 +121,20 @@ class AspectAndroidPlugin : BasePlugin() {
         val args = arrayOf<String>(
             "-1.8",
             "-showWeaveInfo",
-//            "-verbose",
             "-d", destDir,
-            "-inpath", destDir,
+            "-inpath", jarsInpath,
             "-aspectpath", destDir,
             "-classpath", ajcJrtClasspath,
             "-bootclasspath", bootclasspath,
         )
 
-        Main().run(args, getLogMessageHandler())
+        logV("  ajcCompileJars args :${args.contentToString()}")
 
+        Main().run(args, messageHandler)
+
+        logI("  ajcCompileJars ends in ${(System.currentTimeMillis() - t1).toFormat(false)}")
     }
 
-
-    private fun buildAjcCompileArgs(compile: AbstractCompile): Array<String> {
-
-        logI(
-            """
-            ${compile.name} doAjcCompilation begins.
-            compile input :${compile.inputs.files.asPath}
-            compile output :${compile.outputs.files.asFileTree.elements.get()}
-        """.trimIndent()
-        )
-
-        val destDir = compile.destinationDir.toString()
-
-        val ajcJrtClasspath = mProject.configurations.getByName("ajc").asPath
-
-        val bootclasspath: String = (mProject.getAppExtension?.bootClasspath ?: return emptyArray()).toPath()
-
-
-        // ajc
-        // -classpath /Users/yangxiaobin/DevelopSpace/IDEA/gradle-plugin-template/androidapp/libs/aspectjrt-1.9.6.jar
-        // -1.8
-        // -showWeaveInfo
-        // -d .
-        // -inpath .
-        // -aspectpath ../../../intermediates/javac/debug/classes/me/yangxiaobin/androidapp/aspect
-        val args = arrayOf<String>(
-            "-1.8",
-            "-showWeaveInfo",
-//            "-verbose",
-            "-d", destDir,
-            "-inpath", destDir,
-            "-aspectpath",
-            "-classpath", ajcJrtClasspath,
-            "-bootclasspath", bootclasspath,
-        )
-
-        logI("ajc params :${args.contentToString()}")
-
-        //Main().run(args, getLogMessageHandler())
-
-        return args
-    }
 
     private fun getLogMessageHandler(): MessageHandler {
 
