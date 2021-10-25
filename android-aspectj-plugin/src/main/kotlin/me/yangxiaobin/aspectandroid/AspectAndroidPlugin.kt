@@ -2,25 +2,22 @@ package me.yangxiaobin.aspectandroid
 
 import com.android.build.gradle.internal.pipeline.TransformTask
 import me.yangxiaobin.lib.base.BasePlugin
-import me.yangxiaobin.lib.ext.getAppExtension
-import me.yangxiaobin.lib.ext.isJarFile
-import me.yangxiaobin.lib.ext.toFormat
-import me.yangxiaobin.lib.ext.toPath
+import me.yangxiaobin.lib.ext.*
 import me.yangxiaobin.lib.log.ILog
 import me.yangxiaobin.lib.log.LogLevel
-import me.yangxiaobin.lib.log.Logger
 import org.aspectj.bridge.IMessage
 import org.aspectj.bridge.MessageHandler
 import org.aspectj.tools.ajc.Main
 import org.gradle.api.Project
 import org.gradle.api.execution.TaskExecutionGraph
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.File
 
 class AspectAndroidPlugin : BasePlugin() {
 
     override val TAG: String get() = "AAP"
 
-    private val messageHandler by lazy { getLogMessageHandler() }
+    private val messageHandler by lazy { MessageHandler(false) }
 
     override val myLogger: ILog
         get() = super.myLogger.copy().setLevel(LogLevel.VERBOSE)
@@ -58,6 +55,7 @@ class AspectAndroidPlugin : BasePlugin() {
 
                     doAjcCompilation(t as TransformTask)
                 }
+
         }
     }
 
@@ -70,7 +68,7 @@ class AspectAndroidPlugin : BasePlugin() {
         val jars: List<File>? = transformOutputFile.listFiles()?.filter { it.isJarFile() }
 
         if (!dirs.isNullOrEmpty()) ajcCompileDir(dirs)
-        if (!jars.isNullOrEmpty()) ajcCompileJars(jars, transformOutputPath)
+        if (!jars.isNullOrEmpty()) ajcCompileJars(jars)
     }
 
     private fun ajcCompileDir(dirs: List<File>) {
@@ -101,65 +99,98 @@ class AspectAndroidPlugin : BasePlugin() {
             logV("  ajcCompileDir args :${args.contentToString()}")
 
             Main().run(args, messageHandler)
+
+            populateMessageHandler()
         }
 
         logI("  ajcCompileDir ends in ${(System.currentTimeMillis() - t1).toFormat(false)}.")
     }
 
-    // TODO 验证 jars weave 是否正确
-    private fun ajcCompileJars(jars: List<File>, destDir: String) {
+    /**
+     * Cause ajc can NOT output the jarfile with same name with the original one.
+     *
+     * 1. Rename original jar.
+     * 2. Do ajc compilation.
+     * 3. Rename back.
+     */
+    private fun ajcCompileJars(jars: List<File>) {
 
         val t1 = System.currentTimeMillis()
         logI("  ajcCompileJars begins")
 
-        val jarsInpath = jars.joinToString(separator = File.pathSeparator)
+        // TODO hardcode here.
+        val runtimeClasspath = mProject.configurations.find { it.name == "debugRuntimeClasspath" }?.asPath ?: return
 
-        val ajcJrtClasspath = mProject.configurations.getByName("ajc").asPath
+        // 1. rename
+        val prefix = "pre-ajc-"
 
-        val bootclasspath: String = (mProject.getAppExtension?.bootClasspath ?: return).toPath()
+        jars.map { it.renamed("$prefix${it.name}") }
+            .forEach { preJar ->
 
-        val args = arrayOf<String>(
-            "-1.8",
-            "-showWeaveInfo",
-            "-d", destDir,
-            "-inpath", jarsInpath,
-            "-aspectpath", destDir,
-            "-classpath", ajcJrtClasspath,
-            "-bootclasspath", bootclasspath,
-        )
+                val originalName = preJar.parent + File.separator + preJar.name.substring(prefix.length)
 
-        logV("  ajcCompileJars args :${args.contentToString()}")
+                val jarInpath = preJar.absolutePath
 
-        Main().run(args, messageHandler)
+                val destDir = preJar.parent
+
+                val compilePath =
+                    (mProject.tasks.find { it is KotlinCompile } as? KotlinCompile)?.classpath?.asPath ?: ""
+
+                // TODO more precise classpath.
+                val cp: String = (runtimeClasspath.split(File.pathSeparator) + compilePath.split(File.pathSeparator))
+                    .distinct()
+                    .filterNot { it.split(File.separator).last() == "jetified-kotlin-reflect-1.5.31.jar" }
+                    .filterNot { it.endsWith(".aar") }
+                    .joinToString(separator = File.pathSeparator)
+
+                val ajcJrtClasspath = mProject.configurations.getByName("ajc").asPath
+
+                val bootclasspath: String = (mProject.getAppExtension?.bootClasspath ?: return).toPath()
+
+                val args = arrayOf<String>(
+                    "-1.8",
+                    "-showWeaveInfo",
+                    "-d", destDir,
+                    "-inpath", jarInpath,
+                    "-aspectpath", destDir,
+                    "-classpath", "$ajcJrtClasspath:$cp",
+                    "-outjar", originalName,
+                    "-bootclasspath", bootclasspath,
+                )
+
+                logV("  ajcCompileJars args :${args.contentToString()}")
+
+                Main().run(args, messageHandler)
+
+                populateMessageHandler()
+
+                preJar.delete()
+            }
 
         logI("  ajcCompileJars ends in ${(System.currentTimeMillis() - t1).toFormat(false)}")
     }
 
 
-    private fun getLogMessageHandler(): MessageHandler {
+    private fun populateMessageHandler() {
 
-        val handler = MessageHandler(false)
-
-        for (message: IMessage in handler.errors) {
+        for (message: IMessage in messageHandler.getMessages(null, true)) {
 
             when (message.kind) {
                 IMessage.ABORT, IMessage.ERROR, IMessage.FAIL -> {
                     message.thrown?.printStackTrace()
-                    logE(message.message)
+                    //logE(message.message)
                     mLogger.error(message.message)
                 }
                 IMessage.WARNING, IMessage.INFO, IMessage.DEBUG -> {
-                    logD(message.message)
-                    mLogger.debug(message.message)
+                    //logD(message.message)
+                    //mLogger.debug(message.message)
                 }
                 else -> {
-                    logI(message.message)
-                    mLogger.info(message.message)
+                    //logI(message.message)
+                    //mLogger.info(message.message)
                 }
             }
         }
-
-        return handler
 
     }
 }

@@ -1,6 +1,5 @@
 package me.yangxiaobin.lib.ext
 
-import me.yangxiaobin.lib.asm.api.applyAsm
 import me.yangxiaobin.lib.asm.constant.DOT_CLASS
 import me.yangxiaobin.lib.asm.constant.EXT_CLASS
 import me.yangxiaobin.lib.asm.constant.EXT_JAR
@@ -22,6 +21,21 @@ fun ZipEntry.isClassFile() = !this.isDirectory && this.name.endsWith(DOT_CLASS)
 
 /* Checks if a file is a .jar file. */
 fun File.isJarFile() = this.isFile && this.extension == EXT_JAR
+
+fun File.rename(newName: String): Boolean {
+    if (this.name == newName) return false
+
+    val newFile = File(this.parentFile, newName).touch()
+    return this.renameTo(newFile)
+}
+
+fun File.renamed(newName: String): File {
+    if (this.name == newName) throw IllegalArgumentException("newName can't be same with original file:$this")
+
+    val newFile = File(this.parentFile, newName).touch()
+    this.renameTo(newFile)
+    return newFile
+}
 
 
 /**
