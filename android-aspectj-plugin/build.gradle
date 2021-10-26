@@ -28,8 +28,8 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib"
-    implementation 'org.codehaus.groovy:groovy-all:3.0.5'
+   // implementation "org.jetbrains.kotlin:kotlin-stdlib"
+    //implementation 'org.codehaus.groovy:groovy-all:3.0.5'
     implementation 'me.yangxiaobin.lib:library:1.0-SNAPSHOT'
 
     compileOnly libDeps.agp4

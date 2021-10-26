@@ -7,8 +7,8 @@ import org.aspectj.lang.annotation.Aspect
 @Aspect
 class KotlinAspect {
 
-//    @After("execution(public * *(..))")
-//    fun doBefore() {
-//        println("-----> Im Before Aspect")
-//    }
+    @After("execution(private * *(..))")
+    fun doBefore() {
+        println("-----> Im Before Aspect")
+    }
 }

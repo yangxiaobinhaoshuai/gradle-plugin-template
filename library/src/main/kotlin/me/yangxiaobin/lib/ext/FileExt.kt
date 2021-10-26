@@ -41,7 +41,7 @@ fun File.renamed(newName: String): File {
 /**
  * convert bootClassPath<File>  to String separated by ":"
 </File> */
-fun List<File>?.toPath(): String {
+fun Collection<File>?.toPath(): String {
     require(!(this == null || this.isEmpty())) { "The parameters can't be null." }
     val sb = StringBuilder()
     this.forEach { s: File ->

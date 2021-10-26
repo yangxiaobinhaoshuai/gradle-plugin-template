@@ -23,6 +23,9 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
 
     protected val logV = logger.log(LogLevel.VERBOSE, name)
 
+    var currentVariantName: String? = null
+        private set
+
     override fun getInputTypes() = setOf(QualifiedContent.DefaultContentType.CLASSES)
 
     override fun getName(): String = "AbsLegacyTransform"
@@ -35,6 +38,7 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
 
         val t1 = System.currentTimeMillis()
         logI("variant: ${invocation.context.variantName}(isIncremental:${invocation.isIncremental}) transform begins.")
+        currentVariantName = invocation.context.variantName
 
         beforeTransform()
 

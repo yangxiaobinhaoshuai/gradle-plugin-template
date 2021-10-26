@@ -5,11 +5,13 @@ import me.yangxiaobin.lib.base.BasePlugin
 import me.yangxiaobin.lib.ext.*
 import me.yangxiaobin.lib.log.ILog
 import me.yangxiaobin.lib.log.LogLevel
+import me.yangxiaobin.lib.transform.AbsLegacyTransform
 import org.aspectj.bridge.IMessage
 import org.aspectj.bridge.MessageHandler
 import org.aspectj.tools.ajc.Main
 import org.gradle.api.Project
 import org.gradle.api.execution.TaskExecutionGraph
+import org.gradle.api.tasks.compile.JavaCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.File
 
@@ -19,8 +21,10 @@ class AspectAndroidPlugin : BasePlugin() {
 
     private val messageHandler by lazy { MessageHandler(false) }
 
+    private var curTransform: AbsLegacyTransform? = null
+
     override val myLogger: ILog
-        get() = super.myLogger.copy().setLevel(LogLevel.VERBOSE)
+        get() = super.myLogger.copy().setLevel(LogLevel.INFO)
 
     override fun apply(p: Project) {
         super.apply(p)
@@ -30,6 +34,7 @@ class AspectAndroidPlugin : BasePlugin() {
         configAjcClasspath()
 
         val aspectTransform = AspectTransform(mProject)
+        curTransform = aspectTransform
 
         p.afterEvaluate { p.getAppExtension?.registerTransform(aspectTransform) }
 
@@ -118,13 +123,12 @@ class AspectAndroidPlugin : BasePlugin() {
         val t1 = System.currentTimeMillis()
         logI("  ajcCompileJars begins")
 
-        // TODO hardcode here.
-        val runtimeClasspath = mProject.configurations.find { it.name == "debugRuntimeClasspath" }?.asPath ?: return
-
-        // 1. rename
         val prefix = "pre-ajc-"
 
-        jars.map { it.renamed("$prefix${it.name}") }
+        jars
+            // 1. Rename
+            .map { it.renamed("$prefix${it.name}") }
+            // 2. Ajc compile
             .forEach { preJar ->
 
                 val originalName = preJar.parent + File.separator + preJar.name.substring(prefix.length)
@@ -133,17 +137,7 @@ class AspectAndroidPlugin : BasePlugin() {
 
                 val destDir = preJar.parent
 
-                val compilePath =
-                    (mProject.tasks.find { it is KotlinCompile } as? KotlinCompile)?.classpath?.asPath ?: ""
-
-                // TODO more precise classpath.
-                val cp: String = (runtimeClasspath.split(File.pathSeparator) + compilePath.split(File.pathSeparator))
-                    .distinct()
-                    .filterNot { it.split(File.separator).last() == "jetified-kotlin-reflect-1.5.31.jar" }
-                    .filterNot { it.endsWith(".aar") }
-                    .joinToString(separator = File.pathSeparator)
-
-                val ajcJrtClasspath = mProject.configurations.getByName("ajc").asPath
+                val classpath: String = calculateClasspath()
 
                 val bootclasspath: String = (mProject.getAppExtension?.bootClasspath ?: return).toPath()
 
@@ -153,21 +147,52 @@ class AspectAndroidPlugin : BasePlugin() {
                     "-d", destDir,
                     "-inpath", jarInpath,
                     "-aspectpath", destDir,
-                    "-classpath", "$ajcJrtClasspath:$cp",
+                    "-classpath", classpath,
                     "-outjar", originalName,
                     "-bootclasspath", bootclasspath,
                 )
 
+                logV("  process jarfile :${preJar.name}")
                 logV("  ajcCompileJars args :${args.contentToString()}")
 
                 Main().run(args, messageHandler)
 
                 populateMessageHandler()
 
+                // 3. Delete original jars.
                 preJar.delete()
             }
 
         logI("  ajcCompileJars ends in ${(System.currentTimeMillis() - t1).toFormat(false)}")
+    }
+
+    private fun calculateClasspath(): String {
+
+        val curVariantName = curTransform?.currentVariantName
+            ?: throw IllegalArgumentException("current variant name can NOT be null.")
+
+        val ajcJrtClasspath: String = mProject.configurations.getByName("ajc").asPath
+
+        val kotlinCompilePath: Set<File> =
+            (mProject.tasks.find { it is KotlinCompile } as? KotlinCompile)?.classpath?.toSet() ?: emptySet()
+
+        val javaCompilePath: Set<File> =
+            (mProject.tasks.find { it is JavaCompile } as? JavaCompile)?.classpath?.toSet() ?: emptySet()
+
+        // i.e. debugRuntimeClasspath
+        val runtimeClasspath: Set<File> =
+            mProject.configurations.find { it.name == "${curVariantName}RuntimeClasspath" }?.toSet() ?: emptySet()
+
+        val combinedClasspath: Set<File> = kotlinCompilePath + javaCompilePath + runtimeClasspath
+
+        val path = combinedClasspath
+            .filterNot { it.name.endsWith(".aar") }
+            .toPath()
+
+        return "$path:$ajcJrtClasspath".also { cp ->
+            val neatCp = cp.split(File.pathSeparator).joinToString("\r\n") { singlePath -> singlePath.split(File.separator).last() }
+            logV("calculateClasspath :$neatCp \r\n")
+        }
     }
 
 
@@ -183,11 +208,11 @@ class AspectAndroidPlugin : BasePlugin() {
                 }
                 IMessage.WARNING, IMessage.INFO, IMessage.DEBUG -> {
                     //logD(message.message)
-                    //mLogger.debug(message.message)
+                    mLogger.debug(message.message)
                 }
                 else -> {
                     //logI(message.message)
-                    //mLogger.info(message.message)
+                    mLogger.info(message.message)
                 }
             }
         }
