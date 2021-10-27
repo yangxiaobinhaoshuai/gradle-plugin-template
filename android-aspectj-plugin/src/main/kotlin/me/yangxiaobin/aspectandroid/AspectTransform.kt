@@ -21,13 +21,13 @@ class AspectTransform(project: Project) : AbsLegacyTransform(project) {
 
     override fun isIncremental(): Boolean = true
 
-    override fun getJarTransformer(): Function<ByteArray, ByteArray>? {
-        return getClassTransformer()
-    }
-
-    override fun getClassTransformer(): Function<ByteArray, ByteArray>? {
-        return super.getClassTransformer()
-    }
+//    override fun getJarTransformer(): Function<ByteArray, ByteArray>? {
+//        return getClassTransformer()
+//    }
+//
+//    override fun getClassTransformer(): Function<ByteArray, ByteArray>? {
+//        return super.getClassTransformer()
+//    }
 
     override fun isClassValid(f: File): Boolean {
         return super.isClassValid(f)

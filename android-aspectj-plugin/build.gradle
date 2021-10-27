@@ -27,6 +27,18 @@ gradlePlugin {
     }
 }
 
+configurations {
+    fatJar
+}
+
+jar {
+    from {
+        configurations.fatJar.collect { it.isDirectory() ? it : zipTree(it) }
+    }{
+        exclude 'META-INF', 'META-INF/**'
+    }
+}
+
 repositories {
     google()
     mavenCentral()
@@ -38,7 +50,10 @@ dependencies {
 
    // implementation "org.jetbrains.kotlin:kotlin-stdlib"
     //implementation 'org.codehaus.groovy:groovy-all:3.0.5'
-    implementation 'me.yangxiaobin.lib:library:1.0-SNAPSHOT'
+    compileOnly 'me.yangxiaobin.lib:library:1.0-SNAPSHOT'
+    fatJar 'me.yangxiaobin.lib:library:1.0-SNAPSHOT'
+
+    //compileOnly fileTree(dir: "libs", include: ["*.jar", "*.aar"])
 
     compileOnly libDeps.agp4
     compileOnly libDeps.kgp
