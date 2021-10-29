@@ -33,6 +33,21 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+
+    flavorDimensions "environment"
+    productFlavors {
+        kimtest {
+            dimension "environment"
+        }
+
+        prod {
+            dimension "environment"
+        }
+
+        appstore{
+            dimension "environment"
+        }
+    }
 }
 
 //configurations.all {

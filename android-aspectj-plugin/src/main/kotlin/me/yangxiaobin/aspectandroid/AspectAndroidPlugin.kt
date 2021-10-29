@@ -1,15 +1,14 @@
 package me.yangxiaobin.aspectandroid
 
-import com.android.build.gradle.internal.pipeline.TransformTask
 import me.yangxiaobin.lib.base.BasePlugin
 import me.yangxiaobin.lib.ext.*
 import me.yangxiaobin.lib.log.ILog
 import me.yangxiaobin.lib.log.LogLevel
-import me.yangxiaobin.lib.transform.AbsLegacyTransform
 import org.aspectj.bridge.IMessage
 import org.aspectj.bridge.MessageHandler
 import org.aspectj.tools.ajc.Main
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.execution.TaskExecutionGraph
 import org.gradle.api.tasks.compile.JavaCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -21,7 +20,9 @@ class AspectAndroidPlugin : BasePlugin() {
 
     private val messageHandler by lazy { MessageHandler(false) }
 
-    private var curTransform: AbsLegacyTransform? = null
+    private var curVariantName: String? = null
+
+    private val ext: AspectAndroidExt by lazy { mProject.extensions.getByType(AspectAndroidExt::class.java) }
 
     override val myLogger: ILog
         get() = super.myLogger.copy().setLevel(LogLevel.INFO)
@@ -31,49 +32,60 @@ class AspectAndroidPlugin : BasePlugin() {
 
         logI.invoke("${p.name} applied AspectAndroidPlugin.")
 
+        mProject.extensions.create("aspectAndroid",AspectAndroidExt::class.java)
+
         configAjcClasspath()
 
-        val aspectTransform = AspectTransform(mProject)
-        curTransform = aspectTransform
+        p.afterEvaluate {
+            logI("Resolved aspectJrt version :${ext.aspectJrtVersion}")
+        }
 
-        p.afterEvaluate { p.getAppExtension?.registerTransform(aspectTransform) }
-
-        configAjcCompileTask(aspectTransform.name)
+         configAjcCompileTask()
     }
 
     private fun configAjcClasspath() {
         mProject.configurations.create("ajc")
 
-        mProject.dependencies.add("ajc", "org.aspectj:aspectjrt:1.9.7")
+        mProject.dependencies.add("ajc", "org.aspectj:aspectjrt:${ext.aspectJrtVersion}")
     }
 
 
-    private fun configAjcCompileTask(transformName: String) {
+    private fun configAjcCompileTask() {
 
         mProject.gradle.taskGraph.whenReady { graph: TaskExecutionGraph ->
 
+            val defaultTransformTaskPrefix = "transform"
+            val defaultTransformTaskSuffix = "ClassesWithAsm"
+
             graph.allTasks
-                .find { it.name.contains(transformName, ignoreCase = true) }
+                // :app:transformAppstoreDebugClassesWithAsm
+                .find {
+                    it.project.name == "app"
+                            && it.name.startsWith(defaultTransformTaskPrefix, ignoreCase = true)
+                            && it.name.endsWith(defaultTransformTaskSuffix, ignoreCase = true)
+                }
                 ?.doLast { t ->
 
-                    logI("${t.name} do last begins. >>")
+                    curVariantName = t.name.substring(defaultTransformTaskPrefix.length,t.name.indexOf(defaultTransformTaskSuffix))
 
-                    doAjcCompilation(t as TransformTask)
+                    logI("${t.name} do last begins, current variant name: $curVariantName >>")
+
+                    doAjcCompilation(t)
                 }
 
         }
     }
 
-    private fun doAjcCompilation(transform: TransformTask) {
+    private fun doAjcCompilation(t: Task) {
 
-        val transformOutputPath = transform.outputs.files.asPath
+        val transformOutputPath = t.outputs.files.asPath
         val transformOutputFile = File(transformOutputPath)
 
         val dirs: List<File>? = transformOutputFile.listFiles()?.filter { it.isDirectory }
         val jars: List<File>? = transformOutputFile.listFiles()?.filter { it.isJarFile() }
 
         if (!dirs.isNullOrEmpty()) ajcCompileDir(dirs)
-        if (!jars.isNullOrEmpty()) ajcCompileJars(jars)
+        //if (!jars.isNullOrEmpty()) ajcCompileJars(jars)
     }
 
     private fun ajcCompileDir(dirs: List<File>) {
@@ -168,8 +180,7 @@ class AspectAndroidPlugin : BasePlugin() {
 
     private fun calculateClasspath(): String {
 
-        val curVariantName = curTransform?.currentVariantName
-            ?: throw IllegalArgumentException("current variant name can NOT be null.")
+        val curVariantName = curVariantName ?: throw IllegalArgumentException("current variant name can NOT be null.")
 
         val ajcJrtClasspath: String = mProject.configurations.getByName("ajc").asPath
 
