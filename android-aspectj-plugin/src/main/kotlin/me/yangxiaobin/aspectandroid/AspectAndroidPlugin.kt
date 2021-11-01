@@ -1,9 +1,11 @@
 package me.yangxiaobin.aspectandroid
 
+import com.android.build.gradle.internal.pipeline.TransformTask
 import me.yangxiaobin.lib.base.BasePlugin
 import me.yangxiaobin.lib.ext.*
 import me.yangxiaobin.lib.log.ILog
 import me.yangxiaobin.lib.log.LogLevel
+import me.yangxiaobin.lib.transform.AbsLegacyTransform
 import org.aspectj.bridge.IMessage
 import org.aspectj.bridge.MessageHandler
 import org.aspectj.tools.ajc.Main
@@ -34,13 +36,16 @@ class AspectAndroidPlugin : BasePlugin() {
 
         mProject.extensions.create("aspectAndroid",AspectAndroidExt::class.java)
 
+        val aspectTransform = AspectTransform(mProject)
+
         configAjcClasspath()
 
         p.afterEvaluate {
             logI("Resolved aspectJrt version :${ext.aspectJrtVersion}")
+            p.getAppExtension?.registerTransform(aspectTransform)
         }
 
-         configAjcCompileTask()
+         configAjcCompileTask(aspectTransform.name)
     }
 
     private fun configAjcClasspath() {
@@ -50,23 +55,19 @@ class AspectAndroidPlugin : BasePlugin() {
     }
 
 
-    private fun configAjcCompileTask() {
+    private fun configAjcCompileTask(transformName: String) {
 
         mProject.gradle.taskGraph.whenReady { graph: TaskExecutionGraph ->
 
-            val defaultTransformTaskPrefix = "transform"
-            val defaultTransformTaskSuffix = "ClassesWithAsm"
-
             graph.allTasks
-                // :app:transformAppstoreDebugClassesWithAsm
-                .find {
-                    it.project.name == "app"
-                            && it.name.startsWith(defaultTransformTaskPrefix, ignoreCase = true)
-                            && it.name.endsWith(defaultTransformTaskSuffix, ignoreCase = true)
-                }
+                .find { it.name.contains(transformName, ignoreCase = true) }
                 ?.doLast { t ->
 
-                    curVariantName = t.name.substring(defaultTransformTaskPrefix.length,t.name.indexOf(defaultTransformTaskSuffix))
+                    curVariantName = ((t as? TransformTask)?.transform as? AbsLegacyTransform)?.currentVariantName
+                        ?: kotlin.run {
+                            logE("Can NOT get current variant name, so ajc compilation returned.")
+                            return@doLast
+                        }
 
                     logI("${t.name} do last begins, current variant name: $curVariantName >>")
 
@@ -85,7 +86,7 @@ class AspectAndroidPlugin : BasePlugin() {
         val jars: List<File>? = transformOutputFile.listFiles()?.filter { it.isJarFile() }
 
         if (!dirs.isNullOrEmpty()) ajcCompileDir(dirs)
-        //if (!jars.isNullOrEmpty()) ajcCompileJars(jars)
+        if (!jars.isNullOrEmpty()) ajcCompileJars(jars)
     }
 
     private fun ajcCompileDir(dirs: List<File>) {
@@ -134,6 +135,10 @@ class AspectAndroidPlugin : BasePlugin() {
 
         val t1 = System.currentTimeMillis()
         logI("  ajcCompileJars begins")
+
+
+        val configNames = mProject.configurations.filter { it.isCanBeResolved }.joinToString("\r\n") { it.name }
+        logV("current variant : $curVariantName, config names :$configNames")
 
         val prefix = "pre-ajc-"
 
