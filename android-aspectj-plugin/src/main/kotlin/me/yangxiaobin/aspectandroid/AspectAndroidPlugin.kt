@@ -43,6 +43,7 @@ class AspectAndroidPlugin : BasePlugin() {
         p.afterEvaluate {
             logI("Resolved aspectJrt version :${ext.aspectJrtVersion}")
             p.getAppExtension?.registerTransform(aspectTransform)
+            p.dependencies.add("implementation","org.aspectj:aspectjrt:${ext.aspectJrtVersion}")
         }
 
          configAjcCompileTask(aspectTransform.name)
@@ -100,7 +101,7 @@ class AspectAndroidPlugin : BasePlugin() {
 
             val destDir: String = dir.absolutePath
 
-            val ajcJrtClasspath = mProject.configurations.getByName("ajc").asPath
+            val classpath: String = calculateClasspath()
 
             val bootclasspath: String = (mProject.getAppExtension?.bootClasspath ?: return).toPath()
 
@@ -110,7 +111,7 @@ class AspectAndroidPlugin : BasePlugin() {
                 "-d", destDir,
                 "-inpath", destDir,
                 "-aspectpath", aspectpath,
-                "-classpath", ajcJrtClasspath,
+                "-classpath", classpath,
                 "-bootclasspath", bootclasspath,
             )
 
