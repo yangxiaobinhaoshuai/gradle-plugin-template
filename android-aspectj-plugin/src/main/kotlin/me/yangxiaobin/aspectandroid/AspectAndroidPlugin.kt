@@ -11,6 +11,7 @@ import org.aspectj.bridge.MessageHandler
 import org.aspectj.tools.ajc.Main
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.execution.TaskExecutionGraph
 import org.gradle.api.tasks.compile.JavaCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -44,9 +45,18 @@ class AspectAndroidPlugin : BasePlugin() {
             logI("Resolved aspectJrt version :${ext.aspectJrtVersion}")
             p.getAppExtension?.registerTransform(aspectTransform)
             p.dependencies.add("implementation","org.aspectj:aspectjrt:${ext.aspectJrtVersion}")
+            //fixVariantSelection()
         }
 
          configAjcCompileTask(aspectTransform.name)
+    }
+
+    private fun fixVariantSelection(){
+
+        mProject.configurations.getByName("implementation")
+            .dependencies.filterIsInstance<ProjectDependency>()
+            .forEach { it.targetConfiguration = "default" }
+
     }
 
     private fun configAjcClasspath() {
@@ -196,9 +206,21 @@ class AspectAndroidPlugin : BasePlugin() {
         val javaCompilePath: Set<File> =
             (mProject.tasks.find { it is JavaCompile } as? JavaCompile)?.classpath?.toSet() ?: emptySet()
 
+        // FIXME
+        // - Configuration ':kim-strings:debugRuntimeElements' variant jar declares a runtime of a component, as well as attribute 'com.android.build.api.attributes.BuildTypeAttr' with value 'debug':
+        //      - Unmatched attributes:
+        //          - Provides attribute 'artifactType' with value 'jar' but the consumer didn't ask for it
+        //          - Provides attribute 'com.android.build.api.attributes.VariantAttr' with value 'debug' but the consumer didn't ask for it
+        //          - Doesn't say anything about environment (required 'appstore')
+        //          - Provides its elements packaged as a jar but the consumer didn't ask for it
+        //          - Doesn't say anything about org.jetbrains.kotlin.platform.type (required 'androidJvm')
+
         // i.e. debugRuntimeClasspath
-        val runtimeClasspath: Set<File> =
-            mProject.configurations.find { it.name == "${curVariantName}RuntimeClasspath" }?.toSet() ?: emptySet()
+
+        val allConfigs = mProject.configurations.joinToString { it.name }
+        logI("Project :${mProject.name}, configs :$allConfigs")
+
+        val runtimeClasspath: Set<File> = mProject.configurations.find { it.name == "${curVariantName}RuntimeClasspath" }?.toSet() ?: emptySet()
 
         val combinedClasspath: Set<File> = kotlinCompilePath + javaCompilePath + runtimeClasspath
 

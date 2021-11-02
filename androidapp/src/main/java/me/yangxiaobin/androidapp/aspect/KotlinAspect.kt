@@ -1,6 +1,5 @@
 package me.yangxiaobin.androidapp.aspect
 
-import android.util.Log
 import me.yangxiaobin.androidapp.util.logCurried
 import org.aspectj.lang.annotation.After
 import org.aspectj.lang.annotation.Aspect
@@ -11,8 +10,7 @@ class KotlinAspect {
 
     private val TAG = "KotlinAspect"
 
-
-    val logD = logCurried(TAG)
+    private val logD = logCurried(TAG)
 
 
     // Application aspect
