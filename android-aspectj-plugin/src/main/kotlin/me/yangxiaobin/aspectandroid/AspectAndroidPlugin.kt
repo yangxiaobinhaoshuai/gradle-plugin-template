@@ -1,5 +1,6 @@
 package me.yangxiaobin.aspectandroid
 
+import com.android.build.gradle.api.ApplicationVariant
 import com.android.build.gradle.internal.pipeline.TransformTask
 import me.yangxiaobin.lib.base.BasePlugin
 import me.yangxiaobin.lib.ext.*
@@ -11,7 +12,8 @@ import org.aspectj.bridge.MessageHandler
 import org.aspectj.tools.ajc.Main
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.artifacts.ProjectDependency
+import org.gradle.api.artifacts.*
+import org.gradle.api.attributes.Attribute
 import org.gradle.api.execution.TaskExecutionGraph
 import org.gradle.api.tasks.compile.JavaCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -35,7 +37,7 @@ class AspectAndroidPlugin : BasePlugin() {
 
         logI.invoke("${p.name} applied AspectAndroidPlugin.")
 
-        mProject.extensions.create("aspectAndroid",AspectAndroidExt::class.java)
+        mProject.extensions.create("aspectAndroid", AspectAndroidExt::class.java)
 
         val aspectTransform = AspectTransform(mProject)
 
@@ -44,18 +46,19 @@ class AspectAndroidPlugin : BasePlugin() {
         p.afterEvaluate {
             logI("Resolved aspectJrt version :${ext.aspectJrtVersion}")
             p.getAppExtension?.registerTransform(aspectTransform)
-            p.dependencies.add("implementation","org.aspectj:aspectjrt:${ext.aspectJrtVersion}")
+            p.dependencies.add("implementation", "org.aspectj:aspectjrt:${ext.aspectJrtVersion}")
             //fixVariantSelection()
         }
 
-         configAjcCompileTask(aspectTransform.name)
+        configAjcCompileTask(aspectTransform.name)
     }
 
-    private fun fixVariantSelection(){
+    private fun fixVariantSelection() {
 
         mProject.configurations.getByName("implementation")
             .dependencies.filterIsInstance<ProjectDependency>()
             .forEach { it.targetConfiguration = "default" }
+//            .forEach { it.targetConfiguration = "implementation" }
 
     }
 
@@ -180,15 +183,15 @@ class AspectAndroidPlugin : BasePlugin() {
                     "-bootclasspath", bootclasspath,
                 )
 
-                logV("  process jarfile :${preJar.name}")
+                logI("  process jarfile :${preJar.name}")
                 logV("  ajcCompileJars args :${args.contentToString()}")
 
                 Main().run(args, messageHandler)
 
-                populateMessageHandler()
+                val isSuccessful = populateMessageHandler()
 
                 // 3. Delete original jars.
-                preJar.delete()
+                if (isSuccessful) preJar.delete() else preJar.renamed(preJar.name.substring(prefix.length))
             }
 
         logI("  ajcCompileJars ends in ${(System.currentTimeMillis() - t1).toFormat(false)}")
@@ -197,6 +200,27 @@ class AspectAndroidPlugin : BasePlugin() {
     private fun calculateClasspath(): String {
 
         val curVariantName = curVariantName ?: throw IllegalArgumentException("current variant name can NOT be null.")
+
+        val appExt = mProject.getAppExtension
+            ?: throw IllegalArgumentException("Aspect-Android plugin can ONLY be applied on Android project.")
+
+        val variant: ApplicationVariant = appExt.applicationVariants.matching { v: ApplicationVariant ->
+            v.name.contains(curVariantName, ignoreCase = true)
+        }.singleOrNull() ?: throw IllegalArgumentException("This build does NOT contains $curVariantName variant.")
+
+
+        val variantRtCp: Configuration = variant.runtimeConfiguration
+
+        val artifactType: Attribute<String> = Attribute.of("artifactType", String::class.java)
+        // Specific artifactType attribute to avoid variantSelectionFailure.
+        val fs = variantRtCp.incoming.artifactView { viewConfig: ArtifactView.ViewConfiguration ->
+            viewConfig.attributes {
+                // or jar
+                it.attribute(artifactType, "android-classes-jar")
+                it.attribute(artifactType, "jar")
+            }
+        }.artifacts.artifactFiles.toSet()
+
 
         val ajcJrtClasspath: String = mProject.configurations.getByName("ajc").asPath
 
@@ -217,25 +241,32 @@ class AspectAndroidPlugin : BasePlugin() {
 
         // i.e. debugRuntimeClasspath
 
-        val allConfigs = mProject.configurations.joinToString { it.name }
-        logI("Project :${mProject.name}, configs :$allConfigs")
+        //val allConfigs = mProject.configurations.joinToString { it.name }
+        //logI("Project :${mProject.name}, configs :$allConfigs")
 
-        val runtimeClasspath: Set<File> = mProject.configurations.find { it.name == "${curVariantName}RuntimeClasspath" }?.toSet() ?: emptySet()
+        //val runtimeClasspath: Set<File> = mProject.configurations.find { it.name == "${curVariantName}RuntimeClasspath" }?.toSet() ?: emptySet()
+//        val runtimeClasspath: Set<File> = variantRtCp.incoming.files.toSet()
 
-        val combinedClasspath: Set<File> = kotlinCompilePath + javaCompilePath + runtimeClasspath
+        val combinedClasspath: Set<File> = kotlinCompilePath + javaCompilePath + fs
 
         val path = combinedClasspath
             .filterNot { it.name.endsWith(".aar") }
             .toPath()
 
         return "$path:$ajcJrtClasspath".also { cp ->
-            val neatCp = cp.split(File.pathSeparator).joinToString("\r\n") { singlePath -> singlePath.split(File.separator).last() }
+            val neatCp = cp.split(File.pathSeparator)
+                .joinToString("\r\n") { singlePath -> singlePath.split(File.separator).last() }
             logV("calculateClasspath :$neatCp \r\n")
         }
     }
 
 
-    private fun populateMessageHandler() {
+    /**
+     * @return AJC result, true for success.
+     */
+    private fun populateMessageHandler(): Boolean {
+
+        var isSuccessful = true
 
         for (message: IMessage in messageHandler.getMessages(null, true)) {
 
@@ -244,6 +275,7 @@ class AspectAndroidPlugin : BasePlugin() {
                     message.thrown?.printStackTrace()
                     //logE(message.message)
                     mLogger.error(message.message)
+                    isSuccessful = false
                 }
                 IMessage.WARNING, IMessage.INFO, IMessage.DEBUG -> {
                     //logD(message.message)
@@ -256,5 +288,6 @@ class AspectAndroidPlugin : BasePlugin() {
             }
         }
 
+        return isSuccessful
     }
 }

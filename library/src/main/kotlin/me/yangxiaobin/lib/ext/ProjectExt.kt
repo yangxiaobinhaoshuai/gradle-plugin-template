@@ -1,6 +1,7 @@
 package me.yangxiaobin.lib.ext
 
 import com.android.build.gradle.AppExtension
+import com.android.build.gradle.AppPlugin
 import me.yangxiaobin.lib.annotation.AfterEvaluation
 import me.yangxiaobin.lib.log.LogLevel
 import me.yangxiaobin.lib.log.Logger
@@ -24,6 +25,11 @@ val Project.mainSourceSet: SourceSet?
 val Project.getAppExtension: AppExtension?
     get() = this.extensions.getByName("android") as? AppExtension
 
+@AfterEvaluation
+val Project.getAppPlugin: AppPlugin?
+    get() = this.plugins.findPlugin(AppPlugin::class.java)
+
+@AfterEvaluation
 val Project.getExtExtension: DefaultExtraPropertiesExtension?
     get() = this.extensions.getByName("ext") as? DefaultExtraPropertiesExtension
 

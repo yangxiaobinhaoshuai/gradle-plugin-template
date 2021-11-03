@@ -43,3 +43,4 @@ includeBuild 'library'
 //includeBuild 'java-aspectj-plugin'
 includeBuild 'android-aspectj-plugin'
 
+include ':androidlibrary'
