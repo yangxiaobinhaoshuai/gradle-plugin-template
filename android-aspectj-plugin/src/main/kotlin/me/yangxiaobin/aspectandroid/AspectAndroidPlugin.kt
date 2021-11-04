@@ -29,15 +29,24 @@ class AspectAndroidPlugin : BasePlugin() {
 
     private val ext: AspectAndroidExt by lazy { mProject.extensions.getByType(AspectAndroidExt::class.java) }
 
+    private val buildLogFile by lazy { ext.generateDebugLogFile }
+
     override val myLogger: ILog
         get() = super.myLogger.copy().setLevel(LogLevel.INFO)
 
     private var hasWroteClasspath = false
+    private val classpathFile by lazy { File(mProject.buildDir, "ajcTmp/ajc-classpath.txt").touch() }
+
+    private val logEFile by lazy { File(mProject.buildDir, "ajcTmp/ajc-logE.txt").touch() }
+    private val logIFile by lazy { File(mProject.buildDir, "ajcTmp/ajc-logI.txt").touch() }
+    private val logElseFile by lazy { File(mProject.buildDir, "ajcTmp/ajc-logElse.txt").touch() }
 
     override fun apply(p: Project) {
         super.apply(p)
 
         logI("${p.name} applied AspectAndroidPlugin.")
+
+        cleanup()
 
         mProject.extensions.create("aspectAndroid", AspectAndroidExt::class.java)
 
@@ -52,6 +61,12 @@ class AspectAndroidPlugin : BasePlugin() {
         }
 
         configAjcCompileTask(aspectTransform.name)
+    }
+
+    private fun cleanup() {
+        logEFile.delete()
+        logIFile.delete()
+        logElseFile.delete()
     }
 
     private fun configAjcClasspath() {
@@ -222,22 +237,6 @@ class AspectAndroidPlugin : BasePlugin() {
         val javaCompilePath: Set<File> =
             (mProject.tasks.find { it is JavaCompile } as? JavaCompile)?.classpath?.toSet() ?: emptySet()
 
-        // FIXME
-        // - Configuration ':kim-strings:debugRuntimeElements' variant jar declares a runtime of a component, as well as attribute 'com.android.build.api.attributes.BuildTypeAttr' with value 'debug':
-        //      - Unmatched attributes:
-        //          - Provides attribute 'artifactType' with value 'jar' but the consumer didn't ask for it
-        //          - Provides attribute 'com.android.build.api.attributes.VariantAttr' with value 'debug' but the consumer didn't ask for it
-        //          - Doesn't say anything about environment (required 'appstore')
-        //          - Provides its elements packaged as a jar but the consumer didn't ask for it
-        //          - Doesn't say anything about org.jetbrains.kotlin.platform.type (required 'androidJvm')
-
-        // i.e. debugRuntimeClasspath
-
-        //val allConfigs = mProject.configurations.joinToString { it.name }
-        //logI("Project :${mProject.name}, configs :$allConfigs")
-
-        //val runtimeClasspath: Set<File> = mProject.configurations.find { it.name == "${curVariantName}RuntimeClasspath" }?.toSet() ?: emptySet()
-//        val runtimeClasspath: Set<File> = variantRtCp.incoming.files.toSet()
 
         val combinedClasspath: Set<File> = kotlinCompilePath + javaCompilePath + fs
 
@@ -247,12 +246,9 @@ class AspectAndroidPlugin : BasePlugin() {
 
         return "$path:$ajcJrtClasspath"
             .also { cp ->
-                if (hasWroteClasspath) return@also
+                if (!buildLogFile && hasWroteClasspath) return@also
 
                 // Write whole classpath into file.
-                val classpathFile = File(mProject.buildDir,"ajcTmp/ajc-classpath.txt").touch()
-
-
                 val cpString = cp
                     .split(File.pathSeparator)
                     .joinToString("\r\n") { singlePath -> singlePath.split(File.separator).last() }
@@ -260,7 +256,7 @@ class AspectAndroidPlugin : BasePlugin() {
                 classpathFile.writeText(cpString)
                 hasWroteClasspath = true
 
-                logI("Has wrote class into file :${classpathFile.absolutePath}")
+                logI("Has wrote class into file : ${classpathFile.absolutePath}")
             }
     }
 
@@ -273,21 +269,33 @@ class AspectAndroidPlugin : BasePlugin() {
         var isSuccessful = true
 
         for (message: IMessage in messageHandler.getMessages(null, true)) {
+            val msg by lazy { "${message.kind} / ${message.message}" }
 
             when (message.kind) {
                 IMessage.ABORT, IMessage.ERROR, IMessage.FAIL -> {
                     message.thrown?.printStackTrace()
                     //logE(message.message)
-                    mLogger.error(message.message)
+                    mLogger.error(msg)
                     isSuccessful = false
+
+                    if (!buildLogFile) return isSuccessful
+                    logEFile.appendText(msg + "\r\n")
+
                 }
                 IMessage.WARNING, IMessage.INFO, IMessage.DEBUG -> {
-//                    logD(message.message)
-                    mLogger.debug(message.message)
+                    //logD(msg)
+                    mLogger.debug(msg)
+
+                    if (!buildLogFile) return isSuccessful
+                    logIFile.appendText(msg + "\r\n")
                 }
                 else -> {
-                    //logI(message.message)
-                    mLogger.info(message.message)
+                    //logI(msg)
+                    mLogger.info(msg)
+
+                    if (!buildLogFile) return isSuccessful
+                    logElseFile.appendText(msg + "\r\n")
+
                 }
             }
         }
