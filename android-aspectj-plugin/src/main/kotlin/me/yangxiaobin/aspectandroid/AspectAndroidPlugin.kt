@@ -90,9 +90,11 @@ class AspectAndroidPlugin : BasePlugin() {
                             return@doLast
                         }
 
-                    logI("${t.name} do last begins, current variant name: $curVariantName >>")
+                    logI("${t.name} do last begins, current variant name: $curVariantName, output size :${t.outputs.files.asFileTree.files.size} >>")
 
                     doAjcCompilation(t)
+
+                    logI("${t.name} do last ends, current variant name: $curVariantName, output size :${t.outputs.files.asFileTree.files.size} >>")
                 }
 
         }
@@ -107,7 +109,7 @@ class AspectAndroidPlugin : BasePlugin() {
         val jars: List<File>? = transformOutputFile.listFiles()?.filter { it.isJarFile() }
 
         if (!dirs.isNullOrEmpty()) ajcCompileDir(dirs)
-        if (!jars.isNullOrEmpty()) ajcCompileJars(jars)
+        //if (!jars.isNullOrEmpty()) ajcCompileJars(jars)
     }
 
     private fun ajcCompileDir(dirs: List<File>) {
@@ -139,7 +141,7 @@ class AspectAndroidPlugin : BasePlugin() {
 
             Main().run(args, messageHandler)
 
-            populateMessageHandler()
+            populateMessageHandler(dir)
         }
 
         logI("  ajcCompileDir ends in ${(System.currentTimeMillis() - t1).toFormat(false)}.")
@@ -195,7 +197,7 @@ class AspectAndroidPlugin : BasePlugin() {
 
                 Main().run(args, messageHandler)
 
-                val isSuccessful = populateMessageHandler()
+                val isSuccessful = populateMessageHandler(preJar)
 
                 // 3. Delete original jars.
                 if (isSuccessful) preJar.delete() else preJar.renamed(preJar.name.substring(prefix.length))
@@ -246,7 +248,7 @@ class AspectAndroidPlugin : BasePlugin() {
 
         return "$path:$ajcJrtClasspath"
             .also { cp ->
-                if (!buildLogFile && hasWroteClasspath) return@also
+                if (!buildLogFile || hasWroteClasspath) return@also
 
                 // Write whole classpath into file.
                 val cpString = cp
@@ -264,17 +266,23 @@ class AspectAndroidPlugin : BasePlugin() {
     /**
      * @return AJC result, true for success.
      */
-    private fun populateMessageHandler(): Boolean {
+    private fun populateMessageHandler(cur: File): Boolean {
 
         var isSuccessful = true
 
+        messageHandler.clearMessages()
+
         for (message: IMessage in messageHandler.getMessages(null, true)) {
-            val msg by lazy { "${message.kind} / ${message.message}" }
+            val msg by lazy { """
+                cur file : ${cur.name}
+                ${message.kind} /  ${message.message}
+            """.trimIndent() }
 
             when (message.kind) {
                 IMessage.ABORT, IMessage.ERROR, IMessage.FAIL -> {
                     message.thrown?.printStackTrace()
                     //logE(message.message)
+
                     mLogger.error(msg)
                     isSuccessful = false
 
