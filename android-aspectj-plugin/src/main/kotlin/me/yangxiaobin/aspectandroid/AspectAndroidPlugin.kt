@@ -32,10 +32,12 @@ class AspectAndroidPlugin : BasePlugin() {
     override val myLogger: ILog
         get() = super.myLogger.copy().setLevel(LogLevel.INFO)
 
+    private var hasWroteClasspath = false
+
     override fun apply(p: Project) {
         super.apply(p)
 
-        logI.invoke("${p.name} applied AspectAndroidPlugin.")
+        logI("${p.name} applied AspectAndroidPlugin.")
 
         mProject.extensions.create("aspectAndroid", AspectAndroidExt::class.java)
 
@@ -47,19 +49,9 @@ class AspectAndroidPlugin : BasePlugin() {
             logI("Resolved aspectJrt version :${ext.aspectJrtVersion}")
             p.getAppExtension?.registerTransform(aspectTransform)
             p.dependencies.add("implementation", "org.aspectj:aspectjrt:${ext.aspectJrtVersion}")
-            //fixVariantSelection()
         }
 
         configAjcCompileTask(aspectTransform.name)
-    }
-
-    private fun fixVariantSelection() {
-
-        mProject.configurations.getByName("implementation")
-            .dependencies.filterIsInstance<ProjectDependency>()
-            .forEach { it.targetConfiguration = "default" }
-//            .forEach { it.targetConfiguration = "implementation" }
-
     }
 
     private fun configAjcClasspath() {
@@ -253,11 +245,23 @@ class AspectAndroidPlugin : BasePlugin() {
             .filterNot { it.name.endsWith(".aar") }
             .toPath()
 
-        return "$path:$ajcJrtClasspath".also { cp ->
-            val neatCp = cp.split(File.pathSeparator)
-                .joinToString("\r\n") { singlePath -> singlePath.split(File.separator).last() }
-            logV("calculateClasspath :$neatCp \r\n")
-        }
+        return "$path:$ajcJrtClasspath"
+            .also { cp ->
+                if (hasWroteClasspath) return@also
+
+                // Write whole classpath into file.
+                val classpathFile = File(mProject.buildDir,"ajcTmp/ajc-classpath.txt").touch()
+
+
+                val cpString = cp
+                    .split(File.pathSeparator)
+                    .joinToString("\r\n") { singlePath -> singlePath.split(File.separator).last() }
+
+                classpathFile.writeText(cpString)
+                hasWroteClasspath = true
+
+                logI("Has wrote class into file :${classpathFile.absolutePath}")
+            }
     }
 
 
@@ -278,7 +282,7 @@ class AspectAndroidPlugin : BasePlugin() {
                     isSuccessful = false
                 }
                 IMessage.WARNING, IMessage.INFO, IMessage.DEBUG -> {
-                    //logD(message.message)
+//                    logD(message.message)
                     mLogger.debug(message.message)
                 }
                 else -> {
