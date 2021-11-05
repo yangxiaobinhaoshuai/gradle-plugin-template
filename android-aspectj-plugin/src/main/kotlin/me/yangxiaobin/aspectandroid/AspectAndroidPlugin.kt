@@ -109,7 +109,7 @@ class AspectAndroidPlugin : BasePlugin() {
         val jars: List<File>? = transformOutputFile.listFiles()?.filter { it.isJarFile() }
 
         if (!dirs.isNullOrEmpty()) ajcCompileDir(dirs)
-        //if (!jars.isNullOrEmpty()) ajcCompileJars(jars)
+        if (!jars.isNullOrEmpty()) ajcCompileJars(jars)
     }
 
     private fun ajcCompileDir(dirs: List<File>) {

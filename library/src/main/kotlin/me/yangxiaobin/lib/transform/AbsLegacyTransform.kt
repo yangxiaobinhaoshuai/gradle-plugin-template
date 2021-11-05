@@ -34,6 +34,7 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
 
     override fun getScopes(): MutableSet<QualifiedContent.ScopeType> = mutableSetOf(QualifiedContent.Scope.PROJECT)
 
+    // TODO 携程优化
     override fun transform(invocation: TransformInvocation) {
 
         val t1 = System.currentTimeMillis()
