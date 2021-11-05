@@ -14,9 +14,10 @@ class KtPlugin : BasePlugin() {
         super.apply(p)
         logI("${p.name} ==> Applied KtPlugin.")
 
-        p.afterEvaluate {
-            p.getAppExtension?.registerTransform(AbsLegacyTransform(mProject))
-        }
+        // Test code
+//        p.afterEvaluate {
+//            p.getAppExtension?.registerTransform(AbsLegacyTransform(mProject))
+//        }
 
     }
 

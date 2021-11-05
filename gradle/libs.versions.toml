@@ -20,6 +20,7 @@ kgp = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kot
 
 # Kotlin std differnces : https://mbonnin.medium.com/the-different-kotlin-stdlibs-explained-83d7c6bf293
 ktStd = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlinV" }
+ktCoroutine = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version = "1.5.2" }
 ktStdJdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlinV" }
 ktReflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlinV" }
 
@@ -47,6 +48,7 @@ groovyAll = { module = "org.codehaus.groovy:groovy-all", version.ref = "groovy-a
 
 
 [bundles]
+kotlinSuit =['ktStd','ktCoroutine',]
 base =['ktStdJdk8','groovyAll']
 aspectj =['aspectj-lib','aspectjJrt','aspectj-weaver','aspectjTools','aspectj-matcher']
 asm =['asm-core','asm-util','asm-tree','asm-commons','asm-analysis',]

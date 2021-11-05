@@ -1,19 +1,28 @@
 package me.yangxiaobin.lib.transform
 
 import com.android.build.api.transform.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import me.yangxiaobin.lib.coroutine.coroutineHandler
+import me.yangxiaobin.lib.coroutine.transportCoroutineName
 import me.yangxiaobin.lib.ext.*
 import me.yangxiaobin.lib.log.LogLevel
 import me.yangxiaobin.lib.log.Logger
 import me.yangxiaobin.lib.log.log
+import me.yangxiaobin.lib.thread.TransformThreadFactory
 import org.gradle.api.Project
 import java.io.File
+import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.ThreadPoolExecutor
+import java.util.concurrent.TimeUnit
 import java.util.function.Function
 import java.util.zip.ZipFile
 
 
 open class AbsLegacyTransform(protected val project: Project) : Transform() {
 
-    protected val logger = Logger.copy().setLevel(LogLevel.INFO)
+    protected val logger = Logger.copy().setLevel(LogLevel.DEBUG)
 
     protected val logE = logger.log(LogLevel.ERROR, name)
 
@@ -34,6 +43,22 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
 
     override fun getScopes(): MutableSet<QualifiedContent.ScopeType> = mutableSetOf(QualifiedContent.Scope.PROJECT)
 
+
+    /**
+     * FixedThreadPoolExecutor
+     */
+    private val transportExecutor = ThreadPoolExecutor(
+        2 * CPU_COUNT, 2 * CPU_COUNT,
+        0L, TimeUnit.MICROSECONDS,
+        LinkedBlockingQueue(),
+        TransformThreadFactory()
+    )
+
+    private val transportScope: CoroutineScope by lazy { CoroutineScope(Dispatchers.IO + SupervisorJob() + coroutineHandler + transportCoroutineName) }
+
+    private val jarFileTransformer: Function<ByteArray, ByteArray>? by lazy { getJarTransformer() }
+    private val classFileTransformer: Function<ByteArray, ByteArray>? by lazy { getClassTransformer() }
+
     // TODO 携程优化
     override fun transform(invocation: TransformInvocation) {
 
@@ -49,86 +74,139 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
             invocation.outputProvider.deleteAll()
         }
 
-        invocation.inputs.forEach { transformInput ->
+        invocation.inputs.forEach { transformInput: TransformInput ->
 
             // 1. Process vendor jars.
-            transformInput.jarInputs.forEach { jarInput: JarInput ->
-
-                val outputJar: File = invocation.outputProvider.getContentLocation(
-                    jarInput.name,
-                    jarInput.contentTypes,
-                    jarInput.scopes,
-                    Format.JAR
-                )
-
-                val jarTransformer = getJarTransformer()
-
-                if (invocation.isIncremental) {
-                    when (jarInput.status) {
-                        Status.ADDED, Status.CHANGED -> transformJarFile(
-                            jarInput.file,
-                            outputJar,
-                            jarTransformer,
-                            jarInput.status
-                        )
-                        Status.REMOVED -> outputJar.delete()
-                        Status.NOTCHANGED -> {
-                            // No need to transform.
-                        }
-                        else -> {
-                            error("Unknown status: ${jarInput.status}")
-                        }
-                    }
-                } else {
-                    transformJarFile(jarInput.file, outputJar, jarTransformer, jarInput.status)
-                }
-            }
+            processJarInput(transformInput.jarInputs, invocation)
 
             // 2. Process source classes.
-            transformInput.directoryInputs.forEach { directoryInput ->
-
-                val outputDir = invocation.outputProvider.getContentLocation(
-                    directoryInput.name,
-                    directoryInput.contentTypes,
-                    directoryInput.scopes,
-                    Format.DIRECTORY
-                )
-
-                val classTransformer = getClassTransformer()
-
-                if (invocation.isIncremental) {
-                    directoryInput.changedFiles.forEach { (file, status) ->
-
-                        val outputFile = toOutputFile(outputDir, directoryInput.file, file)
-
-                        when (status) {
-                            Status.ADDED, Status.CHANGED -> transformClassFile(
-                                file,
-                                outputFile.parentFile,
-                                classTransformer,
-                                status
-                            )
-                            Status.REMOVED -> outputFile.delete()
-                            Status.NOTCHANGED -> {
-                                // No need to transform.
-                            }
-                            else -> {
-                                error("Unknown status: $status")
-                            }
-                        }
-                    }
-                } else {
-                    directoryInput.file.walkTopDown().forEach { file ->
-                        val outputFile = toOutputFile(outputDir, directoryInput.file, file)
-                        transformClassFile(file, outputFile.parentFile, classTransformer, null)
-                    }
-                }
-            }
+            processClassFile(transformInput.directoryInputs, invocation)
         }
 
         afterTransform()
 
         logI("${invocation.context.variantName} transform ends in ${(System.currentTimeMillis() - t1).toFormat(false)}")
+    }
+
+    private fun processJarInput(
+        jarInputs: Collection<JarInput>,
+        invocation: TransformInvocation
+    ) {
+        jarInputs.forEach { jarInput: JarInput ->
+
+            val outputJar: File = invocation.outputProvider.getContentLocation(
+                jarInput.name,
+                jarInput.contentTypes,
+                jarInput.scopes,
+                Format.JAR
+            )
+
+            if (invocation.isIncremental) {
+                when (jarInput.status) {
+                    Status.ADDED, Status.CHANGED -> transportJarFile(jarInput.file, outputJar)
+                    Status.REMOVED -> outputJar.delete()
+                    Status.NOTCHANGED -> {
+                        // No need to transform.
+                    }
+                    else -> {
+                        error("Unknown status: ${jarInput.status}")
+                    }
+                }
+            } else {
+                transportJarFile(jarInput.file, outputJar)
+            }
+        }
+    }
+
+    private fun processClassFile(
+        directoryInputs: Collection<DirectoryInput>,
+        invocation: TransformInvocation
+    ) {
+
+        fun toOutputFile(outputDir: File, inputDir: File, inputFile: File) =
+            File(outputDir, inputFile.relativeTo(inputDir).path)
+
+        directoryInputs.forEach { directoryInput: DirectoryInput ->
+
+            val outputDir = invocation.outputProvider.getContentLocation(
+                directoryInput.name,
+                directoryInput.contentTypes,
+                directoryInput.scopes,
+                Format.DIRECTORY
+            )
+
+            if (invocation.isIncremental) {
+                directoryInput.changedFiles.forEach { (changedFile, status) ->
+
+                    val outputFile = toOutputFile(outputDir, directoryInput.file, changedFile)
+
+                    when (status) {
+                        Status.ADDED, Status.CHANGED -> transportClassFile(changedFile, outputFile.parentFile)
+                        Status.REMOVED -> outputFile.delete()
+                        Status.NOTCHANGED -> {
+                            // No need to transform.
+                        }
+                        else -> {
+                            error("Unknown status: $status")
+                        }
+                    }
+                }
+            } else {
+                directoryInput.file.walkTopDown().forEach { file ->
+                    val outputFile = toOutputFile(outputDir, directoryInput.file, file)
+                    transportClassFile(file, outputFile.parentFile)
+                }
+            }
+        }
+    }
+
+    private fun transportJarFile(inputJarFile: File, outputJarFile: File) {
+
+
+        when {
+            jarFileTransformer == null -> copyJar(inputJarFile, outputJarFile)
+
+            inputJarFile.isJarFile() && isJarValid(inputJarFile) -> {
+
+                logV(" transforming jar: ${inputJarFile.name}")
+
+                // 1. Unzip jar.
+                // 2. Do transformation.
+                // 3. Write jar.
+
+                ZipFile(inputJarFile).parallelTransformTo(outputJarFile, jarFileTransformer!!::apply)
+            }
+
+            inputJarFile.isFile -> copyJar(inputJarFile, outputJarFile)
+        }
+    }
+
+    // Transform a single file. If the file is not a class file it is just copied to the output dir.
+    private fun transportClassFile(inputFile: File, outputDir: File) {
+
+        outputDir.mkdirs()
+        val outputFile = File(outputDir, inputFile.name)
+
+        fun copyClassFile() {
+            // Copy all non .class files to the output.
+            inputFile.copyTo(target = outputFile, overwrite = true)
+        }
+
+        when {
+            classFileTransformer == null -> copyClassFile()
+
+            inputFile.isClassFile() && isClassValid(inputFile) -> {
+
+                logD("transforming class file: ${inputFile.name}")
+
+                val transformedByteArr: ByteArray = inputFile.readBytes().let(classFileTransformer!!::apply)
+
+                outputFile.writeBytes(transformedByteArr)
+            }
+
+            // Copy all non .class files to the output.
+            inputFile.isFile -> copyClassFile()
+        }
     }
 
 
@@ -156,69 +234,8 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
     ).fold(true) { acc: Boolean, regex: String -> acc && !regex.toRegex().matches(jar.name) }
 
 
-    // Transform a single file. If the file is not a class file it is just copied to the output dir.
-    private fun transformClassFile(
-        inputFile: File,
-        outputDir: File,
-        transformer: Function<ByteArray, ByteArray>?,
-        status: Status?,
-    ) {
-
-        fun copyClassFile() {
-            // Copy all non .class files to the output.
-            outputDir.mkdirs()
-            val outputFile = File(outputDir, inputFile.name)
-            inputFile.copyTo(target = outputFile, overwrite = true)
-        }
-
-        when {
-            transformer == null -> copyClassFile()
-
-            inputFile.isClassFile() && isClassValid(inputFile) -> {
-                logV("transforming class file: ${inputFile.name}, incremental status :$status")
-
-                val transformedByteArr = inputFile.readBytes().let(transformer::apply)
-
-                outputDir.mkdirs()
-                val outputFile = File(outputDir, inputFile.name)
-                outputFile.writeBytes(transformedByteArr)
-            }
-
-            // Copy all non .class files to the output.
-            inputFile.isFile -> copyClassFile()
-        }
-    }
-
-    private fun transformJarFile(
-        inputJarFile: File,
-        outputJarFile: File,
-        transformer: Function<ByteArray, ByteArray>?,
-        status: Status,
-    ) {
-        when {
-            transformer == null -> copyJar(inputJarFile, outputJarFile)
-
-            inputJarFile.isJarFile() && isJarValid(inputJarFile) -> {
-
-                logV("transforming jar: ${inputJarFile.name}, incremental status :$status")
-
-                // 1. Unzip jar.
-                // 2. Do transformation.
-                // 3. Write jar.
-
-                ZipFile(inputJarFile).parallelTransformTo(outputJarFile, transformer::apply)
-            }
-
-            inputJarFile.isFile -> copyJar(inputJarFile, outputJarFile)
-        }
-    }
-
-
     // We are only interested in project compiled classes but we have to copy received jars to the
     // output.
     private fun copyJar(inputJar: File, outputJar: File) = inputJar.copyTo(target = outputJar.touch(), overwrite = true)
 
-
-    private fun toOutputFile(outputDir: File, inputDir: File, inputFile: File) =
-        File(outputDir, inputFile.relativeTo(inputDir).path)
 }

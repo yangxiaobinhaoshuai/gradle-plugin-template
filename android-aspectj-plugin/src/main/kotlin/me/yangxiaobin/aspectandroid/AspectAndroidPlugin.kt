@@ -32,7 +32,7 @@ class AspectAndroidPlugin : BasePlugin() {
     private val buildLogFile by lazy { ext.generateDebugLogFile }
 
     override val myLogger: ILog
-        get() = super.myLogger.copy().setLevel(LogLevel.INFO)
+        get() = super.myLogger.copy().setLevel(LogLevel.DEBUG)
 
     private var hasWroteClasspath = false
     private val classpathFile by lazy { File(mProject.buildDir, "ajcTmp/ajc-classpath.txt").touch() }
@@ -90,11 +90,12 @@ class AspectAndroidPlugin : BasePlugin() {
                             return@doLast
                         }
 
+                    val t1 = System.currentTimeMillis()
                     logI("${t.name} do last begins, current variant name: $curVariantName, output size :${t.outputs.files.asFileTree.files.size} >>")
 
                     doAjcCompilation(t)
 
-                    logI("${t.name} do last ends, current variant name: $curVariantName, output size :${t.outputs.files.asFileTree.files.size} >>")
+                    logI("${t.name} do last ends in ${(System.currentTimeMillis() - t1).toFormat(false)}, current variant name: $curVariantName, output size :${t.outputs.files.asFileTree.files.size} >>")
                 }
 
         }

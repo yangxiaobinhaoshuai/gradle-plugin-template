@@ -8,6 +8,7 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveEntry
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream
 import org.apache.commons.compress.parallel.InputStreamSupplier
 import java.io.File
+import java.io.InputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 import java.util.zip.ZipOutputStream
@@ -63,12 +64,14 @@ fun ZipFile.parallelTransformTo(output: File, transform: (ByteArray) -> ByteArra
     val creator = ParallelScatterZipCreator()
 
     this.entries().asSequence().forEach { entry: ZipEntry ->
+
         val stream = InputStreamSupplier {
             this.getInputStream(ZipEntry(entry.name))
-                .transformIf(entry.isClassFile()) { ins ->
+                .transformIf(entry.isClassFile()) { ins: InputStream ->
                     transform.invoke(ins.readBytes()).inputStream()
                 }
         }
+
         creator.addArchiveEntry(ZipArchiveEntry(entry), stream)
     }
 
