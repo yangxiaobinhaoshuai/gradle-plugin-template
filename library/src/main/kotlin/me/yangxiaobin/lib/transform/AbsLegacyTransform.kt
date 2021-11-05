@@ -1,9 +1,7 @@
 package me.yangxiaobin.lib.transform
 
 import com.android.build.api.transform.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.*
 import me.yangxiaobin.lib.coroutine.coroutineHandler
 import me.yangxiaobin.lib.coroutine.transportCoroutineName
 import me.yangxiaobin.lib.ext.*
@@ -54,12 +52,18 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
         TransformThreadFactory()
     )
 
-    private val transportScope: CoroutineScope by lazy { CoroutineScope(Dispatchers.IO + SupervisorJob() + coroutineHandler + transportCoroutineName) }
+    private val transportScope: CoroutineScope by lazy {
+        CoroutineScope(
+            transportExecutor.asCoroutineDispatcher()
+                    + SupervisorJob()
+                    + coroutineHandler
+                    + transportCoroutineName
+        )
+    }
 
     private val jarFileTransformer: Function<ByteArray, ByteArray>? by lazy { getJarTransformer() }
     private val classFileTransformer: Function<ByteArray, ByteArray>? by lazy { getClassTransformer() }
 
-    // TODO 携程优化
     override fun transform(invocation: TransformInvocation) {
 
         val t1 = System.currentTimeMillis()
@@ -162,13 +166,16 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
 
     private fun transportJarFile(inputJarFile: File, outputJarFile: File) {
 
+        // We are only interested in project compiled classes but we have to copy received jars to the
+        // output.
+        fun copyJar(inputJar: File, outputJar: File) = inputJar.copyTo(target = outputJar.touch(), overwrite = true)
 
         when {
-            jarFileTransformer == null -> copyJar(inputJarFile, outputJarFile)
+            jarFileTransformer == null -> transportScope.launch {  copyJar(inputJarFile, outputJarFile)}
 
             inputJarFile.isJarFile() && isJarValid(inputJarFile) -> {
 
-                logV(" transforming jar: ${inputJarFile.name}")
+                logD(" transforming jar: ${inputJarFile.name}")
 
                 // 1. Unzip jar.
                 // 2. Do transformation.
@@ -177,7 +184,7 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
                 ZipFile(inputJarFile).parallelTransformTo(outputJarFile, jarFileTransformer!!::apply)
             }
 
-            inputJarFile.isFile -> copyJar(inputJarFile, outputJarFile)
+            inputJarFile.isFile ->  transportScope.launch { copyJar(inputJarFile, outputJarFile)}
         }
     }
 
@@ -193,19 +200,22 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
         }
 
         when {
-            classFileTransformer == null -> copyClassFile()
+            classFileTransformer == null -> transportScope.launch { copyClassFile() }
 
             inputFile.isClassFile() && isClassValid(inputFile) -> {
 
                 logD("transforming class file: ${inputFile.name}")
 
-                val transformedByteArr: ByteArray = inputFile.readBytes().let(classFileTransformer!!::apply)
+                transportScope.launch {
 
-                outputFile.writeBytes(transformedByteArr)
+                    val transformedByteArr: ByteArray = inputFile.readBytes().let(classFileTransformer!!::apply)
+
+                    outputFile.writeBytes(transformedByteArr)
+                }
             }
 
             // Copy all non .class files to the output.
-            inputFile.isFile -> copyClassFile()
+            inputFile.isFile -> transportScope.launch { copyClassFile() }
         }
     }
 
@@ -232,10 +242,5 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
         "annotation-.+.jar",
         "jetified-annotations-.+.jar",
     ).fold(true) { acc: Boolean, regex: String -> acc && !regex.toRegex().matches(jar.name) }
-
-
-    // We are only interested in project compiled classes but we have to copy received jars to the
-    // output.
-    private fun copyJar(inputJar: File, outputJar: File) = inputJar.copyTo(target = outputJar.touch(), overwrite = true)
 
 }
