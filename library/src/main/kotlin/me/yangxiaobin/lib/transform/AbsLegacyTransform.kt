@@ -20,7 +20,7 @@ import java.util.zip.ZipFile
 @Suppress("MemberVisibilityCanBePrivate")
 open class AbsLegacyTransform(protected val project: Project) : Transform() {
 
-    protected val logger = Logger.copy().setLevel(LogLevel.DEBUG)
+    protected val logger = Logger.copy().setLevel(LogLevel.VERBOSE)
 
     protected val logE = logger.log(LogLevel.ERROR, name)
 
@@ -62,6 +62,8 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
         )
     }
 
+    private val transformJobs = mutableSetOf<Job>()
+
     private val jarFileTransformer: Function<ByteArray, ByteArray>? by lazy { getJarTransformer() }
     private val classFileTransformer: Function<ByteArray, ByteArray>? by lazy { getClassTransformer() }
 
@@ -75,12 +77,8 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
 
         if (!invocation.isIncremental) {
             // Remove any lingering files on a non-incremental invocation since everything has to be
-            // transformed.
-            transformScope.launch {
-                @Suppress("BlockingMethodInNonBlockingContext")
-                invocation.outputProvider.deleteAll()
-            }
-
+            @Suppress("BlockingMethodInNonBlockingContext")
+            invocation.outputProvider.deleteAll()
         }
 
         invocation.inputs
@@ -123,7 +121,7 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
             if (invocation.isIncremental) {
                 when (jarInput.status) {
                     Status.ADDED, Status.CHANGED -> transportJarFile(jarInput.file, outputJar)
-                    Status.REMOVED -> transformScope.launch { outputJar.delete() }
+                    Status.REMOVED -> outputJar.delete()
                     Status.NOTCHANGED -> {
                         // No need to transform.
                     }
@@ -164,7 +162,7 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
 
                     when (status) {
                         Status.ADDED, Status.CHANGED -> transportClassFile(changedFile, outputFile.parentFile)
-                        Status.REMOVED -> transformScope.launch { outputFile.delete() }
+                        Status.REMOVED -> outputFile.delete()
                         Status.NOTCHANGED -> {
                             // No need to transform.
                         }
@@ -191,7 +189,7 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
         fun copyJar(inputJar: File, outputJar: File) = inputJar.copyTo(target = outputJar.touch(), overwrite = true)
 
         when {
-            jarFileTransformer == null -> transformScope.launch { copyJar(inputJarFile, outputJarFile) }
+            jarFileTransformer == null -> copyJar(inputJarFile, outputJarFile)
 
             inputJarFile.isJarFile() && isJarValid(inputJarFile) -> {
 
@@ -204,7 +202,7 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
                 ZipFile(inputJarFile).simpleTransformTo(outputJarFile, jarFileTransformer!!::apply)
             }
 
-            inputJarFile.isFile -> transformScope.launch { copyJar(inputJarFile, outputJarFile) }
+            inputJarFile.isFile -> copyJar(inputJarFile, outputJarFile)
         }
     }
 
@@ -220,22 +218,19 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
         }
 
         when {
-            classFileTransformer == null -> transformScope.launch { copyClassFile() }
+            classFileTransformer == null -> copyClassFile()
 
             inputFile.isClassFile() && isClassValid(inputFile) -> {
 
                 logD("transforming class file: ${inputFile.name}")
 
-                transformScope.launch {
+                val transformedByteArr: ByteArray = inputFile.readBytes().let(classFileTransformer!!::apply)
 
-                    val transformedByteArr: ByteArray = inputFile.readBytes().let(classFileTransformer!!::apply)
-
-                    outputFile.writeBytes(transformedByteArr)
-                }
+                outputFile.writeBytes(transformedByteArr)
             }
 
             // Copy all non .class files to the output.
-            inputFile.isFile -> transformScope.launch { copyClassFile() }
+            inputFile.isFile -> copyClassFile()
         }
     }
 

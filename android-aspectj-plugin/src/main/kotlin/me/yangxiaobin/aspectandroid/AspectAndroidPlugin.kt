@@ -62,10 +62,10 @@ class AspectAndroidPlugin : BasePlugin() {
             logI("Resolved aspectJrt version :${ext.aspectJrtVersion}")
             p.getAppExtension?.registerTransform(aspectTransform)
             p.dependencies.add("implementation", "org.aspectj:aspectjrt:${ext.aspectJrtVersion}")
-            createAjcCompileTask(aspectTransform)
+            //createAjcCompileTask(aspectTransform)
         }
 
-        configAjcCompileTask(aspectTransform.name)
+        //configAjcCompileTask(aspectTransform.name)
     }
 
     private fun createAjcCompileTask(aspectTransform: AspectTransform) {
@@ -86,13 +86,13 @@ class AspectAndroidPlugin : BasePlugin() {
             val ajcCompileTask: TaskProvider<AjcCompileTask> =
                 mProject.tasks.register(ajcCompileTaskName, AjcCompileTask::class.java)
 
-            aspectTransformTask.configure { transform: TransformTask ->
-                transform.finalizedBy(ajcCompileTask)
-                val ajc: AjcCompileTask = ajcCompileTask.get()
-                ajc.inputDir = transform.outputs.files.singleFile
-                ajc.outputDir = transform.outputs.files.singleFile
-                ajc.variantName = variant.name
-            }
+//            aspectTransformTask.configure { transform: TransformTask ->
+//                transform.finalizedBy(ajcCompileTask)
+//                val ajc: AjcCompileTask = ajcCompileTask.get()
+//                ajc.inputDir = transform.outputs.files.singleFile
+//                ajc.outputDir = transform.outputs.files.singleFile
+//                ajc.variantName = variant.name
+//            }
 
         }
     }
@@ -127,7 +127,7 @@ class AspectAndroidPlugin : BasePlugin() {
                     val t1 = System.currentTimeMillis()
                     logI("${t.name} do last begins, current variant name: $curVariantName, output size :${t.outputs.files.asFileTree.files.size} >>")
 
-                    doAjcCompilation(t)
+                    //doAjcCompilation(t)
 
                     logI("${t.name} do last ends in ${(System.currentTimeMillis() - t1).toFormat(false)}, current variant name: $curVariantName, output size :${t.outputs.files.asFileTree.files.size} >>")
                 }

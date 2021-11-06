@@ -78,7 +78,8 @@ open class AjcCompileTask : DefaultTask() {
         val compileClasspathFiles = calculateCompileClasspathFiles()
         val compileClasspath: String = compileClasspathFiles.toPath()
 
-        logV("ajcCompileDir compileClasspath :$compileClasspath")
+        // TODO  uncomment
+        //logV("ajcCompileDir compileClasspath :$compileClasspath")
 
         // Write compile classpath into temp file
         if (shouldDumpToFile()) {
@@ -101,7 +102,12 @@ open class AjcCompileTask : DefaultTask() {
                     "-bootclasspath", bootclasspath,
                 )
 
-                Main().run(args, messageHandler)
+                logV("""
+                    cur : ${dir.absolutePath}
+                    aspectj args : ${args.contentToString()}
+                """.trimIndent())
+
+                //Main().run(args, messageHandler)
 
                 handleWeaveMessage(dir)
             }

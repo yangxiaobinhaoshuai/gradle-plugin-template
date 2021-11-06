@@ -12,7 +12,7 @@ import java.util.function.Function
 class AspectTransform(project: Project) : AbsLegacyTransform(project) {
 
     init {
-        logger.setLevel(LogLevel.INFO)
+        logger.setLevel(LogLevel.VERBOSE)
     }
 
     override fun getName(): String = "AspectTransform"
