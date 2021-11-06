@@ -86,13 +86,13 @@ class AspectAndroidPlugin : BasePlugin() {
             val ajcCompileTask: TaskProvider<AjcCompileTask> =
                 mProject.tasks.register(ajcCompileTaskName, AjcCompileTask::class.java)
 
-//            aspectTransformTask.configure { transform: TransformTask ->
-//                transform.finalizedBy(ajcCompileTask)
-//                val ajc: AjcCompileTask = ajcCompileTask.get()
-//                ajc.inputDir = transform.outputs.files.singleFile
-//                ajc.outputDir = transform.outputs.files.singleFile
-//                ajc.variantName = variant.name
-//            }
+            aspectTransformTask.configure { transform: TransformTask ->
+                transform.finalizedBy(ajcCompileTask)
+                val ajc: AjcCompileTask = ajcCompileTask.get()
+                ajc.inputDir = transform.outputs.files.singleFile
+                ajc.outputDir = transform.outputs.files.singleFile
+                ajc.variantName = variant.name
+            }
 
         }
     }

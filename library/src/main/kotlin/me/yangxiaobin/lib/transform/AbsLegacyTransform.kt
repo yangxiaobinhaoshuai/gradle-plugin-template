@@ -183,6 +183,14 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
             } else {
                 directoryInput.file.walkTopDown().forEach { file ->
                     val outputFile = toOutputFile(outputDir, directoryInput.file, file)
+                    println("""
+                        outputDir :$outputDir
+                        input :$file
+                        directoryInput.file :${directoryInput.file}
+                        outputFile :$outputFile
+                        outputparent :${outputDir.parentFile}
+                        inputFileName :${file.name}
+                    """.trimIndent())
                     transportClassFile(file, outputFile.parentFile)
                 }
             }
@@ -224,6 +232,7 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
     // Transform a single file. If the file is not a class file it is just copied to the output dir.
     private fun transportClassFile(inputFile: File, outputDir: File) {
 
+        // FIXME here.
         outputDir.mkdirs()
         val outputFile = File(outputDir, inputFile.name)
 
@@ -233,8 +242,11 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
         }
 
         when {
+            // FIXME 会拷贝多余目录
             classFileTransformer == null -> {
                 // File.copyTo 处理目录会 Tried to overwrite the destination, but failed to delete it.
+
+                println("----> file copy ,input :$inputFile, outputDir :$outputDir , output :$outputFile")
                 if (inputFile.isFile) transformActions += { copyClassFile() }
                 else copyClassFile()
             }

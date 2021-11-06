@@ -107,7 +107,8 @@ open class AjcCompileTask : DefaultTask() {
                     aspectj args : ${args.contentToString()}
                 """.trimIndent())
 
-                //Main().run(args, messageHandler)
+                // FIXME 织入失败
+                Main().run(args, messageHandler)
 
                 handleWeaveMessage(dir)
             }
