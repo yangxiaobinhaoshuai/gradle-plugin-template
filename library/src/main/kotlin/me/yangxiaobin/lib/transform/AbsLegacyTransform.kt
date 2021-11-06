@@ -68,7 +68,7 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
     override fun transform(invocation: TransformInvocation) {
 
         val t1 = System.currentTimeMillis()
-        logI("variant: ${invocation.context.variantName}(isIncremental:${invocation.isIncremental}) transform begins.")
+        logI("Transform : ${invocation.context.variantName}(incremental:${invocation.isIncremental}) begins.")
         currentVariantName = invocation.context.variantName
 
         beforeTransform()
@@ -101,7 +101,7 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
 
         afterTransform()
 
-        logI("${invocation.context.variantName} transform ends in ${(System.currentTimeMillis() - t1).toFormat(false)}")
+        logI("Transform : ${invocation.context.variantName} ends in ${(System.currentTimeMillis() - t1).toFormat(false)}")
     }
 
     private fun processJarInput(
@@ -240,7 +240,7 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
     }
 
 
-    protected open fun getClassTransformer(): Function<ByteArray, ByteArray>? = DefaultByteCodeTransformer()
+    protected open fun getClassTransformer(): Function<ByteArray, ByteArray>? = null
 
     protected open fun getJarTransformer(): Function<ByteArray, ByteArray>? = null
 

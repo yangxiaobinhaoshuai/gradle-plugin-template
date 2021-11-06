@@ -6,6 +6,7 @@ import me.yangxiaobin.lib.log.Logger
 import me.yangxiaobin.lib.log.log
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.invocation.Gradle
 
 @Suppress("MemberVisibilityCanBePrivate")
 abstract class BasePlugin : Plugin<Project> {
@@ -13,6 +14,9 @@ abstract class BasePlugin : Plugin<Project> {
     protected open val TAG: String = "BasePlugin"
 
     protected lateinit var mProject: Project
+        private set
+
+    private lateinit var mGradle: Gradle
         private set
 
     protected lateinit var mLogger: org.gradle.api.logging.Logger
@@ -28,6 +32,7 @@ abstract class BasePlugin : Plugin<Project> {
     override fun apply(p: Project) {
         logI("${p.name} Applied basePlugin")
         mProject = p
+        mGradle = p.gradle
         mLogger = p.logger
     }
 

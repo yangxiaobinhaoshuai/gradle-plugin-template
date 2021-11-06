@@ -56,6 +56,7 @@ dependencies {
     //compileOnly fileTree(dir: "libs", include: ["*.jar", "*.aar"])
 
     compileOnly libDeps.agp4
+    compileOnly libDeps.ktCoroutine
     compileOnly libDeps.kgp
     implementation libDeps.aspectjTools
 

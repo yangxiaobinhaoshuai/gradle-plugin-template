@@ -16,9 +16,11 @@ import org.gradle.api.artifacts.ArtifactView
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.attributes.Attribute
 import org.gradle.api.execution.TaskExecutionGraph
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.compile.JavaCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.File
+import java.util.*
 
 // TODO
 class AspectAndroidPlugin : BasePlugin() {
@@ -60,9 +62,39 @@ class AspectAndroidPlugin : BasePlugin() {
             logI("Resolved aspectJrt version :${ext.aspectJrtVersion}")
             p.getAppExtension?.registerTransform(aspectTransform)
             p.dependencies.add("implementation", "org.aspectj:aspectjrt:${ext.aspectJrtVersion}")
+            createAjcCompileTask(aspectTransform)
         }
 
         configAjcCompileTask(aspectTransform.name)
+    }
+
+    private fun createAjcCompileTask(aspectTransform: AspectTransform) {
+
+        mProject.getAppExtension?.applicationVariants?.all { variant: ApplicationVariant ->
+
+            // ':androidapp:transformClassesWithAspectTransformForAppstoreDebug'
+            val aspectTransformTaskName =
+                "transformClassesWith${aspectTransform.name.capitalize(Locale.getDefault())}For${
+                    variant.name.capitalize(Locale.getDefault())
+                }"
+            val aspectTransformTask: TaskProvider<TransformTask> =
+                mProject.tasks.named(aspectTransformTaskName, TransformTask::class.java)
+
+
+            val ajcCompileTaskName =
+                "ajcCompile${variant.name.capitalize(Locale.getDefault())}After${aspectTransform.name}"
+            val ajcCompileTask: TaskProvider<AjcCompileTask> =
+                mProject.tasks.register(ajcCompileTaskName, AjcCompileTask::class.java)
+
+            aspectTransformTask.configure { transform: TransformTask ->
+                transform.finalizedBy(ajcCompileTask)
+                val ajc: AjcCompileTask = ajcCompileTask.get()
+                ajc.inputDir = transform.outputs.files.singleFile
+                ajc.outputDir = transform.outputs.files.singleFile
+                ajc.variantName = variant.name
+            }
+
+        }
     }
 
     private fun cleanup() {

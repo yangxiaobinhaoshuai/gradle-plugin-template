@@ -3,6 +3,7 @@ package me.yangxiaobin.lib.ext
 import me.yangxiaobin.lib.asm.constant.DOT_CLASS
 import me.yangxiaobin.lib.asm.constant.EXT_CLASS
 import me.yangxiaobin.lib.asm.constant.EXT_JAR
+import me.yangxiaobin.lib.log.Logger
 import org.apache.commons.compress.archivers.zip.ParallelScatterZipCreator
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream
@@ -43,7 +44,10 @@ fun File.renamed(newName: String): File {
  * convert bootClassPath<File>  to String separated by ":"
 </File> */
 fun Collection<File>?.toPath(): String {
-    require(!(this == null || this.isEmpty())) { "The parameters can't be null." }
+    require(!(this == null || this.isEmpty())) {
+        Logger.e("toPath", "import java.util.logging.Logger");
+        return ""
+    }
     val sb = StringBuilder()
     this.forEach { s: File ->
         sb.append(s.absolutePath).append(File.pathSeparator)
