@@ -62,7 +62,7 @@ class AspectAndroidPlugin : BasePlugin() {
             logI("Resolved aspectJrt version :${ext.aspectJrtVersion}")
             p.getAppExtension?.registerTransform(aspectTransform)
             p.dependencies.add("implementation", "org.aspectj:aspectjrt:${ext.aspectJrtVersion}")
-            //createAjcCompileTask(aspectTransform)
+            createAjcCompileTask(aspectTransform)
         }
 
         //configAjcCompileTask(aspectTransform.name)
