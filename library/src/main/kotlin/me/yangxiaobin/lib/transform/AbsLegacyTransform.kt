@@ -47,7 +47,7 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
      */
     private val transformExecutor = ThreadPoolExecutor(
         2 * CPU_COUNT, 2 * CPU_COUNT,
-        0L, TimeUnit.MICROSECONDS,
+        0L, TimeUnit.MILLISECONDS,
         LinkedBlockingQueue(),
         TransformThreadFactory()
     )
@@ -55,7 +55,7 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
     protected val transformScope: CoroutineScope by lazy {
         CoroutineScope(
             transformExecutor.asCoroutineDispatcher()
-//            Dispatchers.IO
+//                    + Dispatchers.IO
                     + SupervisorJob()
                     + coroutineHandler
                     + CoroutineName("Transport-Coroutine")

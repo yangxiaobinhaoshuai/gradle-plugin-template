@@ -16,7 +16,7 @@ class TransformThreadFactory : ThreadFactory {
     private val poolPrefix = "Transport-pool-" + poolCounter.getAndIncrement()
 
     override fun newThread(r: Runnable): Thread =
-        Thread("$poolPrefix$threadPrefix${threadCounter.getAndIncrement()}").also { logV("Thread : ${it.name} created") }
+        Thread(r,"$poolPrefix$threadPrefix${threadCounter.getAndIncrement()}").also { logV("Thread : ${it.name} created") }
 
     private companion object {
         private val poolCounter = AtomicInteger(1)
