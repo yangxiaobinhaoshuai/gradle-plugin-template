@@ -21,20 +21,25 @@ class AspectTransform(project: Project) : AbsLegacyTransform(project) {
 
     override fun isIncremental(): Boolean = true
 
-//    override fun getJarTransformer(): Function<ByteArray, ByteArray>? {
-//        return getClassTransformer()
-//    }
+    override fun getJarTransformer(): Function<ByteArray, ByteArray>? {
+        return getClassTransformer()
+    }
 //
 //    override fun getClassTransformer(): Function<ByteArray, ByteArray>? {
 //        return super.getClassTransformer()
 //    }
 
     override fun isClassValid(f: File): Boolean {
-        return super.isClassValid(f)
+        return arrayOf("BuildConfig.class")
+            .fold(true) { acc: Boolean, regex: String -> acc && !regex.toRegex().matches(f.name) }
     }
 
     override fun isJarValid(jar: File): Boolean {
-        return super.isJarValid(jar)
+        return arrayOf(
+            "R.jar",
+            "annotation-.+.jar",
+            "jetified-annotations-.+.jar",
+        ).fold(true) { acc: Boolean, regex: String -> acc && !regex.toRegex().matches(jar.name) }
     }
 
 }

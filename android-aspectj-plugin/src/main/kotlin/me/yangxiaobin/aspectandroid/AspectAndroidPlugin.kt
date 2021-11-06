@@ -12,13 +12,15 @@ import org.aspectj.bridge.MessageHandler
 import org.aspectj.tools.ajc.Main
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.artifacts.*
+import org.gradle.api.artifacts.ArtifactView
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.attributes.Attribute
 import org.gradle.api.execution.TaskExecutionGraph
 import org.gradle.api.tasks.compile.JavaCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.File
 
+// TODO
 class AspectAndroidPlugin : BasePlugin() {
 
     override val TAG: String get() = "AAP"
@@ -274,10 +276,12 @@ class AspectAndroidPlugin : BasePlugin() {
         messageHandler.clearMessages()
 
         for (message: IMessage in messageHandler.getMessages(null, true)) {
-            val msg by lazy { """
+            val msg by lazy {
+                """
                 cur file : ${cur.name}
                 ${message.kind} /  ${message.message}
-            """.trimIndent() }
+            """.trimIndent()
+            }
 
             when (message.kind) {
                 IMessage.ABORT, IMessage.ERROR, IMessage.FAIL -> {

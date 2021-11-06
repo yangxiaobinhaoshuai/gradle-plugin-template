@@ -3,7 +3,6 @@ package me.yangxiaobin.lib.transform
 import com.android.build.api.transform.*
 import kotlinx.coroutines.*
 import me.yangxiaobin.lib.coroutine.coroutineHandler
-import me.yangxiaobin.lib.coroutine.transportCoroutineName
 import me.yangxiaobin.lib.ext.*
 import me.yangxiaobin.lib.log.LogLevel
 import me.yangxiaobin.lib.log.Logger
@@ -18,6 +17,7 @@ import java.util.function.Function
 import java.util.zip.ZipFile
 
 
+@Suppress("MemberVisibilityCanBePrivate")
 open class AbsLegacyTransform(protected val project: Project) : Transform() {
 
     protected val logger = Logger.copy().setLevel(LogLevel.DEBUG)
@@ -45,19 +45,20 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
     /**
      * FixedThreadPoolExecutor
      */
-    private val transportExecutor = ThreadPoolExecutor(
+    private val transformExecutor = ThreadPoolExecutor(
         2 * CPU_COUNT, 2 * CPU_COUNT,
         0L, TimeUnit.MICROSECONDS,
         LinkedBlockingQueue(),
         TransformThreadFactory()
     )
 
-    private val transportScope: CoroutineScope by lazy {
+    protected val transformScope: CoroutineScope by lazy {
         CoroutineScope(
-            transportExecutor.asCoroutineDispatcher()
+            transformExecutor.asCoroutineDispatcher()
+//            Dispatchers.IO
                     + SupervisorJob()
                     + coroutineHandler
-                    + transportCoroutineName
+                    + CoroutineName("Transport-Coroutine")
         )
     }
 
@@ -75,17 +76,28 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
         if (!invocation.isIncremental) {
             // Remove any lingering files on a non-incremental invocation since everything has to be
             // transformed.
-            invocation.outputProvider.deleteAll()
+            transformScope.launch {
+                @Suppress("BlockingMethodInNonBlockingContext")
+                invocation.outputProvider.deleteAll()
+            }
+
         }
 
-        invocation.inputs.forEach { transformInput: TransformInput ->
+        invocation.inputs
+            .flatMap { it.jarInputs + it.directoryInputs }
+            .groupBy { it is JarInput }
+            .forEach { (isJar: Boolean, inputList: List<QualifiedContent>) ->
 
-            // 1. Process vendor jars.
-            processJarInput(transformInput.jarInputs, invocation)
+                @Suppress("UNCHECKED_CAST")
+                if (isJar) {
+                    // 1. Process vendor jars.
+                    processJarInput(inputList as List<JarInput>, invocation)
+                } else {
+                    // 2. Process source classes.
+                    processClassFile(inputList as List<DirectoryInput>, invocation)
+                }
 
-            // 2. Process source classes.
-            processClassFile(transformInput.directoryInputs, invocation)
-        }
+            }
 
         afterTransform()
 
@@ -96,6 +108,9 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
         jarInputs: Collection<JarInput>,
         invocation: TransformInvocation
     ) {
+        val t1 = System.currentTimeMillis()
+        logI(" processJarFile begins.")
+
         jarInputs.forEach { jarInput: JarInput ->
 
             val outputJar: File = invocation.outputProvider.getContentLocation(
@@ -108,7 +123,7 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
             if (invocation.isIncremental) {
                 when (jarInput.status) {
                     Status.ADDED, Status.CHANGED -> transportJarFile(jarInput.file, outputJar)
-                    Status.REMOVED -> outputJar.delete()
+                    Status.REMOVED -> transformScope.launch { outputJar.delete() }
                     Status.NOTCHANGED -> {
                         // No need to transform.
                     }
@@ -120,12 +135,15 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
                 transportJarFile(jarInput.file, outputJar)
             }
         }
+        logI(" processJarFile ends in ${(System.currentTimeMillis() - t1).toFormat(false)}")
     }
 
     private fun processClassFile(
         directoryInputs: Collection<DirectoryInput>,
         invocation: TransformInvocation
     ) {
+        val t1 = System.currentTimeMillis()
+        logI(" processClassFile begins.")
 
         fun toOutputFile(outputDir: File, inputDir: File, inputFile: File) =
             File(outputDir, inputFile.relativeTo(inputDir).path)
@@ -146,7 +164,7 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
 
                     when (status) {
                         Status.ADDED, Status.CHANGED -> transportClassFile(changedFile, outputFile.parentFile)
-                        Status.REMOVED -> outputFile.delete()
+                        Status.REMOVED -> transformScope.launch { outputFile.delete() }
                         Status.NOTCHANGED -> {
                             // No need to transform.
                         }
@@ -162,6 +180,8 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
                 }
             }
         }
+
+        logI(" processClassFile ends in ${(System.currentTimeMillis() - t1).toFormat(false)}")
     }
 
     private fun transportJarFile(inputJarFile: File, outputJarFile: File) {
@@ -171,7 +191,7 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
         fun copyJar(inputJar: File, outputJar: File) = inputJar.copyTo(target = outputJar.touch(), overwrite = true)
 
         when {
-            jarFileTransformer == null -> transportScope.launch {  copyJar(inputJarFile, outputJarFile)}
+            jarFileTransformer == null -> transformScope.launch { copyJar(inputJarFile, outputJarFile) }
 
             inputJarFile.isJarFile() && isJarValid(inputJarFile) -> {
 
@@ -181,10 +201,10 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
                 // 2. Do transformation.
                 // 3. Write jar.
 
-                ZipFile(inputJarFile).parallelTransformTo(outputJarFile, jarFileTransformer!!::apply)
+                ZipFile(inputJarFile).simpleTransformTo(outputJarFile, jarFileTransformer!!::apply)
             }
 
-            inputJarFile.isFile ->  transportScope.launch { copyJar(inputJarFile, outputJarFile)}
+            inputJarFile.isFile -> transformScope.launch { copyJar(inputJarFile, outputJarFile) }
         }
     }
 
@@ -200,13 +220,13 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
         }
 
         when {
-            classFileTransformer == null -> transportScope.launch { copyClassFile() }
+            classFileTransformer == null -> transformScope.launch { copyClassFile() }
 
             inputFile.isClassFile() && isClassValid(inputFile) -> {
 
                 logD("transforming class file: ${inputFile.name}")
 
-                transportScope.launch {
+                transformScope.launch {
 
                     val transformedByteArr: ByteArray = inputFile.readBytes().let(classFileTransformer!!::apply)
 
@@ -215,7 +235,7 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
             }
 
             // Copy all non .class files to the output.
-            inputFile.isFile -> transportScope.launch { copyClassFile() }
+            inputFile.isFile -> transformScope.launch { copyClassFile() }
         }
     }
 
@@ -231,16 +251,11 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
     /**
      * Black list array.
      */
-    protected open fun isClassValid(f: File): Boolean = arrayOf("BuildConfig.class")
-        .fold(true) { acc: Boolean, regex: String -> acc && !regex.toRegex().matches(f.name) }
+    protected open fun isClassValid(f: File): Boolean = true
 
     /**
      * Black list array.
      */
-    protected open fun isJarValid(jar: File): Boolean = arrayOf(
-        "R.jar",
-        "annotation-.+.jar",
-        "jetified-annotations-.+.jar",
-    ).fold(true) { acc: Boolean, regex: String -> acc && !regex.toRegex().matches(jar.name) }
+    protected open fun isJarValid(jar: File): Boolean = true
 
 }

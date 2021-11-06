@@ -31,4 +31,3 @@ val coroutineHandler: AbstractCoroutineContextElement by lazy {
     }
 }
 
-val transportCoroutineName = CoroutineName("Transport-Coroutine")

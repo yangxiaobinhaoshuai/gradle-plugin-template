@@ -8,16 +8,18 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class TransformThreadFactory : ThreadFactory {
 
-    private val logI = Logger.log(LogLevel.INFO, "TransformThreadFactory")
+    private val logV = Logger.log(LogLevel.VERBOSE, "TransformThreadFactory")
 
     private val threadPrefix = "-thread-"
     private val threadCounter = AtomicInteger(1)
 
+    private val poolPrefix = "Transport-pool-" + poolCounter.getAndIncrement()
+
     override fun newThread(r: Runnable): Thread =
-        Thread("$POOL_PREFIX${poolCounter.getAndIncrement()}$threadPrefix${threadCounter.getAndIncrement()}").also { logI("Thread : ${it.name} created") }
+        Thread("$poolPrefix$threadPrefix${threadCounter.getAndIncrement()}").also { logV("Thread : ${it.name} created") }
 
     private companion object {
         private val poolCounter = AtomicInteger(1)
-        private const val POOL_PREFIX = "Transport-pool-"
+
     }
 }
