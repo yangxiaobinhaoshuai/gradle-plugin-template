@@ -24,12 +24,14 @@ class AspectTransform(project: Project) : AbsLegacyTransform(project) {
 
     // No op, purely copy
     override fun getJarTransformer(): Function<ByteArray, ByteArray>? {
-        return DefaultByteCodeTransformer()
+        //return DefaultByteCodeTransformer()
+        return null
     }
 
     // No op, purely copy
     override fun getClassTransformer(): Function<ByteArray, ByteArray>? {
-        return DefaultByteCodeTransformer()
+        //return DefaultByteCodeTransformer()
+        return null
     }
 
     override fun isClassValid(f: File): Boolean {

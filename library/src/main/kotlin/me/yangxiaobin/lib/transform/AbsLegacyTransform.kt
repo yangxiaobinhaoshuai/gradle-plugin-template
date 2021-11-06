@@ -199,7 +199,6 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
 
         when {
             jarFileTransformer == null -> copyJar(inputJarFile, outputJarFile)
-//            jarFileTransformer == null -> copyJar(inputJarFile, outputJarFile)
 
             inputJarFile.isJarFile() && isJarValid(inputJarFile) -> {
 
@@ -234,7 +233,11 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
         }
 
         when {
-            classFileTransformer == null -> transformActions += { copyClassFile() }
+            classFileTransformer == null -> {
+                // File.copyTo 处理目录会 Tried to overwrite the destination, but failed to delete it.
+                if (inputFile.isFile) transformActions += { copyClassFile() }
+                else copyClassFile()
+            }
 
             inputFile.isClassFile() && isClassValid(inputFile) -> {
 
