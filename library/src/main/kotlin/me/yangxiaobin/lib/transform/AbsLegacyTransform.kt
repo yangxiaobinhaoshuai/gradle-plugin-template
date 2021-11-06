@@ -17,6 +17,8 @@ import java.util.function.Function
 import java.util.zip.ZipFile
 
 
+typealias Action = () -> Unit
+
 @Suppress("MemberVisibilityCanBePrivate")
 open class AbsLegacyTransform(protected val project: Project) : Transform() {
 
@@ -63,6 +65,7 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
     }
 
     private val transformJobs = mutableSetOf<Job>()
+    private val transformActions = mutableSetOf<Action>()
 
     private val jarFileTransformer: Function<ByteArray, ByteArray>? by lazy { getJarTransformer() }
     private val classFileTransformer: Function<ByteArray, ByteArray>? by lazy { getClassTransformer() }
@@ -77,7 +80,6 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
 
         if (!invocation.isIncremental) {
             // Remove any lingering files on a non-incremental invocation since everything has to be
-            @Suppress("BlockingMethodInNonBlockingContext")
             invocation.outputProvider.deleteAll()
         }
 
@@ -96,6 +98,13 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
                 }
 
             }
+
+//        runBlocking {
+//            transformActions.map { launch { it.invoke() } }.joinAll()
+//        }
+        transformActions.map {
+            transformExecutor.submit { it.invoke() }
+        }.forEach { it.get() }
 
         afterTransform()
 
@@ -190,6 +199,7 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
 
         when {
             jarFileTransformer == null -> copyJar(inputJarFile, outputJarFile)
+//            jarFileTransformer == null -> copyJar(inputJarFile, outputJarFile)
 
             inputJarFile.isJarFile() && isJarValid(inputJarFile) -> {
 
@@ -199,10 +209,16 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
                 // 2. Do transformation.
                 // 3. Write jar.
 
-                ZipFile(inputJarFile).simpleTransformTo(outputJarFile, jarFileTransformer!!::apply)
+                transformActions += {
+                    ZipFile(inputJarFile).simpleTransformTo(
+                        outputJarFile,
+                        jarFileTransformer!!::apply
+                    )
+                }
             }
 
-            inputJarFile.isFile -> copyJar(inputJarFile, outputJarFile)
+
+            inputJarFile.isFile -> transformActions += { copyJar(inputJarFile, outputJarFile) }
         }
     }
 
@@ -218,19 +234,22 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
         }
 
         when {
-            classFileTransformer == null -> copyClassFile()
+            classFileTransformer == null -> transformActions += { copyClassFile() }
 
             inputFile.isClassFile() && isClassValid(inputFile) -> {
 
                 logD("transforming class file: ${inputFile.name}")
 
-                val transformedByteArr: ByteArray = inputFile.readBytes().let(classFileTransformer!!::apply)
+                transformActions += {
+                    val transformedByteArr: ByteArray = inputFile.readBytes().let(classFileTransformer!!::apply)
 
-                outputFile.writeBytes(transformedByteArr)
+                    outputFile.writeBytes(transformedByteArr)
+                }
             }
 
+
             // Copy all non .class files to the output.
-            inputFile.isFile -> copyClassFile()
+            inputFile.isFile -> transformActions += { copyClassFile() }
         }
     }
 
