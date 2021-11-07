@@ -20,7 +20,7 @@ import java.util.*
 open class AjcCompileTask : DefaultTask() {
 
     private val tag = "AjcCompileTask"
-    private val logger = Logger.copy().setLevel(LogLevel.VERBOSE)
+    private val logger = Logger.copy().setLevel(LogLevel.DEBUG)
     private val logV = logger.log(LogLevel.VERBOSE, tag)
     private val logI = logger.log(LogLevel.INFO, tag)
     private val logD = logger.log(LogLevel.DEBUG, tag)
@@ -89,11 +89,9 @@ open class AjcCompileTask : DefaultTask() {
         }
 
         val t1 = System.currentTimeMillis()
-        // TODO
 //        ajcScope.launch {
             dirs.map { dir: File ->
-//                ajcScope.launch {
-
+//                launch {
                     val args = arrayOf<String>(
                         "-1.8",
                         "-showWeaveInfo",
@@ -104,20 +102,22 @@ open class AjcCompileTask : DefaultTask() {
                         "-bootclasspath", bootclasspath,
                     )
 
-//                    logV(
-//                        """
-//                    cur : ${dir.absolutePath}
-//                    aspectj args : ${args.contentToString()}
-//                """.trimIndent()
-//                    )
+                    logV(
+                        """
+                    cur : ${dir.absolutePath}
+                    aspectj args : ${args.contentToString()}
+                """.trimIndent()
+                    )
 
                     messageHandler.clearMessages()
 
                     Main().run(args, messageHandler)
 
-                    if (!handleWeaveMessage(dir)) logE("Weave file :${dir.absolutePath} failed.")
+                    if (!handleWeaveMessage(dir)) logE("Weave failed f : ${dir.absolutePath}")
                 }
 //            }.joinAll()
+//        }.invokeOnCompletion {
+            logI(" Ajc compile dirs ends in ${(System.currentTimeMillis() - t1).toFormat(false)}")
 //        }
     }
 
@@ -167,7 +167,7 @@ open class AjcCompileTask : DefaultTask() {
             val msg by lazy {
                 """
                 cur file : ${cur.absolutePath}
-                message kind : ${message.kind} / ${message.message}
+                message kind : ${message.kind} / message : ${message.message}
             """.trimIndent()
             }
 
