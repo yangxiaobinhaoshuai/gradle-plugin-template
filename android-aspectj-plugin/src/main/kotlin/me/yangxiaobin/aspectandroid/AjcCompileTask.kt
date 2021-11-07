@@ -34,7 +34,7 @@ open class AjcCompileTask : DefaultTask() {
             Dispatchers.IO
                     + SupervisorJob()
                     + coroutineHandler
-                    + CoroutineName("Transport-Coroutine")
+                    + CoroutineName("AJC-Compile")
         )
     }
 
@@ -45,7 +45,6 @@ open class AjcCompileTask : DefaultTask() {
     @Input
     var variantName: String? = null
 
-    // Use ABSOLUTE to be safe, the API that this method calls is deprecated anyway.
     @PathSensitive(PathSensitivity.ABSOLUTE)
     @InputDirectory
     var inputDir: File? = null
@@ -60,6 +59,9 @@ open class AjcCompileTask : DefaultTask() {
 
         val inputDirectory = requireNotNull(inputDir) { return }
 
+        /**
+         * NB. Only consider two situations,dir and jar.
+         */
         val dirs: List<File>? = inputDirectory.listFiles()?.filter { it.isDirectory }
         val jars: List<File>? = inputDirectory.listFiles()?.filter { it.isJarFile() }
 
@@ -78,9 +80,6 @@ open class AjcCompileTask : DefaultTask() {
         val compileClasspathFiles = calculateCompileClasspathFiles()
         val compileClasspath: String = compileClasspathFiles.toPath()
 
-        // TODO  uncomment
-        //logV("ajcCompileDir compileClasspath :$compileClasspath")
-
         // Write compile classpath into temp file
         if (shouldDumpToFile()) {
             val dumpString =
@@ -89,6 +88,8 @@ open class AjcCompileTask : DefaultTask() {
             File(this.project.buildDir, "ajcTmp/ajc-compile-classpath.txt").touch().writeText(dumpString)
         }
 
+        val t1 = System.currentTimeMillis()
+        // TODO
 //        ajcScope.launch {
             dirs.map { dir: File ->
 //                ajcScope.launch {
@@ -103,17 +104,18 @@ open class AjcCompileTask : DefaultTask() {
                         "-bootclasspath", bootclasspath,
                     )
 
-                    logV(
-                        """
-                    cur : ${dir.absolutePath}
-                    aspectj args : ${args.contentToString()}
-                """.trimIndent()
-                    )
+//                    logV(
+//                        """
+//                    cur : ${dir.absolutePath}
+//                    aspectj args : ${args.contentToString()}
+//                """.trimIndent()
+//                    )
 
-                    // FIXME 织入失败
+                    messageHandler.clearMessages()
+
                     Main().run(args, messageHandler)
 
-                    handleWeaveMessage(dir)
+                    if (!handleWeaveMessage(dir)) logE("Weave file :${dir.absolutePath} failed.")
                 }
 //            }.joinAll()
 //        }
@@ -149,9 +151,13 @@ open class AjcCompileTask : DefaultTask() {
     private fun shouldDumpToFile(): Boolean =
         this.project.extensions.findByType(AspectAndroidExt::class.java)?.generateDebugLogFile == true
 
-    private fun handleWeaveMessage(cur: File) {
 
-        messageHandler.clearMessages()
+    /**
+     * @return Whether weave successful or not.
+     */
+    private fun handleWeaveMessage(cur: File): Boolean {
+
+        var weaveSuccessful = true
 
         val errorFile by lazy { File(this.project.buildDir, "ajcTmp/weave-err.txt").touch() }
         val warnFile by lazy { File(this.project.buildDir, "ajcTmp/weave-warn.txt").touch() }
@@ -160,30 +166,29 @@ open class AjcCompileTask : DefaultTask() {
         for (message: IMessage in messageHandler.getMessages(null, true)) {
             val msg by lazy {
                 """
-                cur : ${cur.absolutePath}
-                ${message.kind} /  ${message.message}
+                cur file : ${cur.absolutePath}
+                message kind : ${message.kind} / ${message.message}
             """.trimIndent()
             }
 
             when (message.kind) {
                 IMessage.ABORT, IMessage.ERROR, IMessage.FAIL -> {
+                    weaveSuccessful = false
                     message.thrown?.printStackTrace()
-                    //logE(msg)
+                    logE(msg)
                     mLogger.error(msg)
 
                     if (shouldDumpToFile()) errorFile.appendText(msg + "\r\n")
                 }
 
                 IMessage.WARNING, IMessage.INFO, IMessage.DEBUG -> {
-                    //logD(msg)
-                    mLogger.debug(msg)
+                    logV(msg)
 
                     if (shouldDumpToFile()) warnFile.appendText(msg + "\r\n")
                 }
 
                 else -> {
-                    //logI(msg)
-                    mLogger.info(msg)
+                    logV(msg)
 
                     if (shouldDumpToFile()) otherFile.appendText(msg + "\r\n")
 
@@ -191,5 +196,6 @@ open class AjcCompileTask : DefaultTask() {
             }
         }
 
+        return weaveSuccessful
     }
 }

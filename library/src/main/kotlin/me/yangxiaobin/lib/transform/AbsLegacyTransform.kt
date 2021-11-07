@@ -60,7 +60,7 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
 //                    + Dispatchers.IO
                     + SupervisorJob()
                     + coroutineHandler
-                    + CoroutineName("Transport-Coroutine")
+                    + CoroutineName("AJC-Transform")
         )
     }
 
