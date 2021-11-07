@@ -102,7 +102,7 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
         logI("async transform action begins.")
         transformScope.launch { transformActions.map { launch { it.invoke() } }.joinAll() }
             .invokeOnCompletion {
-                logI("async transform action ends in ${(System.currentTimeMillis() - t2).toFormat(false)}.")
+                logI("async transform actions ends in ${(System.currentTimeMillis() - t2).toFormat(false)}, th : $it.")
             }
 
         afterTransform()

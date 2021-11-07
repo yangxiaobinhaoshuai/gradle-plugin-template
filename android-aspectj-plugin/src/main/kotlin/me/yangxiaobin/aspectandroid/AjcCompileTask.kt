@@ -1,6 +1,10 @@
 package me.yangxiaobin.aspectandroid
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.sync.Mutex
 import me.yangxiaobin.lib.coroutine.coroutineHandler
 import me.yangxiaobin.lib.ext.*
 import me.yangxiaobin.lib.log.LogLevel
@@ -20,7 +24,7 @@ import java.util.*
 open class AjcCompileTask : DefaultTask() {
 
     private val tag = "AjcCompileTask"
-    private val logger = Logger.copy().setLevel(LogLevel.DEBUG)
+    private val logger = Logger.copy().setLevel(LogLevel.INFO)
     private val logV = logger.log(LogLevel.VERBOSE, tag)
     private val logI = logger.log(LogLevel.INFO, tag)
     private val logD = logger.log(LogLevel.DEBUG, tag)
@@ -40,6 +44,8 @@ open class AjcCompileTask : DefaultTask() {
 
     private val messageHandler by lazy { MessageHandler(false) }
     private val bootclasspath: String by lazy { this.project.getAppExtension?.bootClasspath.toPath() }
+
+    private val ajcMutex = Mutex()
 
 
     @Input
@@ -67,15 +73,20 @@ open class AjcCompileTask : DefaultTask() {
 
         logD("Ajc input dirs size :${dirs?.size}, jars size :${jars?.size}")
 
+        cleanup()
 
-        if (!dirs.isNullOrEmpty()) ajcCompileDir(dirs)
+        if (!dirs.isNullOrEmpty()) ajcCompileDirs(dirs)
         if (!jars.isNullOrEmpty()) ajcCompileJars(jars)
 
 
         logI("AjcCompile ends in ${(System.currentTimeMillis() - t1).toFormat(false)}.")
     }
 
-    private fun ajcCompileDir(dirs: List<File>) {
+    private fun cleanup() {
+        File(this.project.buildDir, "ajcTmp").deleteRecursively()
+    }
+
+    private fun ajcCompileDirs(dirs: List<File>) {
 
         val compileClasspathFiles = calculateCompileClasspathFiles()
         val compileClasspath: String = compileClasspathFiles.toPath()
@@ -88,23 +99,83 @@ open class AjcCompileTask : DefaultTask() {
             File(this.project.buildDir, "ajcTmp/ajc-compile-classpath.txt").touch().writeText(dumpString)
         }
 
+        val weaveDirActions: List<() -> Unit> = dirs.map { dir: File ->
+            {
+                val args = arrayOf<String>(
+                    "-1.8",
+                    "-showWeaveInfo",
+                    "-d", dir.absolutePath,
+                    "-inpath", dir.absolutePath,
+                    "-aspectpath", dir.parent,
+                    "-classpath", compileClasspath,
+                    "-bootclasspath", bootclasspath,
+                )
+
+                logV(
+                    """
+                    cur : ${dir.absolutePath}
+                    aspectj args : ${args.contentToString()}
+                """.trimIndent()
+                )
+
+                messageHandler.clearMessages()
+
+                Main().run(args, messageHandler)
+
+                if (!handleWeaveMessage(dir)) logE("Weave failed f : ${dir.absolutePath}")
+            }
+        }
+
+
         val t1 = System.currentTimeMillis()
-//        ajcScope.launch {
-            dirs.map { dir: File ->
-//                launch {
+        logI("async ajc compile dirs begins.")
+
+        // TODO 待验证是否提高效率
+//        ajcScope.launch { weaveDirActions.map { launch { ajcMutex.withLock { it.invoke() } } } }
+//            .invokeOnCompletion {
+//                logI("async ajc compile DIRS ends in ${(System.currentTimeMillis() - t1).toFormat(false)}, th : $it.")
+//            }
+
+        weaveDirActions.forEach { it.invoke() }
+        logI("async ajc compile DIRS ends in ${(System.currentTimeMillis() - t1).toFormat(false)}.")
+    }
+
+    private fun ajcCompileJars(jars: List<File>) {
+
+        if (this.project.extensions.findByType(AspectAndroidExt::class.java)?.supportTransitiveJars == false) return
+
+        val t1 = System.currentTimeMillis()
+        logI("async ajc compile jars begins.")
+
+
+        val compileClasspathFiles = calculateCompileClasspathFiles()
+        // TODO
+        val compileJarClasspath = compileClasspathFiles.toPath()
+
+        val prefix = "pre-ajc-"
+
+
+        val weaveJarActions: List<() -> Unit> = jars
+            .map { it.renamed("$prefix${it.name}") }
+            .map { preJar: File ->
+                {
+                    val originalName = preJar.parent + File.separator + preJar.name.substring(prefix.length)
+
+                    // TODO
                     val args = arrayOf<String>(
                         "-1.8",
                         "-showWeaveInfo",
-                        "-d", dir.absolutePath,
-                        "-inpath", dir.absolutePath,
-                        "-aspectpath", dir.parent,
-                        "-classpath", compileClasspath,
+                        "-d", preJar.parent,
+                        "-inpath", preJar.absolutePath,
+                        "-aspectpath", preJar.parent,
+                        "-outjar", originalName,
+                        "-classpath", compileJarClasspath,
                         "-bootclasspath", bootclasspath,
                     )
 
                     logV(
                         """
-                    cur : ${dir.absolutePath}
+                    cur : ${preJar.absolutePath}
                     aspectj args : ${args.contentToString()}
                 """.trimIndent()
                     )
@@ -113,16 +184,24 @@ open class AjcCompileTask : DefaultTask() {
 
                     Main().run(args, messageHandler)
 
-                    if (!handleWeaveMessage(dir)) logE("Weave failed f : ${dir.absolutePath}")
+                    if (!handleWeaveMessage(preJar)) {
+                        logE("Weave failed jar : ${preJar.absolutePath}")
+                        preJar.renamed(preJar.name.substring(prefix.length))
+                    } else {
+                        preJar.delete()
+                        logI("Weave successful jar : ${preJar.absolutePath}")
+                    }
                 }
-//            }.joinAll()
-//        }.invokeOnCompletion {
-            logI(" Ajc compile dirs ends in ${(System.currentTimeMillis() - t1).toFormat(false)}")
-//        }
-    }
+            }
 
-    private fun ajcCompileJars(dirs: List<File>) {
+        // TODO 待验证是否提高效率
+//        ajcScope.launch { weaveJarActions.map { launch { it.invoke() } } }
+//            .invokeOnCompletion {
+//                logI("async ajc compile JARS ends in ${(System.currentTimeMillis() - t1).toFormat(false)}, th : $it.")
+//            }
 
+        weaveJarActions.forEach { it.invoke() }
+        logI("async ajc compile JARS ends in ${(System.currentTimeMillis() - t1).toFormat(false)}.")
     }
 
     private fun calculateCompileClasspathFiles(): Set<File> {
@@ -166,8 +245,8 @@ open class AjcCompileTask : DefaultTask() {
         for (message: IMessage in messageHandler.getMessages(null, true)) {
             val msg by lazy {
                 """
-                cur file : ${cur.absolutePath}
-                message kind : ${message.kind} / message : ${message.message}
+cur file : ${cur.absolutePath}
+message kind : ${message.kind} / message : ${message.message}
             """.trimIndent()
             }
 
@@ -175,10 +254,14 @@ open class AjcCompileTask : DefaultTask() {
                 IMessage.ABORT, IMessage.ERROR, IMessage.FAIL -> {
                     weaveSuccessful = false
                     message.thrown?.printStackTrace()
-                    logE(msg)
                     mLogger.error(msg)
 
-                    if (shouldDumpToFile()) errorFile.appendText(msg + "\r\n")
+                    if (shouldDumpToFile()) errorFile.appendText(
+                        """
+$msg
+${message.thrown?.stackTraceToString()} 
+                    """.trimIndent()
+                    )
                 }
 
                 IMessage.WARNING, IMessage.INFO, IMessage.DEBUG -> {
