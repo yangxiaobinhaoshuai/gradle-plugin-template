@@ -89,30 +89,34 @@ open class AjcCompileTask : DefaultTask() {
             File(this.project.buildDir, "ajcTmp/ajc-compile-classpath.txt").touch().writeText(dumpString)
         }
 
-        dirs.forEach { dir: File ->
-            ajcScope.launch {
+//        ajcScope.launch {
+            dirs.map { dir: File ->
+//                ajcScope.launch {
 
-                val args = arrayOf<String>(
-                    "-1.8",
-                    "-showWeaveInfo",
-                    "-d", dir.absolutePath,
-                    "-inpath", dir.absolutePath,
-                    //"-aspectpath", aspectpath,
-                    "-classpath", compileClasspath,
-                    "-bootclasspath", bootclasspath,
-                )
+                    val args = arrayOf<String>(
+                        "-1.8",
+                        "-showWeaveInfo",
+                        "-d", dir.absolutePath,
+                        "-inpath", dir.absolutePath,
+                        "-aspectpath", dir.parent,
+                        "-classpath", compileClasspath,
+                        "-bootclasspath", bootclasspath,
+                    )
 
-                logV("""
+                    logV(
+                        """
                     cur : ${dir.absolutePath}
                     aspectj args : ${args.contentToString()}
-                """.trimIndent())
+                """.trimIndent()
+                    )
 
-                // FIXME 织入失败
-                Main().run(args, messageHandler)
+                    // FIXME 织入失败
+                    Main().run(args, messageHandler)
 
-                handleWeaveMessage(dir)
-            }
-        }
+                    handleWeaveMessage(dir)
+                }
+//            }.joinAll()
+//        }
     }
 
     private fun ajcCompileJars(dirs: List<File>) {

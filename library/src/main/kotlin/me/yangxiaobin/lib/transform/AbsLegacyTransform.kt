@@ -15,6 +15,7 @@ import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 import java.util.function.Function
 import java.util.zip.ZipFile
+import kotlin.system.measureTimeMillis
 
 
 typealias Action = () -> Unit
@@ -99,12 +100,16 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
 
             }
 
-//        runBlocking {
-//            transformActions.map { launch { it.invoke() } }.joinAll()
-//        }
-        transformActions.map {
-            transformExecutor.submit { it.invoke() }
-        }.forEach { it.get() }
+        logI("async transform action begins.")
+        val t = measureTimeMillis {
+            runBlocking {
+                transformActions.map { launch { it.invoke() } }.joinAll()
+            }
+        }
+        logI("async transform action ends in ${t.toFormat(false)}.")
+//        transformActions.map {
+//            transformExecutor.submit { it.invoke() }
+//        }.forEach { it.get() }
 
         afterTransform()
 

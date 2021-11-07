@@ -127,7 +127,7 @@ class AspectAndroidPlugin : BasePlugin() {
                     val t1 = System.currentTimeMillis()
                     logI("${t.name} do last begins, current variant name: $curVariantName, output size :${t.outputs.files.asFileTree.files.size} >>")
 
-                    //doAjcCompilation(t)
+                    doAjcCompilation(t)
 
                     logI("${t.name} do last ends in ${(System.currentTimeMillis() - t1).toFormat(false)}, current variant name: $curVariantName, output size :${t.outputs.files.asFileTree.files.size} >>")
                 }
