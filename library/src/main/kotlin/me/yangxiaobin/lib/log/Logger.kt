@@ -88,6 +88,9 @@ abstract class AbsLogger : ILog {
 
 }
 
+/**
+ * Function currying.
+ */
 fun ILog.log(level: LogLevel, tag: String) = fun(message: String) =
     when (level) {
         LogLevel.VERBOSE -> this.v(tag, message)

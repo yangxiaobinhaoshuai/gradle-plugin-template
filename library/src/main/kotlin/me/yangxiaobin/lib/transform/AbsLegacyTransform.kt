@@ -57,7 +57,6 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
     protected val transformScope: CoroutineScope by lazy {
         CoroutineScope(
             transformExecutor.asCoroutineDispatcher()
-//                    + Dispatchers.IO
                     + SupervisorJob()
                     + coroutineHandler
                     + CoroutineName("AJC-Transform")
