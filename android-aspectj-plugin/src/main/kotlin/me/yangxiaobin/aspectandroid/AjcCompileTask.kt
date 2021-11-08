@@ -118,6 +118,13 @@ open class AjcCompileTask : DefaultTask() {
         logI("async ajc compile DIRS ends in ${(System.currentTimeMillis() - t1).toFormat(false)}.")
     }
 
+    /**
+     * Cause ajc can NOT output the jarfile with same name with the original one.
+     *
+     * 1. Rename original jar.
+     * 2. Do ajc compilation.
+     * 3. Rename back.
+     */
     private fun ajcCompileJars(jars: List<File>) {
 
         if (this.project.extensions.findByType(AspectAndroidExt::class.java)?.supportTransitiveJars == false) return
@@ -172,7 +179,7 @@ open class AjcCompileTask : DefaultTask() {
                         preJar.renamed(preJar.name.substring(prefix.length))
                     } else {
                         preJar.delete()
-                        logI("Weave successful jar : ${preJar.name}")
+                        logD("Weave successful jar : ${preJar.name}")
                     }
                 }
             }
