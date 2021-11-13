@@ -45,6 +45,13 @@ aspectj-matcher = { module = "org.aspectj:aspectjmatcher", version.ref = "aspect
 
 groovyAll = { module = "org.codehaus.groovy:groovy-all", version.ref = "groovy-allV" }
 
+# Google auto :https://github.com/google/auto
+autoService = { module = "com.google.auto.service:auto-service", version = "1.0.1" }
+# https://github.com/square/javapoet
+javapoet= { module = "com.squareup:javapoet", version = "1.13.0" }
+# https://github.com/square/kotlinpoet    doc :https://square.github.io/kotlinpoet/
+kotlinpoet= { module = "com.squareup:kotlinpoet", version = "1.10.2" }
+
 
 
 [bundles]

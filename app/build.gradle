@@ -3,6 +3,7 @@ plugins {
     id 'java'
     id 'kotlin'
     id 'artifact-transform-plugin'
+    id "org.jetbrains.kotlin.kapt"
     //id 'java-aspectj-plugin' version '1.0-SNAPSHOT'
     //id 'java-aspectj-plugin-v2'
 }
@@ -12,10 +13,23 @@ version '0.0.1'
 sourceCompatibility = 1.8
 
 
+compileJava {
+    options.compilerArgs << '-parameters'
+}
+
+kapt {
+    arguments {
+        arg("key", "value")
+    }
+}
+
+
 dependencies {
-    testImplementation libDeps.junitx
+    testImplementation libDeps.junit
 
     //implementation libDeps.groovyAll
+    implementation project(":annotation")
+    kapt project(":annotation-processor")
     implementation libDeps.bundles.asm
     implementation libDeps.ktStd
     implementation libDeps.bundles.aspectj
