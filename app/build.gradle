@@ -28,9 +28,9 @@ dependencies {
     testImplementation libDeps.junit
 
     //implementation libDeps.groovyAll
-    implementation project(":annotation")
-    implementation project(":logger-jvm")
-    kapt project(":annotation-processor")
+    //implementation project(":annotation")
+    //implementation project(":logger-jvm")
+    //kapt project(":annotation-processor")
     implementation libDeps.bundles.asm
     implementation libDeps.ktStd
     implementation libDeps.bundles.aspectj
