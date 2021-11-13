@@ -1,0 +1,16 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm'
+    id 'java-gradle-plugin'
+}
+
+version '1.0.0-SNAPSHOT'
+
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation libDeps.ktStd
+    implementation libDeps.kotlinpoet
+}

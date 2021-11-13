@@ -26,6 +26,10 @@ dependencyResolutionManagement {
 
 rootProject.name = 'gradle-template'
 
+// JVM base libs
+include 'logger-jvm'
+
+// Apps
 include 'app'
 //include ':androidapp'
 include ':annotation'

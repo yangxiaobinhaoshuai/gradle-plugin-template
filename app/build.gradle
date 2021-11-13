@@ -29,6 +29,7 @@ dependencies {
 
     //implementation libDeps.groovyAll
     implementation project(":annotation")
+    implementation project(":logger-jvm")
     kapt project(":annotation-processor")
     implementation libDeps.bundles.asm
     implementation libDeps.ktStd
