@@ -1,10 +1,10 @@
 package me.yangxiaobin.logger.elements
 
-import me.yangxiaobin.logger.AbsKey
-import me.yangxiaobin.logger.AbsLogElement
-import me.yangxiaobin.logger.LogPrinter
+import me.yangxiaobin.logger.domain.AbsKey
+import me.yangxiaobin.logger.domain.AbsDomainElement
+import me.yangxiaobin.logger.uitlity.LogPrinter
 
-data class LogPrinterLogElement(val logPrinter: LogPrinter) : AbsLogElement(LogPrinterLogElement) {
+data class LogPrinterLogElement(val logPrinter: LogPrinter) : AbsDomainElement(LogPrinterLogElement) {
 
     companion object Key : AbsKey<LogPrinterLogElement>()
 

@@ -1,9 +1,7 @@
-package me.yangxiaobin.logger
+package me.yangxiaobin.logger.core
 
 
-interface LogAction {
-
-    val logContext: LogContext
+interface LogFacade {
 
     fun v(tag: String, message: String)
 

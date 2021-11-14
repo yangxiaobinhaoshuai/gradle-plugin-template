@@ -1,9 +1,9 @@
 package me.yangxiaobin.logger.elements
 
-import me.yangxiaobin.logger.AbsKey
-import me.yangxiaobin.logger.AbsLogElement
+import me.yangxiaobin.logger.domain.AbsKey
+import me.yangxiaobin.logger.domain.AbsDomainElement
 
-data class EnableLogElement(val enable: Boolean) : AbsLogElement(EnableLogElement) {
+data class EnableLogElement(val enable: Boolean) : AbsDomainElement(EnableLogElement) {
 
     companion object Key : AbsKey<EnableLogElement>()
 

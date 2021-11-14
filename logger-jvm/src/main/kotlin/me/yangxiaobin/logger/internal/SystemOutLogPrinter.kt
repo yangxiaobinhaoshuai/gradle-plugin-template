@@ -1,6 +1,6 @@
 package me.yangxiaobin.logger.internal
 
-import me.yangxiaobin.logger.LogPrinter
+import me.yangxiaobin.logger.uitlity.LogPrinter
 
 internal class SystemOutLogPrinter : LogPrinter {
 

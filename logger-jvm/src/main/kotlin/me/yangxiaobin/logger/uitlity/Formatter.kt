@@ -1,4 +1,4 @@
-package me.yangxiaobin.logger
+package me.yangxiaobin.logger.uitlity
 
 interface Formatter {
 
