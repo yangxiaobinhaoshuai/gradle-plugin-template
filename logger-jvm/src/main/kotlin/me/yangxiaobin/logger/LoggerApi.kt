@@ -3,6 +3,11 @@ package me.yangxiaobin.logger
 import me.yangxiaobin.logger.core.LogFacade
 import me.yangxiaobin.logger.core.LogLevel
 import me.yangxiaobin.logger.domain.DomainContext
+import me.yangxiaobin.logger.domain.EmptyDomainContext
+import me.yangxiaobin.logger.elements.EnableLogElement
+import me.yangxiaobin.logger.elements.GlobalTagPrefixLogElement
+import me.yangxiaobin.logger.elements.GlobalTagSuffixLogElement
+import me.yangxiaobin.logger.elements.LogLevelLogElement
 import me.yangxiaobin.logger.internal.LoggerImpl
 
 /**
@@ -15,6 +20,25 @@ object RawLogger : LogFacade by LoggerImpl()
  */
 fun LogFacade.clone(newLogContext: DomainContext? = null): LogFacade = LoggerImpl(newLogContext)
 
+
+fun LogFacade.clone(
+    enable: Boolean? = null,
+    globalTagPrefix: String? = null,
+    globalTagSuffix: String? = null,
+    logLevel: LogLevel? = null,
+    newLogContext: DomainContext? = null
+): LogFacade {
+
+    var mergedContext: DomainContext = EmptyDomainContext
+
+    if (enable != null) mergedContext += EnableLogElement(enable)
+    if (logLevel != null) mergedContext += LogLevelLogElement(logLevel)
+    if (globalTagPrefix != null) mergedContext += GlobalTagPrefixLogElement(globalTagPrefix)
+    if (globalTagSuffix != null) mergedContext += GlobalTagSuffixLogElement(globalTagSuffix)
+    if (newLogContext != null) mergedContext += newLogContext
+
+    return LoggerImpl(mergedContext)
+}
 
 /**
  * Function currying.

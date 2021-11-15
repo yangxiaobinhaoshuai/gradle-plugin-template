@@ -12,6 +12,8 @@ class LoggerTest {
 
             RawLogger.e("RawTAG", "RawErrorMessage")
 
+            RawLogger.clone(globalTagPrefix = "NeatPrefix").e("RawTAG", "RawErrorMessage")
+
             RawLogger
                 .clone(GlobalTagPrefixLogElement("TestPrefix==>"))
                 .e("CloneTAG", "cloneMessage")
