@@ -1,5 +1,37 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm'
+    // See : Mvn publish doc : https://docs.gradle.org/current/userguide/publishing_maven.html
+    id 'maven-publish'
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+publishing {
+
+    repositories {
+        maven {
+            // change to point to your repo, e.g. http://my.org/repo
+
+            // rootProject/build/repo
+            //url = layout.buildDirectory.dir('repo')
+
+            url = rootProject.layout.projectDirectory.dir("Android-Template/local-repo")
+        }
+    }
+
+    // mvn coordinate : "me.yangxiaobin.jvm:logger:1.0-SNAPSHOT"
+    publications {
+        jvmLogger(MavenPublication) {
+            groupId = 'me.yangxiaobin.jvm'
+            artifactId = 'logger'
+            version = '1.0-SNAPSHOT'
+
+            from components.java
+        }
+    }
 }
 
 version '1.0.0-SNAPSHOT'

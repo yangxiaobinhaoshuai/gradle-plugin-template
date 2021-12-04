@@ -27,7 +27,7 @@ dependencyResolutionManagement {
 rootProject.name = 'gradle-template'
 
 // JVM base libs
-//include 'logger-jvm'
+include 'logger-jvm'
 
 // Apps
 include 'app'
