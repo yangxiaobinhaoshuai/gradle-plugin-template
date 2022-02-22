@@ -1,4 +1,4 @@
-package me.yangxiaobin.lib.base
+package me.yangxiaobin.lib
 
 import me.yangxiaobin.lib.log.ILog
 import me.yangxiaobin.lib.log.LogLevel
@@ -16,13 +16,13 @@ abstract class BasePlugin : Plugin<Project> {
     protected lateinit var mProject: Project
         private set
 
-    private lateinit var mGradle: Gradle
+    protected lateinit var mGradle: Gradle
         private set
 
     protected lateinit var mLogger: org.gradle.api.logging.Logger
         private set
 
-    protected open val myLogger :ILog get() = Logger
+    protected open val myLogger: ILog get() = Logger
 
     protected val logV by lazy { myLogger.log(LogLevel.VERBOSE, TAG) }
     protected val logI by lazy { myLogger.log(LogLevel.INFO, TAG) }

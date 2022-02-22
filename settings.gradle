@@ -1,14 +1,5 @@
 import org.gradle.api.initialization.resolve.RepositoriesMode
 
-//pluginManagement {
-//    repositories {
-//        //mavenLocal()
-//        google()
-//        mavenCentral()
-//        gradlePluginPortal()
-//    }
-//}
-
 enableFeaturePreview('VERSION_CATALOGS')
 
 dependencyResolutionManagement {
@@ -31,7 +22,9 @@ rootProject.name = 'gradle-template'
 
 // Apps
 include 'app'
+
 include ':androidapp'
+
 //include ':annotation'
 //include ':annotation-processor'
 
@@ -46,7 +39,6 @@ include ':androidapp'
 
 
 includeBuild 'library'
+
 //includeBuild 'java-aspectj-plugin'
 includeBuild 'android-aspectj-plugin'
-
-include ':androidlibrary'

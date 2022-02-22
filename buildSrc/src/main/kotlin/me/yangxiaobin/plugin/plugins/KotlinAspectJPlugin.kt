@@ -1,6 +1,6 @@
 package me.yangxiaobin.plugin.plugins
 
-import me.yangxiaobin.lib.base.BasePlugin
+import me.yangxiaobin.lib.BasePlugin
 import me.yangxiaobin.lib.ext.SourceLanguage
 import me.yangxiaobin.lib.ext.getSourceSetDirs
 import org.gradle.api.Project

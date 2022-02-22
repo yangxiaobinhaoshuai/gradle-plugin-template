@@ -2,7 +2,7 @@ package me.yangxiaobin.aspectandroid
 
 import com.android.build.gradle.api.ApplicationVariant
 import com.android.build.gradle.internal.pipeline.TransformTask
-import me.yangxiaobin.lib.base.BasePlugin
+import me.yangxiaobin.lib.BasePlugin
 import me.yangxiaobin.lib.ext.getAppExtension
 import me.yangxiaobin.lib.log.ILog
 import me.yangxiaobin.lib.log.LogLevel
