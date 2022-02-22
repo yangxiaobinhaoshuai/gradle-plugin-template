@@ -10,7 +10,7 @@ dependencyResolutionManagement {
 dependencyResolutionManagement {
     versionCatalogs {
         deps {
-            from(files("Android-Template/gradle/libs.versions.toml"))
+            from(files("samples/Android-Template/gradle/libs.versions.toml"))
         }
     }
 }
@@ -21,24 +21,24 @@ rootProject.name = 'gradle-template'
 //include 'logger-jvm'
 
 // Apps
-include 'app'
+include ':samples:app'
 
-include ':androidapp'
+include ':samples:androidapp'
 
-//include ':annotation'
-//include ':annotation-processor'
+//include ':apt:annotation'
+//include ':apt:annotation-processor'
 
 //include 'codelab-kt'
 //project(':codelab-kt').projectDir = new File(rootProject.projectDir, 'Android-Template/codelab-kt')
-//
+
 //include 'codelab-android-kt'
 //project(':codelab-android-kt').projectDir = new File(rootProject.projectDir, 'Android-Template/codelab-android-kt')
-//
-//include 'Android-Template-App'
-//project(':Android-Template-App').projectDir = new File(rootProject.projectDir, 'Android-Template/app')
+
+//include ':samples:Android-Template-App'
+//project(':samples:Android-Template-App').projectDir = new File(rootProject.projectDir, 'Android-Template/app')
 
 
 includeBuild 'library'
 
-//includeBuild 'java-aspectj-plugin'
-includeBuild 'android-aspectj-plugin'
+//includeBuild 'aspectj/java-aspectj-plugin'
+//includeBuild 'aspectj/android-aspectj-plugin'

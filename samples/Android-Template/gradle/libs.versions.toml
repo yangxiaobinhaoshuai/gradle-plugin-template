@@ -1,0 +1,91 @@
+# TOML specifications : https://toml.io/en/
+
+# Doc : https://docs.gradle.org/current/userguide/platforms.html#sub:conventional-dependencies-toml
+
+[versions]
+junitV = "4.13.2"
+kotlinV = "1.5.31"
+coilV = "1.3.2"
+
+# widget
+recyclerViewV = "1.2.1"
+constraintLayoutV = "2.1.0"
+
+# jetpack
+navigatonKtxV = "2.3.5"
+pagingV = "3.0.1"
+
+#  compose setup doc : https://developer.android.com/jetpack/compose/setup
+composeV = "1.0.1"
+
+# retrofit https://github.com/square/retrofit
+retrofitV = "2.9.0"
+
+# Guava
+guavaV = "31.0.1-android"
+
+
+[libraries]
+appcompatX = { group = "androidx.appcompat", name = "appcompat", version = { strictly = "1.3.1", prefer = "1.3.1" } }
+
+# widget
+recyclerView = { module = "androidx.recyclerview:recyclerview", version.ref = "recyclerViewV" }
+rv-selection = { module = "androidx.recyclerview:recyclerview-selection", version = "1.1.0" }
+constraint = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintLayoutV" }
+
+kgp153 = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlinV" }
+
+agp7 = { module = "com.android.tools.build:gradle", version = "7.0.2" }
+agp4 = { module = "com.android.tools.build:gradle", version = "4.2.0" }
+
+junit = { module = "junit:junit", version.ref = "junitV" }
+
+# compose
+composeUI-Core = { module = "androidx.compose.ui:ui", version.ref = "composeV" }
+composeUI-Tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "composeV" }
+composeFoundation = { module = "androidx.compose.foundation:foundation", version.ref = "composeV" }
+composeMaterial = { module = "androidx.compose.material:material", version.ref = "composeV" }
+composeIcons = { module = "androidx.compose.material:material-icons-core", version.ref = "composeV" }
+composeIconsExt = { module = "androidx.compose.material:material-icons-extended", version.ref = "composeV" }
+composeActivities = { module = "androidx.activity:activity-compose", version = "1.3.1" }
+composeViewModels = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version = "1.0.0-alpha07" }
+composeLiveData = { module = "androidx.compose.runtime:runtime-livedata", version.ref = "composeV" }
+composeRxJava2 = { module = "androidx.compose.runtime:runtime-rxjava2", version.ref = "composeV" }
+composePaging3 = { module = "androidx.paging:paging-compose", version = "1.0.0-alpha12" }
+
+# ktx : https://developer.android.com/kotlin/ktx
+ktx-core = { module = "androidx.core:core-ktx", version = "1.6.0" }
+ktx-collection = { module = "androidx.collection:collection-ktx", version = "1.2.0-alpha01" }
+ktx-fragment = { module = "androidx.fragment:fragment-ktx", version = "1.3.6" }
+ktx-lifecycle = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version = "2.3.0" }
+ktx-liveData = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version = "2.3.0" }
+ktx-viewModel = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version = "2.3.0" }
+ktx-room = { module = "androidx.room:room-ktx", version = "2.3.0" }
+ktx-SQLite = { module = "androidx.sqlite:sqlite-ktx", version = "2.1.0" }
+# navigation series
+ktx-navigation-runtime = { module = "androidx.navigation:navigation-runtime-ktx", version.ref = "navigatonKtxV" }
+ktx-navigation-fragment = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigatonKtxV" }
+ktx-navigation-ui = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigatonKtxV" }
+
+# jetpack paging3 https://developer.android.com/topic/libraries/architecture/paging/v3-overview
+paging3 = { module = "androidx.paging:paging-runtime", version.ref = "pagingV" }
+
+# retrofit
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofitV" }
+
+# coil https://github.com/coil-kt/coil
+coil = { module = "io.coil-kt:coil", version.ref = "coilV" }
+
+# guava
+guava = { module = "com.google.guava:guava", version.ref = "guavaV" }
+
+viewbinding = { module = "androidx.databinding:viewbinding", version = "4.2.0" }
+
+
+[bundles]
+widgets = ["recyclerView", "rv-selection", "constraint", ]
+compose = ["composeUI-Core","composeUI-Tooling","composeFoundation","composeMaterial","composeIcons","composeIconsExt","composeActivities","composeViewModels","composeLiveData",]
+ktx = ["ktx-core","ktx-collection","ktx-fragment","ktx-lifecycle","ktx-liveData","ktx-viewModel","ktx-room","ktx-SQLite",]
+
+#[plugins]
+#jmh = { id = "me.champeau.jmh", version = "0.6.5" }

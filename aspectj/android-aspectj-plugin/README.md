@@ -45,7 +45,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp; 其中，*PointCut* 和 *JoinPoint* 的概念很容易混淆。Stackoveflow 有个 [比喻](https://stackoverflow.com/a/25779864/10247834) 很恰当，把 *JoinPoint* 比作餐厅菜单中所有的菜品，在用餐时，你可以有机会点任意菜品，但你显然不会把左右菜品都点一遍。当你下单后，你所选择的菜品即是 *PointCut*。 所以，*PointCut* 是 *JoinPoint* 的特定子集。
 &nbsp;&nbsp; 我个人更喜欢把 *PointCut* 当作程序执行的 “横截面”来理解，将 AspectJ 理解为庖丁的解牛刀，程序即为牛整体，解剖的器官截面即为 *PointCut*。 因为在 *PointCut* 里可以获取程序变量在当时的值，好比能够一览整个截面一般。
 
-![JoinPoint&PointCut](./pics/aspectJ-JointPoint-PointCut.png)
+![JoinPoint&PointCut](pics/aspectJ-JointPoint-PointCut.png)
 
 <center><font color=gray>JoinPoint 与 PointCut 示意图</font></center>
 
@@ -137,7 +137,7 @@ after() returning: move() {
 &nbsp;&nbsp;&nbsp;&nbsp; 源文件编译由 `org.aspectj.org.eclipse.jdt.internal.compiler.Compiler` 来完成，同 javac 类似，其中包括对 classFile 进行注解处理，解析, 构建 AST，等系列编译操作，最终生成字节码。
 &nbsp;&nbsp;&nbsp;&nbsp; 对 Aspect construts 的增强处理，可以有两处选择：1. 在 compile 之前处理源文件形式的 aspect constructs； 2. 在 compile 之后处理 class 形式的 aspect constructs。  其实处理过程无非是生成一些模板属性和方法。支持多种形式 aspect constructs 处理大大丰富了 AspectJ 的使用方式。
 &nbsp;&nbsp;&nbsp;&nbsp;  最后的织入处理，AspectJ 采用 ClassVisitor 处理模式，操作字节码对 class 文件进行插桩。
-![Ajc-compile](./pics/ajc-compilaition.png)
+![Ajc-compile](pics/ajc-compilaition.png)
 
 #### CLI 编译简介
 安装 ajc
@@ -198,7 +198,7 @@ fun doAjc () {
 
 比如 ：项目依赖了 google 的 constraintlayout。 而 Project source code 的 compile classpath 中仅包含 constraintlayout-api.jar。 但如果想对 constraintlayout 进行织入，需要能够编译 constraintlayout 整个工件的 classpath。显然只有 api.jar 是不够的，还需要在 runtimeclasspath 中找到 runtime.jar。
 
-![编译依赖](./pics/constraint-classpath.png)
+![编译依赖](pics/constraint-classpath.png)
 
 
 ## 用途
