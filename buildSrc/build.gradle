@@ -32,9 +32,11 @@ gradlePlugin {
 
 dependencies {
 
+    def libCommon = "me.yangxiaobin.plugin:lib-common"
+
     implementation libDeps.aspectjTools
     implementation libDeps.agp4
     implementation libDeps.ktCoroutine
-    implementation 'me.yangxiaobin.lib:library:1.0-SNAPSHOT'
+    implementation libCommon
     compileOnly 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.31'
 }

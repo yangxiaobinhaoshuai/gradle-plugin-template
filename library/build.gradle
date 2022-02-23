@@ -5,7 +5,8 @@ plugins {
 }
 
 // mvn coordinate: 'me.yangxiaobin.lib:library:1.0-SNAPSHOT'
-group = 'me.yangxiaobin.lib'
+group = 'me.yangxiaobin.plugin'
+// artifact name, composite build substitution coordinate uses `project.group:project.name`
 description = "yangxiaobin-lib"
 version = '1.0-SNAPSHOT'
 

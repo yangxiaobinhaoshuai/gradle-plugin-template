@@ -26,6 +26,7 @@ kapt {
 
 dependencies {
     testImplementation libDeps.junit
+    def libCommon = "me.yangxiaobin.plugin:lib-common"
 
     //implementation libDeps.groovyAll
     //implementation project(":annotation")
@@ -36,7 +37,7 @@ dependencies {
     implementation libDeps.bundles.aspectj
     compileOnly "com.google.dagger:hilt-android-gradle-plugin:2.28-alpha"
 
-    implementation 'me.yangxiaobin.lib:library:1.0-SNAPSHOT'
+    implementation libCommon
 
 }
 

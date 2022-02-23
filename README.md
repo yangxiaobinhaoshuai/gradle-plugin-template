@@ -2,6 +2,7 @@
 
 # Gradle plugin template
 
+- Gradle Plugin CodeLab.
 
 ## ASM Commands
 
@@ -21,3 +22,5 @@
 - [ASM FAQ](https://asm.ow2.io/faq.html#Q4)
 
 - [Git submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules)
+
+- [Gradle composite build substitute](https://docs.gradle.org/current/userguide/composite_builds.html#included_build_declaring_substitutions)
