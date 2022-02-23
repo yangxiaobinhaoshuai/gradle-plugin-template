@@ -30,7 +30,7 @@ abstract class BasePlugin : Plugin<Project> {
     protected val logE by lazy { myLogger.log(LogLevel.ERROR, TAG) }
 
     override fun apply(p: Project) {
-        logI("${p.name} Applied basePlugin")
+        logI("${p.name} Applied ${this.javaClass.simpleName}.")
         mProject = p
         mGradle = p.gradle
         mLogger = p.logger

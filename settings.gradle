@@ -39,6 +39,7 @@ include ':samples:androidapp'
 
 
 includeBuild 'library'
+includeBuild 'boilerplate'
 
 //includeBuild 'aspectj/java-aspectj-plugin'
 //includeBuild 'aspectj/android-aspectj-plugin'

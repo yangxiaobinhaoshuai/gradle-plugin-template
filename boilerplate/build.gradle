@@ -1,0 +1,50 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.6.10'
+    id 'java-gradle-plugin'
+}
+
+group = 'me.yangxiaobin.plugin'
+description = "boilerplate"
+version = '1.0.0-SNAPSHOT'
+
+apply from: "../gradle/mvn-publish.gradle"
+
+gradlePlugin {
+    plugins {
+        // here we register our plugin with an ID
+        register("boilerplate") {
+            id = "boilerplate-plugin"
+            implementationClass = "com.boilerplate.BoilerplatePlugin"
+        }
+    }
+}
+
+
+repositories {
+    google()
+    mavenCentral()
+}
+
+configurations {
+    fatJar
+}
+
+jar {
+    from {
+        configurations.fatJar.collect { it.isDirectory() ? it : zipTree(it) }
+    }{
+        exclude 'META-INF', 'META-INF/**'
+    }
+}
+
+dependencies {
+
+    def libCommon = "me.yangxiaobin.plugin:lib-common"
+    compileOnly libDeps.agp4
+    compileOnly libDeps.ktCoroutine
+    compileOnly libDeps.kgp
+    compileOnly libCommon
+    //fatJar "me.yangxiaobin.plugin:lib-common"
+    fatJar "me.yangxiaobin.plugin:lib-common:1.0.0-SNAPSHOT"
+
+}
