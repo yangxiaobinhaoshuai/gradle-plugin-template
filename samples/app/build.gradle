@@ -2,7 +2,6 @@ plugins {
     id 'groovy'
     id 'java'
     id 'kotlin'
-    id 'artifact-transform-plugin'
     id "org.jetbrains.kotlin.kapt"
     //id 'java-aspectj-plugin' version '1.0-SNAPSHOT'
     //id 'java-aspectj-plugin-v2'
@@ -37,7 +36,7 @@ dependencies {
     implementation libDeps.bundles.aspectj
     compileOnly "com.google.dagger:hilt-android-gradle-plugin:2.28-alpha"
 
-    implementation libCommon
+    //implementation libCommon
 
 }
 

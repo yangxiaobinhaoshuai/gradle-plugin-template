@@ -12,8 +12,6 @@ buildscript {
         classpath libDeps.kgp
         classpath libDeps.agp4
         classpath libDeps.bundles.aspectj
-
-        classpath 'com.handsome:aspectJ4Android:0.1.1'
     }
 }
 
