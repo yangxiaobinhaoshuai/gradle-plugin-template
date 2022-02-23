@@ -3,9 +3,8 @@ plugins {
     id 'java-gradle-plugin'
 }
 
-// TODO your artifact mvn coordinate : "me.yangxiaobin.plugin:boilerplate:1.0.0-SNAPSHOT"
 group = 'me.yangxiaobin.plugin'
-description = "boilerplate"
+description = "bit64checker"
 version = '1.0.0-SNAPSHOT'
 
 apply from: "../gradle/mvn-publish.gradle"
@@ -14,9 +13,8 @@ gradlePlugin {
     plugins {
         // here we register our plugin with an ID
         register("boilerplate") {
-            // TODO your plugin id here.
-            id = "boilerplate-plugin"
-            implementationClass = "com.boilerplate.BoilerplatePlugin"
+            id = "bit64checker"
+            implementationClass = "com.boilerplate.Bit64CheckerPlugin"
         }
     }
 }
