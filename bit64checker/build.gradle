@@ -3,6 +3,7 @@ plugins {
     id 'java-gradle-plugin'
 }
 
+// mvn coordinate : "me.yangxiaobin.plugin:bit64checker:1.0.0-SNAPSHOT"
 group = 'me.yangxiaobin.plugin'
 description = "bit64checker"
 version = '1.0.0-SNAPSHOT'
