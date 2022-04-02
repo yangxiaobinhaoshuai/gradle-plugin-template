@@ -23,6 +23,15 @@ interface DomainContext {
             else CombinedDomainContext(retained, element)
         }
     }
+
+
+    /**
+     * @see CombinedContext.toString()
+     */
+    fun dump(): String =
+        "[" + fold("") { acc, element ->
+            if (acc.isEmpty()) element.toString() else "$acc, $element"
+        } + "]"
 }
 
 interface DomainElement : DomainContext {

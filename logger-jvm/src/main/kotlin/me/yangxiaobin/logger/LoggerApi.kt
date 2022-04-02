@@ -1,5 +1,6 @@
 package me.yangxiaobin.logger
 
+import me.yangxiaobin.logger.core.LogAction
 import me.yangxiaobin.logger.core.LogFacade
 import me.yangxiaobin.logger.core.LogLevel
 import me.yangxiaobin.logger.domain.DomainContext
@@ -13,12 +14,22 @@ import me.yangxiaobin.logger.internal.LoggerImpl
 /**
  * Used for [clone]
  */
-object RawLogger : LogFacade by LoggerImpl()
+internal val defaultLoggerImpl = LoggerImpl()
+object RawLogger : LogFacade by defaultLoggerImpl
 
 /**
  * In most cases, you should create you own logger instance by calling this for your own specific configs.
  */
 fun LogFacade.clone(newLogContext: DomainContext? = null): LogFacade = LoggerImpl(newLogContext)
+
+/**
+ * View current logger config.
+ */
+fun LogFacade.dumpDomainContext(): String {
+    val logAction = if (this is RawLogger) defaultLoggerImpl else this
+    logAction as LogAction
+    return logAction.logContext.dump()
+}
 
 
 fun LogFacade.clone(
