@@ -1,6 +1,8 @@
 package me.yangxiaobin.logger.uitlity
 
+import me.yangxiaobin.logger.core.LogLevel
+
 interface LogPrinter {
 
-    fun print(tag: String, message: String)
+    fun print(level: LogLevel, tag: String, message: String)
 }
