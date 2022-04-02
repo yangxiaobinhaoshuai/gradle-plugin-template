@@ -24,6 +24,7 @@ class LoggerTest {
 
 
             logI("Hello Logger!")
+            logI("Logger dump :${RawLogger.dumpDomainContext()}")
         }
     }
 }

@@ -55,7 +55,7 @@ class LogActionImpl : LogAction {
 
             LogPrinterLogElement.checkIntercepted()
                 ?.logPrinter
-                ?.print(curLevel?:LogLevel.VERBOSE,formatTag, formatMessage)
+                ?.print(level,formatTag, formatMessage)
         }
     }
 
