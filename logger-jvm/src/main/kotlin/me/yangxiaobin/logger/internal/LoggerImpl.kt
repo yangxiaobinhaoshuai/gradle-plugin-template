@@ -1,7 +1,9 @@
 package me.yangxiaobin.logger.internal
 
 import me.yangxiaobin.logger.core.AbsLogger
+import me.yangxiaobin.logger.core.LogFacade
 import me.yangxiaobin.logger.domain.DomainContext
+import me.yangxiaobin.logger.domain.EmptyDomainContext
 
 internal class LoggerImpl(private val newLogContext: DomainContext? = null) : AbsLogger() {
 
@@ -11,4 +13,11 @@ internal class LoggerImpl(private val newLogContext: DomainContext? = null) : Ab
     }
 
     override val logContext: DomainContext get() = combinedContext
+
+    override fun clone(newLogContext: DomainContext?): LogFacade {
+        val newContext = (newLogContext ?: EmptyDomainContext) + logContext
+        return LoggerImpl(newContext)
+    }
+
+    override fun dumpContext(): String = logContext.dump()
 }

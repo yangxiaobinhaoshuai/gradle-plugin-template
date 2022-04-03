@@ -1,51 +1,30 @@
 package me.yangxiaobin.logger
 
-import me.yangxiaobin.logger.core.LogAction
+import me.yangxiaobin.logger.RawLogger.clone
 import me.yangxiaobin.logger.core.LogFacade
 import me.yangxiaobin.logger.core.LogLevel
 import me.yangxiaobin.logger.domain.DomainContext
 import me.yangxiaobin.logger.domain.EmptyDomainContext
-import me.yangxiaobin.logger.elements.EnableLogElement
-import me.yangxiaobin.logger.elements.GlobalTagPrefixLogElement
-import me.yangxiaobin.logger.elements.GlobalTagSuffixLogElement
-import me.yangxiaobin.logger.elements.LogLevelLogElement
+import me.yangxiaobin.logger.elements.*
 import me.yangxiaobin.logger.internal.LoggerImpl
+import me.yangxiaobin.logger.uitlity.LogPrinter
 
 /**
  * Used for [clone]
  */
-internal val defaultLoggerImpl = LoggerImpl()
-object RawLogger : LogFacade by defaultLoggerImpl
+object RawLogger : LogFacade by LoggerImpl()
 
 /**
  * In most cases, you should create you own logger instance by calling this for your own specific configs.
  *
  * Preserve the previous context.
  */
-fun LogFacade.clone(newLogContext: DomainContext? = null): LogFacade {
-
-    val newContext = if (newLogContext == null ) this.getLogContext()
-    else this.getLogContext() + newLogContext
-
-    return LoggerImpl(newContext)
-}
-
-internal fun LogFacade.getLogContext(): DomainContext {
-    val logAction = if (this is RawLogger) defaultLoggerImpl else this
-    logAction as LogAction
-    return logAction.logContext
-}
-/**
- * View current logger config.
- */
-fun LogFacade.dumpDomainContext(): String = this.getLogContext().dump()
-
-
 fun LogFacade.clone(
     enable: Boolean? = null,
     globalTagPrefix: String? = null,
     globalTagSuffix: String? = null,
     logLevel: LogLevel? = null,
+    printer: LogPrinter? = null,
     newLogContext: DomainContext? = null
 ): LogFacade {
 
@@ -55,6 +34,7 @@ fun LogFacade.clone(
     if (logLevel != null) mergedContext += LogLevelLogElement(logLevel)
     if (globalTagPrefix != null) mergedContext += GlobalTagPrefixLogElement(globalTagPrefix)
     if (globalTagSuffix != null) mergedContext += GlobalTagSuffixLogElement(globalTagSuffix)
+    if (printer != null) mergedContext += LogPrinterLogElement(printer)
     if (newLogContext != null) mergedContext += newLogContext
 
     return LoggerImpl(mergedContext)

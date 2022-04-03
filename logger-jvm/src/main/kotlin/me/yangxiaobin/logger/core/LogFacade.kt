@@ -1,5 +1,7 @@
 package me.yangxiaobin.logger.core
 
+import me.yangxiaobin.logger.domain.DomainContext
+
 
 interface LogFacade {
 
@@ -10,6 +12,13 @@ interface LogFacade {
     fun d(tag: String, message: String)
 
     fun e(tag: String, message: String)
+
+    /**
+     * Preserve previous context and copy a new one object.
+     */
+    fun clone(newLogContext: DomainContext? = null): LogFacade
+
+    fun dumpContext(): String
 }
 
 enum class LogLevel { VERBOSE, INFO, DEBUG, ERROR }
