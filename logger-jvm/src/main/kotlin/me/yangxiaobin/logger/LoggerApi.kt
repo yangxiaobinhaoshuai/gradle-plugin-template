@@ -19,17 +19,26 @@ object RawLogger : LogFacade by defaultLoggerImpl
 
 /**
  * In most cases, you should create you own logger instance by calling this for your own specific configs.
+ *
+ * Preserve the previous context.
  */
-fun LogFacade.clone(newLogContext: DomainContext? = null): LogFacade = LoggerImpl(newLogContext)
+fun LogFacade.clone(newLogContext: DomainContext? = null): LogFacade {
 
+    val newContext = if (newLogContext == null ) this.getLogContext()
+    else this.getLogContext() + newLogContext
+
+    return LoggerImpl(newContext)
+}
+
+internal fun LogFacade.getLogContext(): DomainContext {
+    val logAction = if (this is RawLogger) defaultLoggerImpl else this
+    logAction as LogAction
+    return logAction.logContext
+}
 /**
  * View current logger config.
  */
-fun LogFacade.dumpDomainContext(): String {
-    val logAction = if (this is RawLogger) defaultLoggerImpl else this
-    logAction as LogAction
-    return logAction.logContext.dump()
-}
+fun LogFacade.dumpDomainContext(): String = this.getLogContext().dump()
 
 
 fun LogFacade.clone(
