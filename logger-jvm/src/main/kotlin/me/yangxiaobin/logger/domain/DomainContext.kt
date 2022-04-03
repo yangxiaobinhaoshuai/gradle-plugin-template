@@ -12,6 +12,9 @@ interface DomainContext {
 
     fun minusKey(removedKey: Key<*>): DomainContext
 
+    /**
+     * The operators' order matters.
+     */
     operator fun plus(other: DomainContext): DomainContext {
         if (other === EmptyDomainContext) return this
 

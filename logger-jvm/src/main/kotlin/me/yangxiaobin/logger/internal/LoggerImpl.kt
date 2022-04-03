@@ -15,7 +15,7 @@ internal class LoggerImpl(private val newLogContext: DomainContext? = null) : Ab
     override val logContext: DomainContext get() = combinedContext
 
     override fun clone(newLogContext: DomainContext?): LogFacade {
-        val newContext = (newLogContext ?: EmptyDomainContext) + logContext
+        val newContext = logContext + (newLogContext ?: EmptyDomainContext)
         return LoggerImpl(newContext)
     }
 

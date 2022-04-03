@@ -1,7 +1,11 @@
 package me.yangxiaobin.logger
 
+import me.yangxiaobin.logger.core.LogFacade
 import me.yangxiaobin.logger.core.LogLevel
 import me.yangxiaobin.logger.elements.GlobalTagPrefixLogElement
+import me.yangxiaobin.logger.elements.LogLevelLogElement
+import me.yangxiaobin.logger.elements.LogPrinterLogElement
+import me.yangxiaobin.logger.uitlity.LogPrinter
 
 class LoggerTest {
     companion object {
@@ -24,7 +28,23 @@ class LoggerTest {
 
 
             logI("Hello Logger!")
-            logI("Logger dump :${RawLogger.dumpDomainContext()}")
+
+            val printer =  object :LogPrinter{
+                override fun print(level: LogLevel, tag: String, message: String) {
+                    //
+                }
+
+            }
+
+
+            val newLogger = L
+                .clone(
+                    globalTagPrefix = "Prefix abc",
+                    newLogContext = LogLevelLogElement(LogLevel.INFO) + LogPrinterLogElement(printer) ,
+                )
+            logI("Logger dump :${newLogger.dumpContext()}")
         }
     }
+
+    object L : LogFacade by RawLogger
 }

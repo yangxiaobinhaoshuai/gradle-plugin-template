@@ -37,7 +37,7 @@ fun LogFacade.clone(
     if (printer != null) mergedContext += LogPrinterLogElement(printer)
     if (newLogContext != null) mergedContext += newLogContext
 
-    return LoggerImpl(mergedContext)
+    return this.clone(mergedContext)
 }
 
 /**
