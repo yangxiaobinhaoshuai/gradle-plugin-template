@@ -9,6 +9,7 @@ java {
     withSourcesJar()
 }
 
+// gradle publishToMavenLocal
 publishing {
 
     repositories {
