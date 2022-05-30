@@ -2,6 +2,7 @@ plugins {
     id 'groovy'
     id 'java-gradle-plugin'
     id 'org.jetbrains.kotlin.jvm' version'1.5.31'
+    id 'maven-publish'
 }
 
 // mvn coordinate: 'me.yangxiaobin.lib:library:1.0-SNAPSHOT'
@@ -11,9 +12,41 @@ description = "yangxiaobin-lib"
 version = '1.0-SNAPSHOT'
 
 // Must after group / desc / version.
-apply from: "../gradle/mvn-publish.gradle"
+//apply from: "../gradle/mvn-publish.gradle"
+
+publishing {
+
+
+    repositories {
+        maven {
+            // change to point to your repo, e.g. http://my.org/repo
+
+            // rootProject/build/repo
+            //url = layout.buildDirectory.dir('repo')
+
+            url "${rootProject.layout.projectDirectory.asFile.getParent()}/Android-Template/local-repo"
+        }
+    }
+
+    // gradle publishBasePluginPublicationToMavenRepository
+    // mvn coordinate : "me.yangxiaobin.gradle.plugin:base-plugin:0.0.1"
+    publications {
+        basePlugin(MavenPublication) {
+            groupId = 'me.yangxiaobin.gradle.plugin'
+            artifactId = 'base-plugin'
+            version = '0.0.1'
+
+            from components.java
+        }
+    }
+}
 
 sourceCompatibility = 1.8
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
 
 repositories {
     google()
