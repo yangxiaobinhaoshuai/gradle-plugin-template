@@ -25,7 +25,7 @@ kapt {
 
 dependencies {
     testImplementation libDeps.junit
-    def libCommon = "me.yangxiaobin.plugin:lib-common"
+    def libCommon = "me.yangxiaobin.plugin:plugin-common-lib"
 
     //implementation libDeps.groovyAll
     //implementation project(":annotation")

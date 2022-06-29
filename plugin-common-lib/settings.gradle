@@ -9,6 +9,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "lib-common"
+rootProject.name = "plugin-common-lib"
 
 

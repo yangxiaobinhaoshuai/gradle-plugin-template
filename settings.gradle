@@ -38,7 +38,7 @@ include ':samples:androidapp'
 //project(':samples:Android-Template-App').projectDir = new File(rootProject.projectDir, 'Android-Template/app')
 
 
-includeBuild 'library'
+includeBuild 'plugin-common-lib'
 includeBuild 'boilerplate'
 includeBuild 'bit64checker'
 
