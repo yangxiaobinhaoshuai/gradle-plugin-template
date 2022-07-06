@@ -39,7 +39,7 @@ include ':samples:androidapp'
 
 
 includeBuild 'plugin-common-lib'
-includeBuild 'boilerplate'
+includeBuild 'plugin-boilerplate'
 includeBuild 'bit64checker'
 
 //includeBuild 'aspectj/java-aspectj-plugin'
