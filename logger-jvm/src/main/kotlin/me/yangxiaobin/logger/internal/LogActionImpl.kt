@@ -21,14 +21,14 @@ class LogActionImpl : LogAction {
 
     override fun logPriority(logContext: DomainContext, level: LogLevel, tag: String, message: String) {
 
-        val interceptor: InterceptorLogElement? = logContext[InterceptorLogElement]
+        val interceptorElement: InterceptorLogElement? = logContext[InterceptorLogElement]
 
         fun <E : DomainElement> Key<E>.checkIntercepted(): E? {
 
-            val wantIntercept = interceptor?.interceptor?.intercept == true
-            val element: DomainElement? =
-                if (wantIntercept) interceptor?.interceptor?.transform(logContext[this])
-                else logContext[this]
+            val curElement = logContext[this]
+
+            val wantIntercept = interceptorElement?.interceptor?.wantIntercept(curElement) == true
+            val element: DomainElement? = if (wantIntercept) interceptorElement?.interceptor?.transform(curElement) else logContext[this]
 
             @Suppress("UNCHECKED_CAST")
             return element as? E

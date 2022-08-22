@@ -2,9 +2,9 @@ package me.yangxiaobin.logger.uitlity
 
 import me.yangxiaobin.logger.domain.DomainElement
 
-interface Interceptor {
+interface DomainElementInterceptor {
 
-    val intercept: Boolean
+    fun wantIntercept(element: DomainElement?):Boolean
 
     fun transform(element: DomainElement?): DomainElement?
 }
