@@ -19,7 +19,7 @@ publishing {
             // rootProject/build/repo
             //url = layout.buildDirectory.dir('repo')
 
-            url = rootProject.layout.projectDirectory.dir("Android-Template/local-repo")
+            url = rootProject.layout.projectDirectory.dir("samples/Android-Template/local-repo")
         }
     }
 
