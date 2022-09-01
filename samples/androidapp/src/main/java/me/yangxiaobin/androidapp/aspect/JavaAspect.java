@@ -2,9 +2,7 @@ package me.yangxiaobin.androidapp.aspect;
 
 import android.os.Bundle;
 import kotlin.jvm.functions.Function1;
-import me.yangxiaobin.androidapp.util.LoggerKt;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 

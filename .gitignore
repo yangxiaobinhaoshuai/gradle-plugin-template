@@ -11,4 +11,5 @@ library/build
 ajcore.**.txt
 local.properties
 *.iml
+.DS_Store
 

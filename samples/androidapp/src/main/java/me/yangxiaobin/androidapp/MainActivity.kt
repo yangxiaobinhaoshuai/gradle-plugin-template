@@ -1,56 +1,80 @@
 package me.yangxiaobin.androidapp
 
-import android.app.Dialog
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.commit
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.Adapter
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import kotlinx.android.synthetic.main.activity_main.*
-import me.yangxiaobin.androidapp.fragmengs.JavaFragment
-import me.yangxiaobin.androidapp.fragmengs.KotlinFragment
+import me.yangxiaobin.androidapp.fragments.LogFragment
+
+internal const val LOG_TAG = "ACL-App"
+
+internal fun aLogD(message: String) = android.util.Log.d(LOG_TAG, "$message.")
+
+internal fun aLogE(message: String) = android.util.Log.e(LOG_TAG, "$message.")
 
 class MainActivity : AppCompatActivity() {
 
-    private var mDialog: Dialog? = null
+    private val rv by lazy { rv_main_activity }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        init()
+        setupRv()
     }
 
-    public fun init() {
-        bt1_android_app_main.setOnClickListener {
-//            val myDialog = Dialog(this)
-//            myDialog.setContentView(android.R.layout.select_dialog_item)
-//            myDialog.show()
+    private fun setupRv() {
+        val fakeList = mutableListOf<Int>()
+        for (i in 1..10) fakeList += i
+        rv.adapter = RvAdapter(fakeList)
+        rv.layoutManager = LinearLayoutManager(this)
+        rv.addItemDecoration(DividerItemDecoration(this, RecyclerView.VERTICAL))
+    }
+}
 
-//            mDialog = Dialog(this)
-//            mDialog?.setContentView(android.R.layout.select_dialog_item)
-//            mDialog?.show()
-//            Instrumentation.recordDialog(myDialog).show()
+class RvVh<T>(v: View) : ViewHolder(v) {
+    fun bind(t: T, pos: Int) {
+        val context = this.itemView.context
+        this.itemView.findViewById<TextView>(android.R.id.text1)?.text = t.toString()
+        this.itemView.setOnClickListener {
+            if (context !is AppCompatActivity) return@setOnClickListener
 
-            supportFragmentManager
-                .beginTransaction()
-                .add(R.id.root_main_activity, JavaFragment())
-                .addToBackStack(null)
-                .commit()
-        }
+            when (pos) {
 
+                0 -> {
+                    context.supportFragmentManager.commit {
+                        add(R.id.root_main_activity, LogFragment())
+                        addToBackStack(null)
+                    }
+                }
 
-        bt2_android_app_main.setOnClickListener {
-//            val myDialog = Dialog(this)
-//            myDialog.setContentView(android.R.layout.select_dialog_item)
-//            myDialog.show()
-
-//            mDialog = Dialog(this)
-//            mDialog?.setContentView(android.R.layout.select_dialog_item)
-//            mDialog?.show()
-//            Instrumentation.recordDialog(myDialog).show()
-
-            supportFragmentManager
-                .beginTransaction()
-                .add(R.id.root_main_activity, KotlinFragment())
-                .addToBackStack(null)
-                .commit()
+                else -> Unit
+            }
         }
     }
 }
+
+class RvAdapter<T>(private val dataList: List<T>) : Adapter<RvVh<T>>() {
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RvVh<T> {
+        val inflater = LayoutInflater.from(parent.context)
+        val v = inflater.inflate(android.R.layout.simple_list_item_1, parent, false)
+        return RvVh(v)
+    }
+
+    override fun onBindViewHolder(holder: RvVh<T>, position: Int) {
+        holder.bind(dataList[position], position)
+    }
+
+    override fun getItemCount(): Int = dataList.size
+
+}
+

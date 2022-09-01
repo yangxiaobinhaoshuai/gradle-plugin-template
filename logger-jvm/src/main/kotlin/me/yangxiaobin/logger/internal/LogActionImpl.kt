@@ -21,41 +21,39 @@ class LogActionImpl : LogAction {
 
     override fun logPriority(logContext: DomainContext, level: LogLevel, tag: String, message: String) {
 
-        val interceptorElement: InterceptorLogElement? = logContext[InterceptorLogElement]
-
-        fun <E : DomainElement> Key<E>.checkIntercepted(): E? {
-
-            val curElement = logContext[this]
-
-            val wantIntercept = interceptorElement?.interceptor?.wantIntercept(curElement) == true
-            val element: DomainElement? = if (wantIntercept) interceptorElement?.interceptor?.transform(curElement) else logContext[this]
-
+        /**
+         * Check whether working element has substitutes.
+         */
+        fun <E : DomainElement> Key<E>.check(): E? {
+            val curElement: E? = logContext[this]
+            val interceptElement = logContext[InterceptorLogElement]
             @Suppress("UNCHECKED_CAST")
-            return element as? E
+            return (interceptElement?.interceptor?.takeIf { it.wantIntercept(curElement) }?.transform(curElement) ?: curElement) as? E
         }
 
-        val enable = EnableLogElement.checkIntercepted()?.enable
+        val enable = EnableLogElement.check()?.enable
         if (enable == false) return
 
-        val curLevel: LogLevel? = LogLevelLogElement.checkIntercepted()?.level
+        val curLevel: LogLevel? = LogLevelLogElement.check()?.level
 
-        val formatter: FormatLogElement? = FormatLogElement.checkIntercepted()
+        val formatter: FormatLogElement? = FormatLogElement.check()
 
-        val tagPrefix: String = GlobalTagPrefixLogElement.checkIntercepted()?.tagPrefix ?: ""
-        val tagSuffix: String = GlobalTagSuffixLogElement.checkIntercepted()?.tagSuffix ?: ""
+        val tagPrefix: String = GlobalTagPrefixLogElement.check()?.tagPrefix ?: ""
+        val tagSuffix: String = GlobalTagSuffixLogElement.check()?.tagSuffix ?: ""
 
         val actualTag = tagPrefix + tag + tagSuffix
 
+        /**
+         * NB. Only do logging when curLevel <= level
+         */
         if (curLevel == null || curLevel <= level) {
 
-            val (formatTag, formatMessage) = formatter
+            val (formatTag: String, formatMessage: String) = formatter
                 ?.formatter
                 ?.format(actualTag to message)
                 ?: (actualTag to message)
 
-            LogPrinterLogElement.checkIntercepted()
-                ?.logPrinter
-                ?.print(level,formatTag, formatMessage)
+            LogPrinterLogElement.check()?.logPrinter?.print(level,formatTag, formatMessage)
         }
     }
 

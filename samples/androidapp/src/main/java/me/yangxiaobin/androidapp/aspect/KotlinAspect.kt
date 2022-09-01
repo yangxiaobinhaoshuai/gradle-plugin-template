@@ -1,6 +1,5 @@
 package me.yangxiaobin.androidapp.aspect
 
-import me.yangxiaobin.androidapp.util.logCurried
 import org.aspectj.lang.annotation.After
 import org.aspectj.lang.annotation.Aspect
 
