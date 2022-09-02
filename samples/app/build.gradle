@@ -37,7 +37,7 @@ dependencies {
     compileOnly "com.google.dagger:hilt-android-gradle-plugin:2.28-alpha"
     implementation project(":logger-jvm")
 
-    //implementation libCommon
+    implementation libCommon
 
 }
 

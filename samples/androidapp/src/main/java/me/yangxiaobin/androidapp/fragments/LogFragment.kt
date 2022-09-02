@@ -13,7 +13,7 @@ import me.yangxiaobin.androidapp.LOG_TAG
 import me.yangxiaobin.androidapp.R
 import me.yangxiaobin.androidapp.aLogD
 import me.yangxiaobin.logger.RawLogger
-import me.yangxiaobin.logger.disk_writer.DiskWriter
+import me.yangxiaobin.logger.disk_writer.DiskWriterManager
 import me.yangxiaobin.logger.disk_writer.OnLogging
 import me.yangxiaobin.logger.disk_writer.OnPostLoggingInterceptor
 import me.yangxiaobin.logger.elements.InterceptorLogElement
@@ -39,7 +39,7 @@ class LogFragment : Fragment() {
 
     private fun initialize() {
         logD("usr dir :${System.getProperty("user.home")}")
-        DiskWriter.setConfig {
+        DiskWriterManager.setConfig {
             // TODO 应该是手机设备上的路径
             //this.logFileName = "/Users/yangxiaobin/DevelopSpace/IDEA/gradle-plugin-template/samples/androidapp/temp/build.log"
             this.logFileName = "Users/yangxiaobin/Downloads/abc"
@@ -63,7 +63,7 @@ class LogFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val bt1 = view.findViewById<View>(R.id.bt1)?.setOnClickListener {
-            DiskWriter.startSession()
+            DiskWriterManager.startSession()
         }
 
         val bt2 = view.findViewById<View>(R.id.bt2)?.setOnClickListener {

@@ -2,6 +2,8 @@ package me.yangxiaobin.logger.disk_writer
 
 import me.yangxiaobin.logger.uitlity.LogMessageMeta
 import java.io.File
+import java.io.Writer
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.properties.Delegates
 
 
@@ -16,18 +18,16 @@ data class LogInfo(
     val level: String,
     val tag: String,
     val message: String,
-
     val createTimestamp: Long,
-
-    val Pid: Long,
-    val ProcessName: String,
-    val Tid: Long,
-    val ThreadName: String,
+    val pid: Long,
+    val processName: String,
+    val tid: Long,
+    val threadName: String,
 )
 
-object DiskWriter {
+object DiskWriterManager {
 
-    private var isActive = false
+    private var isActive = AtomicBoolean(false)
 
     private val config by lazy { DiskWriterConfig() }
 
@@ -37,6 +37,12 @@ object DiskWriter {
     private val curThread get() = Thread.currentThread()
 
     private var logFile: File by Delegates.notNull()
+
+    public val logFileWriter: Writer by lazy { logFile.printWriter() }
+
+    private val diskLogHandler: LogHandler by lazy { LogHandlerThread() }
+
+    private val diskFormatter: DiskLogFormatter by lazy { SimpleAssembleFormatter() }
 
     public fun setConfig(configOperation: DiskWriterConfig.() -> Unit) {
         configOperation.invoke(config)
@@ -48,13 +54,8 @@ object DiskWriter {
         cfg.processName ?: throw IllegalArgumentException("U Must set process name")
     }
 
-    fun addLog(messageMeta: LogMessageMeta) {
-        if (!isActive) return
-        val info = messageMeta.wrap2LogInfo()
-    }
-
     fun startSession() {
-        isActive = true
+        if (!isActive.compareAndSet(false, true)) return
 
         try {
             checkConfig(config)
@@ -62,6 +63,7 @@ object DiskWriter {
             val path: String = requireNotNull(config.logFileName)
 
             val f = File(path)
+
             if (f.exists()) f.deleteRecursively()
 
             logFile = File(path).touch()
@@ -70,10 +72,20 @@ object DiskWriter {
             e.printStackTrace()
             throw e
         }
+
+        diskLogHandler.startLoopHandling()
     }
 
     fun stopSession() {
-        isActive = false
+        isActive.set(false)
+        logFileWriter.closeSafely()
+    }
+
+    fun addLog(messageMeta: LogMessageMeta) {
+        if (!isActive.get()) return
+        val info = messageMeta.wrap2LogInfo()
+        val arr = diskFormatter.format(info)
+        diskLogHandler.handleLog(arr)
     }
 
     private fun LogMessageMeta.wrap2LogInfo(): LogInfo {
@@ -81,12 +93,11 @@ object DiskWriter {
             level = this.level.toString(),
             tag = this.tag,
             message = this.message,
-
             createTimestamp = System.currentTimeMillis(),
-            Pid = config.pid,
-            ProcessName = config.processName!!,
-            Tid = curThread.id,
-            ThreadName = curThread.name,
+            pid = config.pid,
+            processName = config.processName!!,
+            tid = curThread.id,
+            threadName = curThread.name,
         )
     }
 
