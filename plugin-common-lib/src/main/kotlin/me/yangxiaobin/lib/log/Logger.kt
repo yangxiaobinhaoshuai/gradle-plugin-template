@@ -3,6 +3,18 @@ package me.yangxiaobin.lib.log
 
 typealias LogPrinter = (Triple<LogLevel, String, String>) -> Unit
 
+/**
+ * Ext API.
+ * Function currying.
+ */
+fun ILog.log(level: LogLevel, tag: String) = fun(message: String) =
+    when (level) {
+        LogLevel.VERBOSE -> this.v(tag, message)
+        LogLevel.INFO -> this.i(tag, message)
+        LogLevel.DEBUG -> this.d(tag, message)
+        LogLevel.ERROR -> this.e(tag, message)
+    }
+
 interface ILog {
 
     fun setGlobalPrefix(prefix: String): ILog
@@ -24,20 +36,19 @@ interface ILog {
     fun e(tag: String, message: String)
 
     fun copy(): ILog
-
 }
 
 enum class LogLevel { VERBOSE, INFO, DEBUG, ERROR }
 
-abstract class AbsLogger : ILog {
+open class AbsLogger : ILog {
 
-    private var curLevel = LogLevel.INFO
-    private var enable: Boolean = true
+    protected var curLevel = LogLevel.INFO
+    protected var enable: Boolean = true
 
-    private var curPrinter: LogPrinter? = null
+    protected var curPrinter: LogPrinter? = null
 
-    private var globalPrefix: String? = null
-    private var globalSuffix: String? = null
+    protected var globalPrefix: String? = null
+    protected var globalSuffix: String? = null
 
 
     override fun isEnable(enable: Boolean) = apply {
@@ -69,7 +80,7 @@ abstract class AbsLogger : ILog {
     override fun e(tag: String, message: String) = logPriority(LogLevel.ERROR, tag, message)
 
     override fun copy(): ILog {
-        return ILogImpl().apply {
+        return AbsLogger().apply {
             this.setGlobalPrefix(this@AbsLogger.globalPrefix ?: "")
             this.setGlobalSuffix(this@AbsLogger.globalSuffix ?: "")
             this.setLevel(this@AbsLogger.curLevel)
@@ -87,21 +98,3 @@ abstract class AbsLogger : ILog {
     }
 
 }
-
-/**
- * Function currying.
- */
-fun ILog.log(level: LogLevel, tag: String) = fun(message: String) =
-    when (level) {
-        LogLevel.VERBOSE -> this.v(tag, message)
-        LogLevel.INFO -> this.i(tag, message)
-        LogLevel.DEBUG -> this.d(tag, message)
-        LogLevel.ERROR -> this.e(tag, message)
-    }
-
-class ILogImpl: AbsLogger()
-
-object Logger : ILog by (ILogImpl().apply {
-    this.setGlobalSuffix(" ==>")
-        .setLevel(LogLevel.INFO)
-})

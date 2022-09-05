@@ -1,12 +1,12 @@
 package me.yangxiaobin.lib.ext
 
+import me.yangxiaobin.lib.log.InternalLogger
 import me.yangxiaobin.lib.log.LogLevel
-import me.yangxiaobin.lib.log.Logger
 import me.yangxiaobin.lib.log.log
 import java.util.concurrent.TimeUnit
 
 
-private val logV = Logger.log(LogLevel.INFO, "TimeExt")
+private val logV = InternalLogger.log(LogLevel.INFO, "TimeExt")
 
 fun Long.toFormat(
     hour: Boolean = true,

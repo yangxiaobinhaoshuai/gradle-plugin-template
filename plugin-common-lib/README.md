@@ -10,3 +10,9 @@
 - Transform 抽象
 - Bytecode manipulation 抽象
 - Abs plugin + Logger
+
+
+###注意
+改动这里代码，需要 publishToMavenLocal 之后才会生效
+
+> gradle :logger-jvm:publishToMavenLocal  :plugin-common-lib:publishToMavenLocal -s

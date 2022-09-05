@@ -2,7 +2,7 @@ package me.yangxiaobin.lib.asm.log
 
 import me.yangxiaobin.lib.asm.constant.ASM_API
 import me.yangxiaobin.lib.log.LogLevel
-import me.yangxiaobin.lib.log.Logger
+import me.yangxiaobin.lib.log.InternalLogger
 import me.yangxiaobin.lib.log.log
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.commons.AdviceAdapter
@@ -18,7 +18,7 @@ class LoggableAdviceAdapter(
 ) : AdviceAdapter(api, mv, access, name, desc) {
 
 
-    private val logV by lazy { Logger.log(LogLevel.VERBOSE, "AbsAdvice(${this.hashCode()})") }
+    private val logV by lazy { InternalLogger.log(LogLevel.VERBOSE, "AbsAdvice(${this.hashCode()})") }
 
     override fun onMethodEnter() {
         super.onMethodEnter()

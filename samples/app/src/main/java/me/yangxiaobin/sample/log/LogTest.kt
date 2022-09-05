@@ -56,7 +56,7 @@ class LogTest {
             // Java stop
             thread {
                 Thread.sleep(3_000)
-                DiskWriterManager.stopSession()
+                //DiskWriterManager.stopSession()
             }
 
 

@@ -3,7 +3,7 @@ package me.yangxiaobin.lib.ext
 import me.yangxiaobin.lib.asm.constant.DOT_CLASS
 import me.yangxiaobin.lib.asm.constant.EXT_CLASS
 import me.yangxiaobin.lib.asm.constant.EXT_JAR
-import me.yangxiaobin.lib.log.Logger
+import me.yangxiaobin.lib.log.InternalLogger
 import org.apache.commons.compress.archivers.zip.ParallelScatterZipCreator
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream
@@ -48,7 +48,7 @@ fun File.renamed(newName: String): File {
 </File> */
 fun Collection<File>?.toPath(): String {
     require(!(this == null || this.isEmpty())) {
-        Logger.e("toPath", "import java.util.logging.Logger");
+        InternalLogger.e("toPath", "import java.util.logging.Logger");
         return ""
     }
     val sb = StringBuilder()

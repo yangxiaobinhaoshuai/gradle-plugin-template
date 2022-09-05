@@ -1,7 +1,7 @@
 package me.yangxiaobin.lib.asm.log
 
 import me.yangxiaobin.lib.log.LogLevel
-import me.yangxiaobin.lib.log.Logger
+import me.yangxiaobin.lib.log.InternalLogger
 import me.yangxiaobin.lib.log.log
 import org.objectweb.asm.AnnotationVisitor
 import org.objectweb.asm.Attribute
@@ -10,7 +10,7 @@ import org.objectweb.asm.TypePath
 
 class LoggableFieldVisitor(api: Int,fv: FieldVisitor) : FieldVisitor(api, fv) {
 
-    private val logV by lazy { Logger.log(LogLevel.VERBOSE, "AbsFv(${this.hashCode()})") }
+    private val logV by lazy { InternalLogger.log(LogLevel.VERBOSE, "AbsFv(${this.hashCode()})") }
 
     override fun visitAnnotation(descriptor: String?, visible: Boolean): AnnotationVisitor {
         return super.visitAnnotation(descriptor, visible).also {

@@ -5,7 +5,7 @@ import kotlinx.coroutines.*
 import me.yangxiaobin.lib.coroutine.coroutineHandler
 import me.yangxiaobin.lib.ext.*
 import me.yangxiaobin.lib.log.LogLevel
-import me.yangxiaobin.lib.log.Logger
+import me.yangxiaobin.lib.log.InternalLogger
 import me.yangxiaobin.lib.log.log
 import me.yangxiaobin.lib.thread.TransformThreadFactory
 import org.gradle.api.Project
@@ -27,7 +27,7 @@ typealias Action = () -> Unit
 @Deprecated("Api representation, not using purpose, see AbsTransformV2")
 open class AbsLegacyTransform(protected val project: Project) : Transform() {
 
-    protected val logger = Logger.copy().setLevel(LogLevel.VERBOSE)
+    protected val logger = InternalLogger.copy().setLevel(LogLevel.VERBOSE)
 
     protected val logE = logger.log(LogLevel.ERROR, name)
 

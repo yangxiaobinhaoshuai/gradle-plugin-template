@@ -2,13 +2,13 @@ package me.yangxiaobin.lib.asm.log
 
 import me.yangxiaobin.lib.asm.constant.ASM_API
 import me.yangxiaobin.lib.log.LogLevel
-import me.yangxiaobin.lib.log.Logger
+import me.yangxiaobin.lib.log.InternalLogger
 import me.yangxiaobin.lib.log.log
 import org.objectweb.asm.*
 
 class LoggableMethodVisitor(api: Int = ASM_API, mv: MethodVisitor) : MethodVisitor(api, mv) {
 
-    private val logV by lazy { Logger.log(LogLevel.VERBOSE, "AbsMv(${this.hashCode()})") }
+    private val logV by lazy { InternalLogger.log(LogLevel.VERBOSE, "AbsMv(${this.hashCode()})") }
 
     override fun visitParameter(name: String?, access: Int) {
         super.visitParameter(name, access)

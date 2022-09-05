@@ -3,9 +3,10 @@ package me.yangxiaobin.lib.transform
 import com.android.build.api.transform.*
 import com.android.build.api.variant.VariantInfo
 import me.yangxiaobin.lib.GradleTransform
+import me.yangxiaobin.lib.log.ILog
 import java.io.File
 
-open class AbsTransformV2 : GradleTransform() {
+open class AbsTransformV2(val scopedLogger :ILog) : GradleTransform() {
 
     override fun getName(): String = this.javaClass.simpleName
 

@@ -4,7 +4,7 @@ import com.android.build.gradle.AppExtension
 import com.android.build.gradle.AppPlugin
 import me.yangxiaobin.lib.annotation.AfterEvaluation
 import me.yangxiaobin.lib.log.LogLevel
-import me.yangxiaobin.lib.log.Logger
+import me.yangxiaobin.lib.log.InternalLogger
 import me.yangxiaobin.lib.log.log
 import org.gradle.api.Project
 import org.gradle.api.internal.tasks.DefaultGroovySourceSet
@@ -15,7 +15,7 @@ import org.gradle.internal.extensibility.DefaultExtraPropertiesExtension
 import org.jetbrains.kotlin.gradle.plugin.sources.DefaultKotlinSourceSet
 import java.io.File
 
-private val projectLogger = Logger.copy()
+private val projectLogger = InternalLogger.copy()
 private val logV = projectLogger.log(LogLevel.VERBOSE,"lib.project.ext")
 
 val Project.mainSourceSet: SourceSet?

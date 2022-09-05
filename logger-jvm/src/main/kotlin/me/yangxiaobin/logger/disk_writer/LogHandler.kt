@@ -29,11 +29,12 @@ class LogHandlerThread : Thread(), LogHandler {
     override fun run() {
         super.run()
 
+        // Remember flush or close the stream.
         DiskWriterManager.logFileWriter.use { writer->
             while (true) {
                 val logInfoByteArray: ByteArray = queue.poll(Long.MAX_VALUE, TimeUnit.DAYS) ?: return
-                println("----> info : ${String(logInfoByteArray)}")
                 writer.write(String(logInfoByteArray))
+                writer.flush()
             }
         }
 

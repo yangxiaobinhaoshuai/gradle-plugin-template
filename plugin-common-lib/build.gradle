@@ -56,17 +56,22 @@ dependencies {
 
     //implementation fileTree(dir: "libs", include: ["*.jar"])
 
+    // groovy
     compileOnly gradleApi()
     compileOnly localGroovy()
     compileOnly libDeps.groovyAll
+
+    // asm
     compileOnly libDeps.bundles.asm
 
+    // kotlin
     compileOnly libDeps.bundles.kotlinSuit
     compileOnly libDeps.kgp
 
-    String jvmLogger = "$plugin_group_name:logger-jvm"
+    // jvm-logger
+    // NB. MUST set version when publishing.
+    String jvmLogger = "$plugin_group_name:logger-jvm:1.0-SNAPSHOT"
     implementation jvmLogger
-    //implementation project("../logger-jvm")
 
     // AGP
     //compileOnly libDeps.agp7
