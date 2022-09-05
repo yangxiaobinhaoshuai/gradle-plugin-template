@@ -3,9 +3,9 @@ plugins {
     id 'java-gradle-plugin'
 }
 
-// TODO your artifact mvn coordinate : "me.yangxiaobin.plugin:boilerplate:1.0.0-SNAPSHOT"
+// TODO your artifact mvn coordinate : "me.yangxiaobin.plugin:test-plugin:1.0.0-SNAPSHOT"
 group = 'me.yangxiaobin.plugin'
-description = "boilerplate"
+description = "test-plugin"
 version = '1.0.0-SNAPSHOT'
 
 apply from: "../gradle/mvn-publish.gradle"
@@ -13,10 +13,10 @@ apply from: "../gradle/mvn-publish.gradle"
 gradlePlugin {
     plugins {
         // here we register our plugin with an ID
-        register("boilerplate") {
+        register("testPlugin") {
             // TODO your plugin id here.
-            id = "boilerplate-plugin"
-            implementationClass = "com.boilerplate.BoilerplatePlugin"
+            id = "test-plugin"
+            implementationClass = "com.test.TestPlugin"
         }
     }
 }
@@ -47,6 +47,7 @@ dependencies {
     compileOnly libDeps.kgp
     compileOnly libCommon
     //fatJar "me.yangxiaobin.plugin:plugin-common-lib"
-    fatJar "me.yangxiaobin.plugin:plugin-common-lib:1.0.0-SNAPSHOT"
+    //fatJar "me.yangxiaobin.plugin:plugin-common-lib:1.0.0-SNAPSHOT"
+    fatJar libCommon
 
 }

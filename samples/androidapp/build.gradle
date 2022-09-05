@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'kotlin-android-extensions'
+    id 'test-plugin'
     //id 'aspect-android'
     //id 'aspectj4Android'
 }
@@ -32,21 +33,6 @@ android {
     }
     kotlinOptions {
         jvmTarget = '1.8'
-    }
-
-    flavorDimensions "environment"
-    productFlavors {
-        kimtest {
-            dimension "environment"
-        }
-
-        prod {
-            dimension "environment"
-        }
-
-        appstore{
-            dimension "environment"
-        }
     }
     packagingOptions {
         exclude 'META-INF/*'

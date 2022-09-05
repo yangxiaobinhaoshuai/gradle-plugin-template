@@ -26,19 +26,24 @@ kapt {
 dependencies {
     testImplementation libDeps.junit
     def libCommon = "me.yangxiaobin.plugin:plugin-common-lib"
+    implementation libCommon
 
     //implementation libDeps.groovyAll
     //implementation project(":annotation")
-    //implementation project(":logger-jvm")
     //kapt project(":annotation-processor")
+
     implementation libDeps.bundles.asm
     implementation libDeps.ktStd
     implementation libDeps.bundles.aspectj
+
+    // For source code learning https://developer.android.com/training/dependency-injection/hilt-android
+    // transformAction
+    compileOnly "com.google.dagger:hilt-android-gradle-plugin:2.38.1"
+    // transform
     compileOnly "com.google.dagger:hilt-android-gradle-plugin:2.28-alpha"
+    compileOnly "com.google.dagger:hilt-compiler:2.38.1"
+
     implementation project(":logger-jvm")
-
-    implementation libCommon
-
 }
 
 compileKotlin {

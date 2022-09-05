@@ -1,16 +1,11 @@
 package me.yangxiaobin.lib.asm.api
 
-import me.yangxiaobin.lib.asm.annotation.MethodAdviceVisitor
-import me.yangxiaobin.lib.asm.log.InternalASMifier
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.MethodVisitor
-import org.objectweb.asm.Opcodes
-import org.objectweb.asm.tree.*
 
 class DefaultClassVisitor(api: Int, cv: ClassVisitor) : ClassVisitor(api, cv) {
 
     private var classFileName = ""
-
 
     override fun visit(
         version: Int,

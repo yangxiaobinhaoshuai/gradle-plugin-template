@@ -19,7 +19,12 @@ import java.util.zip.ZipFile
 
 typealias Action = () -> Unit
 
+/**
+ * @see com.google.dagger:hilt-android-gradle-plugin:2.28-alpha
+ * @see https://github.com/google/dagger/tree/master/java/dagger/hilt/android/plugin/main/src/main/kotlin/dagger/hilt/android/plugin
+ */
 @Suppress("MemberVisibilityCanBePrivate")
+@Deprecated("Api representation, not using purpose, see AbsTransformV2")
 open class AbsLegacyTransform(protected val project: Project) : Transform() {
 
     protected val logger = Logger.copy().setLevel(LogLevel.VERBOSE)
@@ -155,7 +160,7 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
 
         directoryInputs.forEach { directoryInput: DirectoryInput ->
 
-            val outputDir = invocation.outputProvider.getContentLocation(
+            val outputDir: File = invocation.outputProvider.getContentLocation(
                 directoryInput.name,
                 directoryInput.contentTypes,
                 directoryInput.scopes,
@@ -163,7 +168,7 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
             )
 
             if (invocation.isIncremental) {
-                directoryInput.changedFiles.forEach { (changedFile, status) ->
+                directoryInput.changedFiles.forEach { (changedFile: File, status: Status) ->
 
                     val outputFile = toOutputFile(outputDir, directoryInput.file, changedFile)
 

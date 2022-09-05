@@ -14,6 +14,9 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 import java.util.zip.ZipOutputStream
 
+/**
+ * @see kotlin.io.copyTo
+ */
 
 /* Checks if a file is a .class file. */
 fun File.isClassFile() = this.isFile && this.extension == EXT_CLASS
