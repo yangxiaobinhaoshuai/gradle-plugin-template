@@ -2,7 +2,7 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'kotlin-android-extensions'
-    //id 'test-plugin'
+    id 'test-plugin'
     //id 'aspect-android'
     //id 'aspectj4Android'
 }
@@ -48,6 +48,10 @@ android {
 //    }
 //}
 
+repositories {
+    maven { url project.local_repo_url }
+}
+
 dependencies {
 //    testImplementation 'junit:junit:4.13.2'
 //
@@ -64,6 +68,10 @@ dependencies {
     //implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.fragment:fragment-ktx:1.3.6'
     implementation "androidx.recyclerview:recyclerview:1.2.1"
-    implementation project(":logger-jvm")
+
+    //def jvmLogger = "$plugin_group_name:logger-jvm:1.0.0-SNAPSHOT"
+    //implementation jvmLogger
+    //implementation project(":logger-jvm")
+    implementation "me.yangxiaobin.jvm:logger:1.0-SNAPSHOT"
 
 }

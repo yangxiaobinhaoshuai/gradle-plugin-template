@@ -2,3 +2,7 @@
 
 
 ext.plugin_group_name = "me.yangxiaobin.gradle.plugin"
+
+ext.local_repo_url = "/Users/yangxiaobin/DevelopSpace/IDEA/gradle-plugin-template/samples/Android-Template/local-repo"
+
+ext.kt_plugin_version = "1.5.31"
