@@ -1,8 +1,14 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm'
+    id 'org.jetbrains.kotlin.jvm' version'1.5.31'
     // See : Mvn publish doc : https://docs.gradle.org/current/userguide/publishing_maven.html
     id 'maven-publish'
+    id 'java-gradle-plugin'
 }
+
+apply from: "$rootDir.parentFile/gradle/globalDefinitions.gradle"
+
+// For java-gradle-plugin
+group = plugin_group_name
 
 java {
     withJavadocJar()

@@ -18,12 +18,12 @@ dependencyResolutionManagement {
 rootProject.name = 'gradle-template'
 
 // JVM base libs
-include 'logger-jvm'
+includeBuild 'logger-jvm'
 
 // Apps
 include ':samples:app'
 
-include ':samples:androidapp'
+//include ':samples:androidapp'
 
 //include ':apt:annotation'
 //include ':apt:annotation-processor'
@@ -39,7 +39,7 @@ include ':samples:androidapp'
 
 
 includeBuild 'plugin-common-lib'
-includeBuild 'test-plugin'
+//includeBuild 'test-plugin'
 //includeBuild 'bit64checker'
 
 //includeBuild 'aspectj/java-aspectj-plugin'

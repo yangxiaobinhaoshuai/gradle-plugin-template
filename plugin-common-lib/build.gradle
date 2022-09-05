@@ -5,22 +5,16 @@ plugins {
     id 'maven-publish'
 }
 
-// mvn coordinate: 'me.yangxiaobin.lib:library:1.0-SNAPSHOT'
-group = 'me.yangxiaobin.plugin'
-// artifact name, composite build substitution coordinate uses `project.group:project.name`
-description = "yangxiaobin-lib"
-version = '1.0-SNAPSHOT'
+apply from: "$rootDir.parentFile/gradle/globalDefinitions.gradle"
 
-// Must after group / desc / version.
-//apply from: "../gradle/mvn-publish.gradle"
+// artifact name, composite build substitution coordinate uses `project.group:project.name`
+group = plugin_group_name
+version = '1.0-SNAPSHOT'
 
 publishing {
 
-
     repositories {
         maven {
-            // change to point to your repo, e.g. http://my.org/repo
-
             // rootProject/build/repo
             //url = layout.buildDirectory.dir('repo')
 
@@ -28,8 +22,11 @@ publishing {
         }
     }
 
-    // gradle publishBasePluginPublicationToMavenRepository
-    // mvn coordinate : "me.yangxiaobin.gradle.plugin:base-plugin:0.0.1"
+    /**
+     * publish task: gradle publishBasePluginPublicationToMavenRepository
+     *
+     * mvn coordinate : "me.yangxiaobin.gradle.plugin:base-plugin:0.0.1"
+     */
     publications {
         basePlugin(MavenPublication) {
             groupId = 'me.yangxiaobin.gradle.plugin'
@@ -63,8 +60,15 @@ dependencies {
     compileOnly localGroovy()
     compileOnly libDeps.groovyAll
     compileOnly libDeps.bundles.asm
+
     compileOnly libDeps.bundles.kotlinSuit
     compileOnly libDeps.kgp
+
+    String jvmLogger = "$plugin_group_name:logger-jvm"
+    implementation jvmLogger
+    //implementation project("../logger-jvm")
+
+    // AGP
     //compileOnly libDeps.agp7
     compileOnly libDeps.agp4
 }

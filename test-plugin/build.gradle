@@ -4,7 +4,7 @@ plugins {
 }
 
 // TODO your artifact mvn coordinate : "me.yangxiaobin.plugin:test-plugin:1.0.0-SNAPSHOT"
-group = 'me.yangxiaobin.plugin'
+group = 'me.yangxiaobin.gradle.plugin'
 description = "test-plugin"
 version = '1.0.0-SNAPSHOT'
 
@@ -41,13 +41,14 @@ jar {
 
 dependencies {
 
-    def libCommon = "me.yangxiaobin.plugin:plugin-common-lib"
+    def libCommon = "me.yangxiaobin.gradle.plugin:plugin-common-lib"
+    compileOnly libCommon
+    fatJar libCommon
+    //fatJar "me.yangxiaobin.plugin:plugin-common-lib"
+    //fatJar "me.yangxiaobin.plugin:plugin-common-lib:1.0.0-SNAPSHOT"
+
     compileOnly libDeps.agp4
     compileOnly libDeps.ktCoroutine
     compileOnly libDeps.kgp
-    compileOnly libCommon
-    //fatJar "me.yangxiaobin.plugin:plugin-common-lib"
-    //fatJar "me.yangxiaobin.plugin:plugin-common-lib:1.0.0-SNAPSHOT"
-    fatJar libCommon
 
 }

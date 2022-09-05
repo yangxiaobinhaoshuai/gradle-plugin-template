@@ -1,0 +1,9 @@
+enableFeaturePreview('VERSION_CATALOGS')
+
+dependencyResolutionManagement {
+    versionCatalogs {
+        libDeps {
+            from(files("../gradle/libs.versions.toml"))
+        }
+    }
+}

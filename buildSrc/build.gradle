@@ -10,7 +10,8 @@ repositories {
     mavenCentral()
 }
 
-gradlePlugin {
+/*gradlePlugin {
+
     plugins {
         // here we register our plugin with an ID
         register("artifact-transform-plugin") {
@@ -19,20 +20,12 @@ gradlePlugin {
         }
     }
 
-//    plugins {
-//        // here we register our plugin with an ID
-//        register("java-aspectj-plugin-v2") {
-//            id = "java-aspectj-plugin-v2"
-//            implementationClass = "me.yangxiaobin.plugin.plugins.JavaAspectJPlugin"
-//        }
-//    }
-
-}
+}*/
 
 
 dependencies {
 
-    compileOnly libDeps.agp4
-    compileOnly libDeps.ktCoroutine
-    compileOnly libDeps.kgp
+//    compileOnly libDeps.agp4
+//    compileOnly libDeps.ktCoroutine
+//    compileOnly libDeps.kgp
 }

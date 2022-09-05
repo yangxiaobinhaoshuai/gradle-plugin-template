@@ -25,8 +25,12 @@ kapt {
 
 dependencies {
     testImplementation libDeps.junit
-    def libCommon = "me.yangxiaobin.plugin:plugin-common-lib"
+
+    def libCommon = "$plugin_group_name:plugin-common-lib"
     implementation libCommon
+
+    def jvmLogger = "$plugin_group_name:logger-jvm"
+    implementation jvmLogger
 
     //implementation libDeps.groovyAll
     //implementation project(":annotation")
@@ -43,7 +47,6 @@ dependencies {
     compileOnly "com.google.dagger:hilt-android-gradle-plugin:2.28-alpha"
     compileOnly "com.google.dagger:hilt-compiler:2.38.1"
 
-    implementation project(":logger-jvm")
 }
 
 compileKotlin {
