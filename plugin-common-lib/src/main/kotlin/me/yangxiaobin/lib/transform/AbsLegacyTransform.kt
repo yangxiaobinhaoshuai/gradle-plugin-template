@@ -2,7 +2,6 @@ package me.yangxiaobin.lib.transform
 
 import com.android.build.api.transform.*
 import kotlinx.coroutines.*
-import me.yangxiaobin.lib.coroutine.coroutineHandler
 import me.yangxiaobin.lib.ext.*
 import me.yangxiaobin.lib.log.LogLevel
 import me.yangxiaobin.lib.log.InternalLogger
@@ -63,7 +62,6 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
         CoroutineScope(
             transformExecutor.asCoroutineDispatcher()
                     + SupervisorJob()
-                    + coroutineHandler
                     + CoroutineName("AJC-Transform")
         )
     }

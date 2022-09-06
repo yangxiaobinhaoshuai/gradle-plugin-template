@@ -39,7 +39,7 @@ class TestTransformV2(l:ILog) : AbsTransformV2(l) {
  */
 class TestPlugin : BasePlugin() {
 
-    override val TAG: String get() = this.neatName
+    override val LOG_TAG: String get() = this.neatName
 
     override val myLogger: ILog get() = super.myLogger.setGlobalPrefix("|T|")
 

@@ -15,9 +15,6 @@ import org.gradle.internal.extensibility.DefaultExtraPropertiesExtension
 import org.jetbrains.kotlin.gradle.plugin.sources.DefaultKotlinSourceSet
 import java.io.File
 
-private val projectLogger = InternalLogger.copy()
-private val logV = projectLogger.log(LogLevel.VERBOSE,"lib.project.ext")
-
 val Project.mainSourceSet: SourceSet?
     get() = (this.properties["sourceSets"] as SourceSetContainer).findByName("main")
 
@@ -42,7 +39,7 @@ enum class SourceLanguage { JAVA, KOTLIN, GROOVY }
 fun Project.getSourceSetDirs(language: SourceLanguage): List<File> {
 
     val mainSourceSet = this.mainSourceSet
-    requireNotNull(mainSourceSet) { logV("mainSourceSet is null, so sourceDir returned empty");return emptyList() }
+    requireNotNull(mainSourceSet) { println("mainSourceSet is null, so sourceDir returned empty");return emptyList() }
 
     return when (language) {
         SourceLanguage.JAVA -> mainSourceSet.java.srcDirs

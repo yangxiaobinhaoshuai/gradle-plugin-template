@@ -74,7 +74,7 @@ fun ZipFile.parallelTransformTo(output: File, transform: (ByteArray) -> ByteArra
 
         val stream = InputStreamSupplier {
             this.getInputStream(ZipEntry(entry.name))
-                .transformIf(entry.isClassFile()) { ins: InputStream ->
+                .toIf(entry.isClassFile()) { ins: InputStream ->
                     transform.invoke(ins.readBytes()).inputStream()
                 }
         }
@@ -93,7 +93,7 @@ fun ZipFile.simpleTransformTo(output: File, transform: (ByteArray) -> ByteArray)
             this.entries().asSequence().forEach { entry: ZipEntry ->
                 zos.putNextEntry(ZipEntry(entry.name))
                 this.getInputStream(entry)
-                    .transformIf(entry.isClassFile()) { ins ->
+                    .toIf(entry.isClassFile()) { ins ->
                         transform.invoke(ins.readBytes()).inputStream()
                     }
                     .use { it.copyTo(zos) }

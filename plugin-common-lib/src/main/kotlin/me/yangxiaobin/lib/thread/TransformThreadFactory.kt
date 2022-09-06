@@ -1,25 +1,31 @@
 package me.yangxiaobin.lib.thread
 
-import me.yangxiaobin.lib.log.LogLevel
 import me.yangxiaobin.lib.log.InternalLogger
-import me.yangxiaobin.lib.log.log
+import me.yangxiaobin.lib.log.LogAware
+import me.yangxiaobin.lib.log.LogAwareImpl
 import java.util.concurrent.ThreadFactory
 import java.util.concurrent.atomic.AtomicInteger
 
-class TransformThreadFactory : ThreadFactory {
+private const val LOG_TAG = "TTF"
 
-    private val logV = InternalLogger.log(LogLevel.VERBOSE, "TransformThreadFactory")
+class TransformThreadFactory : ThreadFactory, LogAware by LogAwareImpl(InternalLogger, LOG_TAG) {
 
-    private val threadPrefix = "-thread-"
+    private val threadPrefix = "-thd-"
     private val threadCounter = AtomicInteger(1)
 
-    private val poolPrefix = "Transport-pool-" + poolCounter.getAndIncrement()
+    private val poolPrefix = LOG_TAG
 
-    override fun newThread(r: Runnable): Thread =
-        Thread(r,"$poolPrefix$threadPrefix${threadCounter.getAndIncrement()}").also { logV("Thread : ${it.name} created") }
+    /**
+     * TTF-thd-1
+     */
+    override fun newThread(r: Runnable): Thread {
 
-    private companion object {
-        private val poolCounter = AtomicInteger(1)
+        val thdName = "$poolPrefix$threadPrefix${threadCounter.getAndIncrement()}"
+        val t = Thread(r, thdName)
 
+        logV("Thread : $thdName created int TTF Factory.")
+
+        return t
     }
+
 }

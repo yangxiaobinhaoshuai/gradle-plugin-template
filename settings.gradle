@@ -15,7 +15,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = 'gradle-template'
+rootProject.name = 'AGPCodelab'
 
 // JVM base libs
 includeBuild 'logger-jvm'
