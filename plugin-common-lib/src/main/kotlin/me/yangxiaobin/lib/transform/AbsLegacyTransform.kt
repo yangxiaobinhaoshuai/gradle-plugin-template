@@ -132,12 +132,9 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
                 when (jarInput.status) {
                     Status.ADDED, Status.CHANGED -> transportJarFile(jarInput.file, outputJar)
                     Status.REMOVED -> outputJar.delete()
-                    Status.NOTCHANGED -> {
-                        // No need to transform.
-                    }
-                    else -> {
-                        error("Unknown status: ${jarInput.status}")
-                    }
+                    // No need to transform.
+                    Status.NOTCHANGED -> Unit
+                    else -> error("Unknown status: ${jarInput.status}")
                 }
             } else {
                 transportJarFile(jarInput.file, outputJar)
@@ -173,12 +170,9 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
                     when (status) {
                         Status.ADDED, Status.CHANGED -> transportClassFile(changedFile, outputFile.parentFile)
                         Status.REMOVED -> outputFile.delete()
-                        Status.NOTCHANGED -> {
-                            // No need to transform.
-                        }
-                        else -> {
-                            error("Unknown status: $status")
-                        }
+                        // No need to transform.
+                        Status.NOTCHANGED -> Unit
+                        else -> error("Unknown status: $status")
                     }
                 }
             } else {

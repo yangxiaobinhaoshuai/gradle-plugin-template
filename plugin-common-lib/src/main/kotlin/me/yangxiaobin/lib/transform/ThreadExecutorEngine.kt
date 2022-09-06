@@ -14,7 +14,9 @@ class ThreadExecutorEngine(private val executor: JUCExecutorService = fixedExecu
 
     override fun submitTransformEntry(entry: TransformEntry) {
 
-        executor.submit { entry.transformAction.invoke(entry.input, entry.output) }.get()
+        executor.submit {
+
+        }.get()
 
     }
 

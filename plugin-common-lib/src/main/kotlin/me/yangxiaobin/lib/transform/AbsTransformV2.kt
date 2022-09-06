@@ -3,6 +3,7 @@ package me.yangxiaobin.lib.transform
 import com.android.build.api.transform.*
 import com.android.build.api.variant.VariantInfo
 import me.yangxiaobin.lib.GradleTransform
+import me.yangxiaobin.lib.GradleTransformStatus
 import me.yangxiaobin.lib.ext.neatName
 import me.yangxiaobin.lib.log.LogAware
 import java.io.File
@@ -51,14 +52,14 @@ open class AbsTransformV2(private val logDelegate: LogAware) : GradleTransform()
 
         val impl = GradleTransformImpl(transformInvocation)
         impl.preTransform()
-        impl.doTransform(transformInvocation.asInput())
+        impl.doTransform(transformInvocation.toMaterials())
         impl.postTransform()
     }
 
     /**
-     * 核心逻辑
+     * 分 jars 和 dirs 两大类
      */
-    private fun TransformInvocation.asInput(): TransformMaterials {
+    private fun TransformInvocation.toMaterials(): TransformMaterials {
 
         fun getDestJar(jarInput: JarInput): File = outputProvider.getContentLocation(
             jarInput.name,
@@ -74,25 +75,61 @@ open class AbsTransformV2(private val logDelegate: LogAware) : GradleTransform()
             Format.DIRECTORY
         )
 
-        val copyTransformer = FileCopyTransformer(logDelegate)
-        val jarTransformer = JarFileTransformer(logDelegate)
-        val classTransformer = ClassFileTransformer(logDelegate)
+
+        fun DirectoryInput.getDestFile(inputFile: File): File = File(getDestDir(this), inputFile.relativeTo(this.file).path)
+
+
+        fun isIncrementalBuild(): Boolean = this.isIncremental
 
         val wholeInputs = this.inputs.asSequence()
 
-        val jarsEntries: List<TransformEntry> = wholeInputs
-            .flatMap { it.jarInputs }
-            .map { jar: JarInput -> jar.file to getDestJar(jar) }
-            .map { TransformEntry(it.first, it.second, copyTransformer::transform) }
-            .toList()
+        return if (isIncrementalBuild()) {
 
-        val dirEntries = wholeInputs
-            .flatMap { it.directoryInputs }
-            .map { dir: DirectoryInput -> dir.file to getDestDir(dir) }
-            .map { TransformEntry(it.first, it.second, copyTransformer::transform) }
-            .toList()
+            val jarsEntries: List<TransformEntry> = wholeInputs.flatMap { it.jarInputs }
+                .filterNot { it.status == GradleTransformStatus.NOTCHANGED }
+                .map { jarInput: JarInput ->
+                    when (jarInput.status) {
+                        GradleTransformStatus.ADDED, GradleTransformStatus.CHANGED -> JarTransformEntry(jarInput.file, getDestJar(jarInput))
+                        GradleTransformStatus.REMOVED -> DeleteTransformEntry(jarInput.file, getDestJar(jarInput))
+                        else -> throw IllegalStateException("Illegal status.")
+                    }
+                }.toList()
 
-        return jarsEntries + dirEntries
+
+            val dirEntries: List<TransformEntry> = wholeInputs.flatMap { it.directoryInputs  }
+                .map { dirInput: DirectoryInput ->
+
+                    dirInput.changedFiles.entries
+                        .filterNot { entry -> entry.value == GradleTransformStatus.NOTCHANGED }
+                        .map { (file, status) ->
+                            when (status) {
+                                GradleTransformStatus.ADDED, GradleTransformStatus.CHANGED -> DirTransformEntry(file, dirInput.getDestFile(file))
+                                GradleTransformStatus.REMOVED -> DeleteTransformEntry(file, dirInput.getDestFile(file))
+                                else -> throw  IllegalStateException("Illegal status.")
+                            }
+                        }
+
+                }.flatten().toList()
+
+
+            jarsEntries + dirEntries
+
+        } else {
+
+            val jarsEntries: List<TransformEntry> = wholeInputs
+                .flatMap { it.jarInputs }
+                .map { jar: JarInput -> jar.file to getDestJar(jar) }
+                .map { JarTransformEntry(it.first, it.second) }
+                .toList()
+
+            val dirEntries: List<TransformEntry> = wholeInputs
+                .flatMap { it.directoryInputs }
+                .map { dir: DirectoryInput -> dir.file to getDestDir(dir) }
+                .map { DirTransformEntry(it.first, it.second) }
+                .toList()
+
+            jarsEntries + dirEntries
+        }
     }
 
     override fun logV(message: String) {
