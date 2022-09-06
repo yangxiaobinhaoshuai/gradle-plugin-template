@@ -1,9 +1,10 @@
 package com.test
 
 import me.yangxiaobin.lib.BasePlugin
-import me.yangxiaobin.lib.ext.getAppExtension
 import me.yangxiaobin.lib.ext.neatName
+import me.yangxiaobin.lib.ext.requireAppExtension
 import me.yangxiaobin.lib.log.ILog
+import me.yangxiaobin.lib.log.LogAware
 import me.yangxiaobin.lib.transform.AbsLegacyTransform
 import me.yangxiaobin.lib.transform.AbsTransformV2
 import org.gradle.api.Project
@@ -23,7 +24,7 @@ class TestLegacyTransform(p: Project) : AbsLegacyTransform(p) {
 
 }
 
-class TestTransformV2(l:ILog) : AbsTransformV2(l) {
+class TestTransformV2(logDelegate: LogAware) : AbsTransformV2(logDelegate) {
 
     override val LOG_TAG: String get() = "TestTransformV2"
 
@@ -34,7 +35,10 @@ class TestTransformV2(l:ILog) : AbsTransformV2(l) {
 /**
  * force execution transform.
  *
+ *   v2 transform cmd
  *    :samples:androidapp:transformClassesWithTestTransformV2ForDebug --rerun-tasks -s
+ *
+ *   legacy tranform cmdb
  *    :samples:androidapp:transformClassesWithAbsLegacyTransformForDebug --rerun-tasks -s
  */
 class TestPlugin : BasePlugin() {
@@ -43,17 +47,18 @@ class TestPlugin : BasePlugin() {
 
     override val myLogger: ILog get() = super.myLogger.setGlobalPrefix("|T|")
 
+
     override fun apply(p: Project) {
         super.apply(p)
 
 
-        for(i in 1..10){
+        for (i in 1..10) {
             logD("I'm logger -----> $i.")
         }
 
-        p.afterEvaluate {
-            //p.getAppExtension?.registerTransform(TestLegacyTransform(p))
-            p.getAppExtension?.registerTransform(TestTransformV2(myLogger))
+        afterEvaluate {
+            //p.requireAppExtension?.registerTransform(TestLegacyTransform(p))
+            p.requireAppExtension.registerTransform(TestTransformV2(this@TestPlugin))
         }
     }
 }

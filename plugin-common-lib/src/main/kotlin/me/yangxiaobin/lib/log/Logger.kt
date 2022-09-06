@@ -40,6 +40,7 @@ interface ILog {
 
 enum class LogLevel { VERBOSE, INFO, DEBUG, ERROR }
 
+@Suppress("MemberVisibilityCanBePrivate")
 open class AbsLogger : ILog {
 
     protected var curLevel = LogLevel.INFO

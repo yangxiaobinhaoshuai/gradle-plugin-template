@@ -3,9 +3,6 @@ package me.yangxiaobin.lib.ext
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.AppPlugin
 import me.yangxiaobin.lib.annotation.AfterEvaluation
-import me.yangxiaobin.lib.log.LogLevel
-import me.yangxiaobin.lib.log.InternalLogger
-import me.yangxiaobin.lib.log.log
 import org.gradle.api.Project
 import org.gradle.api.internal.tasks.DefaultGroovySourceSet
 import org.gradle.api.plugins.Convention
@@ -15,25 +12,32 @@ import org.gradle.internal.extensibility.DefaultExtraPropertiesExtension
 import org.jetbrains.kotlin.gradle.plugin.sources.DefaultKotlinSourceSet
 import java.io.File
 
-val Project.mainSourceSet: SourceSet?
-    get() = (this.properties["sourceSets"] as SourceSetContainer).findByName("main")
+/**
+ * 若是通过 plugins { id 'com.android.application' } 形式，需要在 AfterEvaluate 阶段才能
+ */
+val Project.requireAppExtension: AppExtension
+    get() = try {
+        this.extensions.getByName("android") as AppExtension
+    } catch (e: Exception) {
+        e.printStackTrace()
+        throw IllegalStateException("If you applied your android application plugin by id, then require this AfterEvaluate.")
+    }
 
 @AfterEvaluation
-val Project.getAppExtension: AppExtension?
-    get() = this.extensions.getByName("android") as? AppExtension
+val Project.findAppPlugin: AppPlugin? get() = this.plugins.findPlugin(AppPlugin::class.java)
 
 @AfterEvaluation
-val Project.getAppPlugin: AppPlugin?
-    get() = this.plugins.findPlugin(AppPlugin::class.java)
+val Project.requireExtExtension: DefaultExtraPropertiesExtension
+    get() = this.extensions.getByName("ext") as DefaultExtraPropertiesExtension
 
-@AfterEvaluation
-val Project.getExtExtension: DefaultExtraPropertiesExtension?
-    get() = this.extensions.getByName("ext") as? DefaultExtraPropertiesExtension
+fun Project.findProjectProp(key: String): String? = this.gradle.startParameter.projectProperties[key]
 
-fun Project.getProjectProp(key: String): String? = this.gradle.startParameter.projectProperties[key]
 
 
 enum class SourceLanguage { JAVA, KOTLIN, GROOVY }
+
+val Project.mainSourceSet: SourceSet?
+    get() = (this.properties["sourceSets"] as SourceSetContainer).findByName("main")
 
 @AfterEvaluation
 fun Project.getSourceSetDirs(language: SourceLanguage): List<File> {

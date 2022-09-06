@@ -2,7 +2,9 @@ package me.yangxiaobin.lib.transform
 
 import java.io.File
 
-typealias TransformInput = Collection<TransformEntry>
+typealias TransformMaterials = Collection<TransformEntry>
+
+typealias  FileTransformAction = (input: File, out: File) -> File
 
 /**
  * 记录文件状态，记变换后的存储位置 (File)
@@ -16,26 +18,19 @@ interface TransformAware {
 
     fun preTransform()
 
-    fun doTransform(input: TransformInput)
+    fun doTransform(matrials: TransformMaterials)
 
     fun postTransform()
 }
 
 
-typealias  FileTransformAction = (input: File, out: File) -> File
+interface TransformEngine {
 
-interface ParallelTransformEngine {
-
-    /**
-     * 添加文件转换任务
-     */
-    fun submitTransformAction(action: FileTransformAction)
+    fun submitTransformEntry(entry: TransformEntry)
 
 }
 
 interface FileTransformer {
-
-    val logger: LogAction get() = {}
 
     fun transform(input: File, out: File): File
 }

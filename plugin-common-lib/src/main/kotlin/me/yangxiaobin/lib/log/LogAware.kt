@@ -16,4 +16,7 @@ interface LogAware {
     fun logE(message: String) = myLogger.e(LOG_TAG, message)
 }
 
-data class LogAwareImpl(override val myLogger: ILog, override val LOG_TAG: String) : LogAware
+/**
+ * 由于 by delegate 的实现原理原因，子类如想通过重写 myLogger 和 LOG_TAG 两个属性，需要覆盖所有 logV/I/D/E 方法来让属性生效
+ */
+data class LogDelegate(override val myLogger: ILog, override val LOG_TAG: String) : LogAware

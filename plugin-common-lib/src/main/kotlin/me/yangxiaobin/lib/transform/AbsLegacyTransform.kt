@@ -3,8 +3,8 @@ package me.yangxiaobin.lib.transform
 import com.android.build.api.transform.*
 import kotlinx.coroutines.*
 import me.yangxiaobin.lib.ext.*
-import me.yangxiaobin.lib.log.LogLevel
 import me.yangxiaobin.lib.log.InternalLogger
+import me.yangxiaobin.lib.log.LogLevel
 import me.yangxiaobin.lib.log.log
 import me.yangxiaobin.lib.thread.TransformThreadFactory
 import org.gradle.api.Project
@@ -16,7 +16,7 @@ import java.util.function.Function
 import java.util.zip.ZipFile
 
 
-typealias Action = () -> Unit
+private typealias Action = () -> Unit
 
 /**
  * @see com.google.dagger:hilt-android-gradle-plugin:2.28-alpha

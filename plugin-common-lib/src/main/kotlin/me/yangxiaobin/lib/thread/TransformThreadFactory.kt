@@ -2,13 +2,13 @@ package me.yangxiaobin.lib.thread
 
 import me.yangxiaobin.lib.log.InternalLogger
 import me.yangxiaobin.lib.log.LogAware
-import me.yangxiaobin.lib.log.LogAwareImpl
+import me.yangxiaobin.lib.log.LogDelegate
 import java.util.concurrent.ThreadFactory
 import java.util.concurrent.atomic.AtomicInteger
 
 private const val LOG_TAG = "TTF"
 
-class TransformThreadFactory : ThreadFactory, LogAware by LogAwareImpl(InternalLogger, LOG_TAG) {
+class TransformThreadFactory : ThreadFactory, LogAware by LogDelegate(InternalLogger, LOG_TAG) {
 
     private val threadPrefix = "-thd-"
     private val threadCounter = AtomicInteger(1)

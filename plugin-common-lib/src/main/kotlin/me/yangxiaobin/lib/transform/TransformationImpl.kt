@@ -1,11 +1,9 @@
 package me.yangxiaobin.lib.transform
 
+import me.yangxiaobin.lib.log.LogAware
 import java.io.File
 
-typealias LogAction = (String) -> Unit
-
-
-class ClassFileTransformer(override val logger: LogAction = {}) : FileTransformer {
+class ClassFileTransformer(private val logDelegate: LogAware) : FileTransformer, LogAware by logDelegate {
 
     override fun transform(input: File, out: File): File {
         TODO("Not yet implemented")
@@ -13,7 +11,7 @@ class ClassFileTransformer(override val logger: LogAction = {}) : FileTransforme
 
 }
 
-class JarFileTransformer(override val logger: LogAction = {}) : FileTransformer {
+class JarFileTransformer(private val logDelegate: LogAware) : FileTransformer, LogAware by logDelegate {
 
     override fun transform(input: File, out: File): File {
         TODO("Not yet implemented")
@@ -21,9 +19,9 @@ class JarFileTransformer(override val logger: LogAction = {}) : FileTransformer 
 
 }
 
-class FileCopyTransformer(override val logger: LogAction = {}) : FileTransformer {
+class FileCopyTransformer(private val logDelegate: LogAware) : FileTransformer, LogAware by logDelegate {
 
     override fun transform(input: File, out: File): File =
-        input.copyTo(out).also { logger("copied: $input into output: $out") }
+        input.copyTo(out).also { logI("copied: $input into output: $out.") }
 
 }
