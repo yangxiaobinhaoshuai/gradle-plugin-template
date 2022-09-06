@@ -9,7 +9,7 @@ import me.yangxiaobin.lib.transform.AbsTransformV2
 import org.gradle.api.Project
 import java.util.function.Function
 
-class TestLegacyTransform(p: Project) : AbsLegacyTransform(p){
+class TestLegacyTransform(p: Project) : AbsLegacyTransform(p) {
 
     override fun isIncremental(): Boolean = false
 
@@ -25,9 +25,18 @@ class TestLegacyTransform(p: Project) : AbsLegacyTransform(p){
 
 class TestTransformV2(l:ILog) : AbsTransformV2(l) {
 
+    override val LOG_TAG: String get() = "TestTransformV2"
+
+    override fun isIncremental() = false
 }
 
 
+/**
+ * force execution transform.
+ *
+ *    :samples:androidapp:transformClassesWithTestTransformV2ForDebug --rerun-tasks -s
+ *    :samples:androidapp:transformClassesWithAbsLegacyTransformForDebug --rerun-tasks -s
+ */
 class TestPlugin : BasePlugin() {
 
     override val TAG: String get() = this.neatName

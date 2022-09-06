@@ -35,14 +35,7 @@ interface ParallelTransformEngine {
 
 interface FileTransformer {
 
+    val logger: LogAction get() = {}
+
     fun transform(input: File, out: File): File
-}
-
-class ClassFileTransformer
-class JarFileTransformer
-class FileCopyTransformer : FileTransformer {
-
-    override fun transform(input: File, out: File): File = input.copyTo(out).also { println("---> copy: $input from output: $out") }
-
-
 }

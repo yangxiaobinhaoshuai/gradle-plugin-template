@@ -3,12 +3,18 @@ package me.yangxiaobin.lib.transform
 import com.android.build.api.transform.*
 import com.android.build.api.variant.VariantInfo
 import me.yangxiaobin.lib.GradleTransform
+import me.yangxiaobin.lib.ext.neatName
 import me.yangxiaobin.lib.log.ILog
+import me.yangxiaobin.lib.log.LogAware
+import me.yangxiaobin.lib.log.LogAwareImpl
 import java.io.File
 
-open class AbsTransformV2(val scopedLogger :ILog) : GradleTransform() {
+private const val LOG_TAG = "AbsTransformV2"
 
-    override fun getName(): String = this.javaClass.simpleName
+open class AbsTransformV2(private val scopedLogger: ILog) : GradleTransform(),
+    LogAware by LogAwareImpl(scopedLogger, LOG_TAG) {
+
+    override fun getName(): String = this.neatName
 
     /**
      * 当前 Transform 可以消费的 scope 类型
@@ -33,6 +39,9 @@ open class AbsTransformV2(val scopedLogger :ILog) : GradleTransform() {
     override fun getScopes(): MutableSet<QualifiedContent.ScopeType> = mutableSetOf(QualifiedContent.Scope.PROJECT)
 
 
+    /**
+     * 默认支持增量
+     */
     override fun isIncremental(): Boolean = true
 
     @Suppress("UnstableApiUsage")
@@ -48,6 +57,9 @@ open class AbsTransformV2(val scopedLogger :ILog) : GradleTransform() {
         impl.postTransform()
     }
 
+    /**
+     * 核心逻辑
+     */
     private fun TransformInvocation.asInput(): TransformInput {
 
         fun getDestJar(jarInput: JarInput): File = outputProvider.getContentLocation(
@@ -64,7 +76,9 @@ open class AbsTransformV2(val scopedLogger :ILog) : GradleTransform() {
             Format.DIRECTORY
         )
 
-        val copyTransformer = FileCopyTransformer()
+        val copyTransformer = FileCopyTransformer(::logI)
+        val jarTransformer = JarFileTransformer(::logI)
+        val classTransformer = ClassFileTransformer(::logI)
 
         val wholeInputs = this.inputs.asSequence()
 

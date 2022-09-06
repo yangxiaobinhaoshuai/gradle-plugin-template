@@ -1,7 +1,8 @@
 package me.yangxiaobin.lib
 
 import me.yangxiaobin.lib.ext.neatName
-import me.yangxiaobin.lib.log.*
+import me.yangxiaobin.lib.log.ILog
+import me.yangxiaobin.lib.log.InternalLogger
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.invocation.Gradle
@@ -22,16 +23,16 @@ open class BasePlugin : Plugin<Project> {
 
     protected open val myLogger: ILog get() = InternalLogger
 
-    protected val logV by lazy { myLogger.log(LogLevel.VERBOSE, TAG) }
-    protected val logI by lazy { myLogger.log(LogLevel.INFO, TAG) }
-    protected val logD by lazy { myLogger.log(LogLevel.DEBUG, TAG) }
-    protected val logE by lazy { myLogger.log(LogLevel.ERROR, TAG) }
-
     override fun apply(p: Project) {
         logI("${p.name} Applied ${this.neatName}.")
         mProject = p
         mGradle = p.gradle
         mLogger = p.logger
     }
+
+    protected fun logV(message: String) = myLogger.v(TAG, message)
+    protected fun logI(message: String) = myLogger.i(TAG, message)
+    protected fun logD(message: String) = myLogger.d(TAG, message)
+    protected fun logE(message: String) = myLogger.e(TAG, message)
 
 }

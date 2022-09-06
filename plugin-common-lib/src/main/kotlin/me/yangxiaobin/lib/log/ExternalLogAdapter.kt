@@ -20,31 +20,12 @@ typealias ExternalLogPrinter = me.yangxiaobin.logger.uitlity.LogPrinter
 
 class ExternalLogAdapter : AbsLogger() {
 
-    private val externalLogger: LogFacade by lazy { ExternalLogger }
-    private var newLogContext: DomainContext = EmptyDomainContext
+    private val defaultExternalLogger: LogFacade by lazy { ExternalLogger }
+    private var externalLogger = defaultExternalLogger
+
+    private var newLogContext: DomainContext = DiskWritingContext
 
     private val actualLogger by lazy { externalLogger.clone(newLogContext) }
-
-    init {
-        val now = SimpleDateFormat("yyyy.mm.dd.hh:mm:ss", Locale.getDefault()).format(Date())
-        val logFilePath = "build/custom_log/${now}_building.log"
-        // currentWorkPath = /Users/yangxiaobin/DevelopSpace/IDEA/gradle-plugin-template
-        val actualLogPath = "$currentWorkPath/$logFilePath"
-
-        DiskWriterManager.setConfig {
-            this.logFileName = actualLogPath
-            this.pid = currentProcessId
-            this.processName = "process:$currentProcessId"
-        }
-
-        val preInterceptor = OnPostLoggingInterceptor(DiskWriterManager::addLog)
-        newLogContext += InterceptorLogElement(preInterceptor)
-
-        /**
-         * Start recording log when this was initiated.
-         */
-        DiskWriterManager.startSession()
-    }
 
     override fun isEnable(enable: Boolean): AbsLogger {
         newLogContext += EnableLogElement(enable)
@@ -98,7 +79,40 @@ class ExternalLogAdapter : AbsLogger() {
         actualLogger.v(tag,message)
     }
 
+    public fun setExternalLogger(external: LogFacade) = apply {
+        externalLogger = external
+    }
+
+    /**
+     * 实际上是对 LogFacade 的拷贝
+     */
     override fun copy(): ILog {
-        return ExternalLogAdapter()
+        return ExternalLogAdapter().setExternalLogger(actualLogger)
+    }
+
+    private companion object {
+
+        private var DiskWritingContext: DomainContext = EmptyDomainContext
+
+        init {
+            val now = SimpleDateFormat("yyyy.mm.dd.hh:mm:ss", Locale.getDefault()).format(Date())
+            val logFilePath = "build/custom_log/${now}_building.log"
+            // currentWorkPath = /Users/yangxiaobin/DevelopSpace/IDEA/gradle-plugin-template
+            val actualLogPath = "$currentWorkPath/$logFilePath"
+
+            DiskWriterManager.setConfig {
+                this.logFileName = actualLogPath
+                this.pid = currentProcessId
+                this.processName = "process:$currentProcessId"
+            }
+
+            val preInterceptor = OnPostLoggingInterceptor(DiskWriterManager::addLog)
+            DiskWritingContext = InterceptorLogElement(preInterceptor)
+
+            /**
+             * Start recording log when this was initiated.
+             */
+            DiskWriterManager.startSession()
+        }
     }
 }

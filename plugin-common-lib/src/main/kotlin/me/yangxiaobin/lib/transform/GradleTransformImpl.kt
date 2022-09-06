@@ -9,9 +9,11 @@ class GradleTransformImpl(private val invocation: TransformInvocation) : Transfo
     }
 
     override fun doTransform(input: TransformInput) {
+
         input.forEach { (input, output, transform) ->
             transform.invoke(input, output)
         }
+
     }
 
     override fun postTransform() {
