@@ -3,8 +3,8 @@ package me.yangxiaobin.lib.transform
 import com.android.build.api.transform.*
 import kotlinx.coroutines.*
 import me.yangxiaobin.lib.ext.*
-import me.yangxiaobin.lib.log.InternalLogger
 import me.yangxiaobin.lib.log.LogLevel
+import me.yangxiaobin.lib.log.innerLogImpl
 import me.yangxiaobin.lib.log.log
 import me.yangxiaobin.lib.thread.TransformThreadFactory
 import org.gradle.api.Project
@@ -26,7 +26,8 @@ private typealias Action = () -> Unit
 @Deprecated("Api representation, not using purpose, see AbsTransformV2")
 open class AbsLegacyTransform(protected val project: Project) : Transform() {
 
-    protected val logger = InternalLogger.copy().setLevel(LogLevel.VERBOSE)
+    //TODO level 是否生效？
+    protected val logger = innerLogImpl.setLevel(LogLevel.VERBOSE)
 
     protected val logE = logger.log(LogLevel.ERROR, name)
 
@@ -102,10 +103,8 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
 
         val t2 = System.currentTimeMillis()
         logI("async transform action begins.")
-        transformScope.launch { transformActions.map { launch { it.invoke() } }.joinAll() }
-            .invokeOnCompletion {
-                logI("async transform actions ends in ${(System.currentTimeMillis() - t2).toFormat(false)}, th : $it.")
-            }
+        transformScope.launch(Dispatchers.IO) { transformActions.map { launch { it.invoke() } }.joinAll() }
+            .invokeOnCompletion { logI("async transform actions ends in ${(System.currentTimeMillis() - t2).toFormat(false)}, th : $it.") }
 
         afterTransform()
 
@@ -150,8 +149,7 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
         val t1 = System.currentTimeMillis()
         logI(" processClassFile begins.")
 
-        fun toOutputFile(outputDir: File, inputDir: File, inputFile: File) =
-            File(outputDir, inputFile.relativeTo(inputDir).path)
+        fun toOutputFile(outputDir: File, inputDir: File, inputFile: File) = File(outputDir, inputFile.relativeTo(inputDir).path)
 
         directoryInputs.forEach { directoryInput: DirectoryInput ->
 
@@ -176,8 +174,12 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
                     }
                 }
             } else {
-                directoryInput.file.walkTopDown().forEach { file ->
-                    val outputFile = toOutputFile(outputDir, directoryInput.file, file)
+                val rootFile: File = directoryInput.file
+
+                rootFile.walkTopDown().forEach { file ->
+                    val outputFile = toOutputFile(outputDir, rootFile, file)
+                        // TODO to be deleted.
+                        .also { println("--> out:$outputDir, dirInput:$rootFile , file:$file, res :$it") }
                     transportClassFile(file, outputFile)
                 }
             }
@@ -211,7 +213,6 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
                 }
             }
 
-
             inputJarFile.isFile -> transformActions += { copyJar(inputJarFile, outputJarFile) }
         }
     }
@@ -236,6 +237,7 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
                 logD("transforming class file: ${inputFile.name}")
 
                 transformActions += {
+
                     val transformedByteArr: ByteArray = inputFile.readBytes().let(classFileTransformer!!::apply)
 
                     outputFile.touch().writeBytes(transformedByteArr)

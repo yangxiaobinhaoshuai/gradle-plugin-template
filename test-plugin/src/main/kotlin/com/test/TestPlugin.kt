@@ -36,6 +36,8 @@ class TestTransformV2(logDelegate: LogAware) : AbsTransformV2(logDelegate) {
  * force execution transform.
  *
  *   v2 transform cmd
+ *
+ *   :logger-jvm:publishToMavenLocal  :plugin-common-lib:publishToMavenLocal :samples:androidapp:transformClassesWithTestTransformV2ForDebug --rerun-tasks -s
  *    :samples:androidapp:transformClassesWithTestTransformV2ForDebug --rerun-tasks -s
  *
  *   legacy tranform cmdb
@@ -57,7 +59,7 @@ class TestPlugin : BasePlugin() {
         }
 
         afterEvaluate {
-            //p.requireAppExtension?.registerTransform(TestLegacyTransform(p))
+            //p.requireAppExtension.registerTransform(TestLegacyTransform(p))
             p.requireAppExtension.registerTransform(TestTransformV2(this@TestPlugin))
         }
     }

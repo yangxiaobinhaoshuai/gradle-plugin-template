@@ -1,6 +1,8 @@
 package me.yangxiaobin.lib.transform
 
 import com.android.build.api.transform.TransformInvocation
+import me.yangxiaobin.lib.ext.isClassFile
+import java.io.File
 
 
 class GradleTransformImpl(private val invocation: TransformInvocation) : TransformAware {
@@ -11,10 +13,15 @@ class GradleTransformImpl(private val invocation: TransformInvocation) : Transfo
 
     override fun doTransform(materials: TransformMaterials) {
 
+        materials.forEach {
+            println("---> material : ${it.input} , ${it.output}")
+        }
+
         // TODO
         val engine: TransformEngine = ThreadExecutorEngine()
 
         val copyTransformer = FileCopyTransformer()
+        val classTransformer = ClassFileTransformer()
 
         materials.forEach { entry: TransformEntry ->
             when (entry) {
@@ -25,7 +32,29 @@ class GradleTransformImpl(private val invocation: TransformInvocation) : Transfo
                 }
 
                 is DirTransformEntry -> {
-                    copyTransformer.transform(entry.input, entry.output)
+                   // copyTransformer.transform(entry.input, entry.output)
+                    entry.input.walkTopDown().forEach { f: File ->
+
+                        val outputFile = File(entry.output, f.relativeTo(entry.input).path)
+
+                        println(
+                            """
+                            walk down, cur file :$f
+                            entry input :${entry.input}
+                            entry output: ${entry.output}
+                            relativePath: ${f.relativeTo(entry.output).path}
+                            output: $outputFile
+                            ${"\r\n"}
+                        """.trimIndent()
+                        )
+
+                        if (f.isClassFile()) {
+                            classTransformer.transform(f, outputFile)
+                        } else {
+                            copyTransformer.transform(f, outputFile)
+                        }
+
+                    }
                 }
             }
         }
