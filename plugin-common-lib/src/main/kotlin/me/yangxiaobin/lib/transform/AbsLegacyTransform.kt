@@ -178,8 +178,6 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
 
                 rootFile.walkTopDown().forEach { file ->
                     val outputFile = toOutputFile(outputDir, rootFile, file)
-                        // TODO to be deleted.
-                        .also { println("--> out:$outputDir, dirInput:$rootFile , file:$file, res :$it") }
                     transportClassFile(file, outputFile)
                 }
             }

@@ -36,7 +36,9 @@ class ClassFileTransformer(private val logDelegate: LogAware = defaultLogDelegat
 
         val cr = ClassReader(input.readBytes())
 
-        val cv = object : ClassVisitor(Opcodes.ASM7) {
+        val cw = ClassWriter(ClassWriter.COMPUTE_MAXS)
+
+        val cv = object : ClassVisitor(Opcodes.ASM7,cw) {
 
             override fun visit(
                 version: Int,
@@ -47,12 +49,13 @@ class ClassFileTransformer(private val logDelegate: LogAware = defaultLogDelegat
                 interfaces: Array<out String>?
             ) {
                 super.visit(version, access, name, signature, superName, interfaces)
+                //println("----> visit class :$name.")
             }
         }
 
-        val cw = ClassWriter(0)
-        cr.accept(cw, 0)
+        cr.accept(cv,  ClassReader.EXPAND_FRAMES)
         val bs = cw.toByteArray()
+
         out.touch().writeBytes(bs)
         return out
     }

@@ -53,13 +53,9 @@ class TestPlugin : BasePlugin() {
     override fun apply(p: Project) {
         super.apply(p)
 
-
-        for (i in 1..10) {
-            logD("I'm logger -----> $i.")
-        }
-
         afterEvaluate {
             //p.requireAppExtension.registerTransform(TestLegacyTransform(p))
+            logI("registered transform")
             p.requireAppExtension.registerTransform(TestTransformV2(this@TestPlugin))
         }
     }

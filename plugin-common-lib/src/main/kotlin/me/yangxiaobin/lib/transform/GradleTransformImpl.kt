@@ -13,9 +13,7 @@ class GradleTransformImpl(private val invocation: TransformInvocation) : Transfo
 
     override fun doTransform(materials: TransformMaterials) {
 
-        materials.forEach {
-            println("---> material : ${it.input} , ${it.output}")
-        }
+        //materials.forEach { println("material : ${it.input} , ${it.output}") }
 
         // TODO
         val engine: TransformEngine = ThreadExecutorEngine()
@@ -37,7 +35,7 @@ class GradleTransformImpl(private val invocation: TransformInvocation) : Transfo
 
                         val outputFile = File(entry.output, f.relativeTo(entry.input).path)
 
-                        println(
+                        /*println(
                             """
                             walk down, cur file :$f
                             entry input :${entry.input}
@@ -46,13 +44,10 @@ class GradleTransformImpl(private val invocation: TransformInvocation) : Transfo
                             output: $outputFile
                             ${"\r\n"}
                         """.trimIndent()
-                        )
+                        )*/
 
-                        if (f.isClassFile()) {
-                            classTransformer.transform(f, outputFile)
-                        } else {
-                            copyTransformer.transform(f, outputFile)
-                        }
+                        if (f.isClassFile()) classTransformer.transform(f, outputFile)
+                        else copyTransformer.transform(f, outputFile)
 
                     }
                 }
