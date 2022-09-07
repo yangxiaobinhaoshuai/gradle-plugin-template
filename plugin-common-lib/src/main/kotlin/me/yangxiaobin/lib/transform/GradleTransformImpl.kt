@@ -24,24 +24,23 @@ class GradleTransformImpl(
 
         //materials.forEach { logI("dispatch material : ${it.input}, ${it.output}.") }
 
-        // TODO
         val engine: TransformEngine = ThreadExecutorEngine()
 
         val copyTransformer = FileCopyTransformer()
         val classTransformer = ClassFileTransformer()
         val jarTransformer = JarFileTransformer()
 
-        materials.forEach { entry: TransformEntry ->
+        val actions: List<me.yangxiaobin.lib.Action> = materials.map { entry: TransformEntry ->
 
             when (entry) {
 
-                is DeleteTransformEntry -> entry.output.delete()
+                is DeleteTransformEntry -> listOf(me.yangxiaobin.lib.Action { entry.output.delete() })
 
-                is JarTransformEntry -> jarTransformer.transform(entry.input, entry.output)
+                is JarTransformEntry -> listOf(me.yangxiaobin.lib.Action { jarTransformer.transform(entry.input, entry.output) })
 
                 is DirTransformEntry -> {
                    // copyTransformer.transform(entry.input, entry.output)
-                    entry.input.walkTopDown().forEach { f: File ->
+                    entry.input.walkTopDown().map { f: File ->
 
                         val outputFile = File(entry.output, f.relativeTo(entry.input).path)
 
@@ -56,13 +55,15 @@ class GradleTransformImpl(
                         """.trimIndent()
                         )*/
 
-                        if (f.isClassFile()) classTransformer.transform(f, outputFile) else copyTransformer.transform(f, outputFile)
+                        if (f.isClassFile()) me.yangxiaobin.lib.Action { classTransformer.transform(f, outputFile) }
+                        else me.yangxiaobin.lib.Action { copyTransformer.transform(f, outputFile) }
 
-                    }
+                    }.toList()
                 }
             }
-        }
+        }.flatten()
 
+        engine.submitTransformEntry(actions)
     }
 
     private fun dispatchMaterials(materials: TransformMaterials) {

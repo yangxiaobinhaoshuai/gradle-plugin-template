@@ -42,28 +42,25 @@ fun File.renamed(newName: String): File {
     return newFile
 }
 
-
-/**
- * convert bootClassPath<File>  to String separated by ":"
-</File> */
-fun Collection<File>?.toPath(): String {
-    require(!(this == null || this.isEmpty())) {
-        InternalLogger.e("toPath", "import java.util.logging.Logger");
-        return ""
-    }
-    val sb = StringBuilder()
-    this.forEach { s: File ->
-        sb.append(s.absolutePath).append(File.pathSeparator)
-    }
-    val lastIndexOf = sb.lastIndexOf(File.pathSeparator)
-    return sb.toString().substring(0, lastIndexOf)
-}
-
 fun File.touch() = apply {
     if (!this.exists()) {
         this.parentFile?.mkdirs()
         this.createNewFile()
     }
+}
+
+/**
+ * mkdirs 在多线程下会返回 false 表示当前目录已经创建, 这里 Catch 住 [copyTo] 抛的异常
+ * https://stackoverflow.com/a/29488734/10247834
+ */
+fun File.safeCopyTo(output: File) {
+    if (this.isDirectory) {
+        try {
+            this.copyTo(output)
+        } catch (e: FileSystemException) {
+            //e.printStackTrace()
+        }
+    } else this.copyTo(output)
 }
 
 

@@ -10,6 +10,16 @@ typealias JUCExecutor = java.util.concurrent.Executor
 
 typealias JUCExecutorService = java.util.concurrent.ExecutorService
 
-typealias Action = () -> Unit
 
-val EMPTY_ACTION: Action = {}
+typealias ActionLambda = () -> Unit
+
+fun interface Action : Runnable, ActionLambda {
+
+    override fun run()
+
+    override fun invoke() {
+        run()
+    }
+}
+
+val EMPTY_ACTION: Action = Action {}

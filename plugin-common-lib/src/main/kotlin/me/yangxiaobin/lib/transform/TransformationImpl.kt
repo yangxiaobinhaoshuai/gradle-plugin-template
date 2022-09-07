@@ -2,6 +2,7 @@ package me.yangxiaobin.lib.transform
 
 import com.android.zipflinger.BytesSource
 import com.android.zipflinger.ZipArchive
+import me.yangxiaobin.lib.ext.safeCopyTo
 import me.yangxiaobin.lib.ext.touch
 import me.yangxiaobin.lib.log.InternalLogger
 import me.yangxiaobin.lib.log.LogAware
@@ -33,7 +34,7 @@ private val defaultLogDelegate = LogDelegate(InternalLogger, LOG_TAG)
 class ClassFileTransformer(private val logDelegate: LogAware = defaultLogDelegate) : FileTransformer,
     LogAware by logDelegate {
 
-    override fun transform(input: File, out: File): File {
+    override fun transform(input: File, output: File) {
 
         //logI("class transformed from: $input into: $out.")
 
@@ -59,8 +60,7 @@ class ClassFileTransformer(private val logDelegate: LogAware = defaultLogDelegat
         cr.accept(cv,  ClassReader.EXPAND_FRAMES)
         val bs = cw.toByteArray()
 
-        out.touch().writeBytes(bs)
-        return out
+        output.touch().writeBytes(bs)
     }
 
 }
@@ -71,12 +71,12 @@ class ClassFileTransformer(private val logDelegate: LogAware = defaultLogDelegat
 class JarFileTransformer(private val logDelegate: LogAware = defaultLogDelegate) : FileTransformer,
     LogAware by logDelegate {
 
-    override fun transform(input: File, out: File): File {
+    override fun transform(input: File, output: File) {
 
-        logI("jar transformed from: $input into: $out.")
+        logI("jar transformed from: $input into: $output.")
 
         val inputZipArchive = ZipArchive(input)
-        val outputZipArchive = ZipArchive(out)
+        val outputZipArchive = ZipArchive(output)
 
         inputZipArchive.listEntries()
             .forEach { entryName->
@@ -90,8 +90,6 @@ class JarFileTransformer(private val logDelegate: LogAware = defaultLogDelegate)
 
         inputZipArchive.close()
         outputZipArchive.close()
-
-        return out
     }
 
 }
@@ -99,7 +97,9 @@ class JarFileTransformer(private val logDelegate: LogAware = defaultLogDelegate)
 class FileCopyTransformer(private val logDelegate: LogAware = defaultLogDelegate) : FileTransformer,
     LogAware by logDelegate {
 
-    override fun transform(input: File, out: File): File = input.copyTo(out)
+    override fun transform(input: File, output: File) {
+        input.safeCopyTo(output)
         //.also { logI("copy from: $input into: $out.") }
+    }
 
 }

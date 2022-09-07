@@ -34,11 +34,17 @@ interface TransformAware {
 
 interface TransformEngine {
 
-    fun submitTransformEntry(entry: TransformEntry)
+    /**
+     * Blocking method
+     */
+    fun submitTransformEntry(transformers: List<me.yangxiaobin.lib.Action>)
 
 }
 
 interface FileTransformer {
 
-    fun transform(input: File, out: File): File
+    /**
+     * Blocking method
+     */
+    fun transform(input: File, output: File)
 }
