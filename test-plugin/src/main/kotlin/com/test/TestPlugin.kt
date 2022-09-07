@@ -38,6 +38,7 @@ class TestTransformV2(logDelegate: LogAware) : AbsTransformV2(logDelegate) {
  *   v2 transform cmd
  *
  *   :logger-jvm:publishToMavenLocal  :plugin-common-lib:publishToMavenLocal :samples:androidapp:transformClassesWithTestTransformV2ForDebug --rerun-tasks -s
+ *
  *    :samples:androidapp:transformClassesWithTestTransformV2ForDebug --rerun-tasks -s
  *
  *   legacy tranform cmdb

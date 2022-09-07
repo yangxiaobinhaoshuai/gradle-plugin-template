@@ -7,16 +7,16 @@ junitV = "4.13.2"
 kotlinV = "1.5.31"
 asmCoreV = "9.2"
 groovy-allV = "3.0.9"
-agpV = "7.1.0-alpha12"
 aspectjV = "1.9.7"
 
 
 [libraries]
 junit = { module = "junit:junit", version.ref = "junitV" }
 
-agp7 = { module = "com.android.tools.build:gradle", version.ref = "agpV" }
-agp4 = { module = "com.android.tools.build:gradle", version = "4.1.0" }
-kgp = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlinV" }
+# 更新 Gradle https://developer.android.com/studio/releases/gradle-plugin?buildsystem=cmake
+agp7 = { module = "com.android.tools.build:gradle", version = "7.0.0" }
+agp4 = { module = "com.android.tools.build:gradle", version = "4.2.0" }
+kgp1531 = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlinV" }
 
 # Kotlin std differnces : https://mbonnin.medium.com/the-different-kotlin-stdlibs-explained-83d7c6bf293
 ktStd = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlinV" }
@@ -56,7 +56,6 @@ kotlinpoet= { module = "com.squareup:kotlinpoet", version = "1.10.2" }
 
 [bundles]
 kotlinSuit =['ktStd','ktCoroutine',]
-base =['ktStdJdk8','groovyAll']
 aspectj =['aspectj-lib','aspectjJrt','aspectj-weaver','aspectjTools','aspectj-matcher']
 asm =['asm-core','asm-util','asm-tree','asm-commons','asm-analysis',]
 

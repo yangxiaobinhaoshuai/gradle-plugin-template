@@ -43,7 +43,7 @@ dependencies {
     def libCommon = "me.yangxiaobin.plugin:plugin-common-lib"
     compileOnly libDeps.agp4
     compileOnly libDeps.ktCoroutine
-    compileOnly libDeps.kgp
+    compileOnly libDeps.kgp1531
     compileOnly libCommon
     //fatJar "me.yangxiaobin.plugin:plugin-common-lib"
     fatJar "me.yangxiaobin.plugin:plugin-common-lib:1.0.0-SNAPSHOT"

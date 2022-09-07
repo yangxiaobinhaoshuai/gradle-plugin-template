@@ -28,11 +28,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility build_versions.source_compatibility
+        targetCompatibility build_versions.target_compatibility
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '11'
     }
     packagingOptions {
         exclude 'META-INF/*'
@@ -60,6 +60,8 @@ dependencies {
 
     //implementation libDeps.ktStd
     //implementation libDeps.ktReflect
+
+    implementation fileTree(dir: "libs", include: ["*.jar", "*.aar"])
 
     compileOnly libDeps.aspectjJrt
     

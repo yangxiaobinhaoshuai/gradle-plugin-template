@@ -57,7 +57,7 @@ dependencies {
 
     compileOnly libDeps.agp4
     compileOnly libDeps.ktCoroutine
-    compileOnly libDeps.kgp
+    compileOnly libDeps.kgp1531
     implementation libDeps.aspectjTools
 
 

@@ -24,10 +24,6 @@ gradlePlugin {
 }
 
 
-repositories {
-    google()
-    mavenCentral()
-}
 
 configurations {
     fatJar
@@ -44,6 +40,11 @@ jar {
     }
 }
 
+repositories {
+    google()
+    mavenCentral()
+}
+
 dependencies {
 
     //fatJar "me.yangxiaobin.plugin:plugin-common-lib"
@@ -52,9 +53,13 @@ dependencies {
     compileOnly libCommon
     fatJar libCommon
 
+    // https://mvnrepository.com/artifact/com.android/zipflinger
+    compileOnly 'com.android:zipflinger:7.2.2'
+    fatJar 'com.android:zipflinger:7.2.2'
+
 
     compileOnly libDeps.agp4
     //compileOnly libDeps.ktCoroutine
-    //compileOnly libDeps.kgp
+    //compileOnly libDeps.kgp1531
 
 }

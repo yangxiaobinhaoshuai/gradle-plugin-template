@@ -8,3 +8,8 @@ ext.local_repo_url = "/Users/yangxiaobin/DevelopSpace/IDEA/gradle-plugin-templat
 ext.kt_plugin_version = "1.5.31"
 
 ext.publish_version = "1.0.1"
+
+def build_versions = [:]
+build_versions.source_compatibility = JavaVersion.VERSION_11
+build_versions.target_compatibility = JavaVersion.VERSION_11
+ext.build_versions = build_versions

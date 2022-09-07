@@ -1,5 +1,5 @@
 plugins {
-    id 'groovy'
+    //id 'groovy'
     id 'java-gradle-plugin'
     id 'org.jetbrains.kotlin.jvm' version'1.5.31'
     id 'maven-publish'
@@ -18,7 +18,8 @@ publishing {
             // rootProject/build/repo
             //url = layout.buildDirectory.dir('repo')
 
-            url "${rootProject.layout.projectDirectory.asFile.getParent()}/Android-Template/local-repo"
+            //url "${rootProject.layout.projectDirectory.asFile.getParent()}/Android-Template/local-repo"
+            url project.local_repo_url
         }
     }
 
@@ -58,20 +59,25 @@ dependencies {
 
     // groovy
     compileOnly gradleApi()
-    compileOnly localGroovy()
-    compileOnly libDeps.groovyAll
+
+    // 不写 Groovy， 暂时不需要
+    //compileOnly localGroovy()
+    //compileOnly libDeps.groovyAll
 
     // asm
     compileOnly libDeps.bundles.asm
 
     // kotlin
     compileOnly libDeps.bundles.kotlinSuit
-    compileOnly libDeps.kgp
+    compileOnly libDeps.kgp1531
 
     // jvm-logger
     // NB. MUST set version when publishing.
     String jvmLogger = "$plugin_group_name:logger-jvm:1.0-SNAPSHOT"
     implementation jvmLogger
+
+    // https://mvnrepository.com/artifact/com.android/zipflinger
+    api 'com.android:zipflinger:7.2.2'
 
     // AGP
     //compileOnly libDeps.agp7

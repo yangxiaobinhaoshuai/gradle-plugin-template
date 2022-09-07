@@ -10,7 +10,8 @@ dependencyResolutionManagement {
 dependencyResolutionManagement {
     versionCatalogs {
         deps {
-            from(files("samples/Android-Template/gradle/libs.versions.toml"))
+            // 不该依赖其他仓库配置
+            //from(files("samples/Android-Template/gradle/libs.versions.toml"))
         }
     }
 }

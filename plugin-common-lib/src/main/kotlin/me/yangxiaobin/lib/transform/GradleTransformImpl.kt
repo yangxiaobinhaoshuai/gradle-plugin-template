@@ -2,10 +2,20 @@ package me.yangxiaobin.lib.transform
 
 import com.android.build.api.transform.TransformInvocation
 import me.yangxiaobin.lib.ext.isClassFile
+import me.yangxiaobin.lib.log.InternalLogger
+import me.yangxiaobin.lib.log.LogAware
+import me.yangxiaobin.lib.log.LogDelegate
 import java.io.File
 
 
-class GradleTransformImpl(private val invocation: TransformInvocation) : TransformAware {
+private const val LOG_TAG = "TransformAwareImpl"
+private val defaultLogDelegate = LogDelegate(InternalLogger, LOG_TAG)
+
+class GradleTransformImpl(
+    private val invocation: TransformInvocation,
+    private val logDelegate: LogAware = defaultLogDelegate,
+) :
+    TransformAware, LogAware by logDelegate {
 
     override fun preTransform() {
         if (!invocation.isIncremental) invocation.outputProvider.deleteAll()
@@ -13,20 +23,21 @@ class GradleTransformImpl(private val invocation: TransformInvocation) : Transfo
 
     override fun doTransform(materials: TransformMaterials) {
 
-        //materials.forEach { println("material : ${it.input} , ${it.output}") }
+        materials.forEach { logI("dispatch material : ${it.input}, ${it.output}.") }
 
         // TODO
         val engine: TransformEngine = ThreadExecutorEngine()
 
         val copyTransformer = FileCopyTransformer()
         val classTransformer = ClassFileTransformer()
+        val jarTransformer = JarFileTransformer()
 
         materials.forEach { entry: TransformEntry ->
             when (entry) {
                 is DeleteTransformEntry -> entry.input.delete()
 
                 is JarTransformEntry -> {
-                    copyTransformer.transform(entry.input, entry.output)
+                    jarTransformer.transform(entry.input, entry.output)
                 }
 
                 is DirTransformEntry -> {

@@ -10,9 +10,11 @@ buildscript {
     }
 
     dependencies {
-        classpath libDeps.kgp
-        classpath libDeps.agp4
-        classpath libDeps.bundles.aspectj
+        classpath libDeps.kgp1531
+        //classpath libDeps.agp4
+        classpath libDeps.agp7
+
+        //classpath libDeps.bundles.aspectj
     }
 }
 
