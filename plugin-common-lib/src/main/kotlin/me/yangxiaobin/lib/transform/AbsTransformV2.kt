@@ -50,7 +50,7 @@ open class AbsTransformV2(private val logDelegate: LogAware) : GradleTransform()
     override fun transform(transformInvocation: TransformInvocation) {
         super.transform(transformInvocation)
 
-        val impl = GradleTransformImpl(transformInvocation)
+        val impl = GradleTransformImpl(transformInvocation, this)
         impl.preTransform()
         impl.doTransform(transformInvocation.toMaterials())
         impl.postTransform()
@@ -61,6 +61,9 @@ open class AbsTransformV2(private val logDelegate: LogAware) : GradleTransform()
      */
     private fun TransformInvocation.toMaterials(): TransformMaterials {
 
+        /**
+         * 获取 jar 文件目标位置
+         */
         fun getDestJar(jarInput: JarInput): File = outputProvider.getContentLocation(
             jarInput.name,
             jarInput.contentTypes,
@@ -68,6 +71,9 @@ open class AbsTransformV2(private val logDelegate: LogAware) : GradleTransform()
             Format.JAR
         )
 
+        /**
+         * 获取 DirInput 目标目录
+         */
         fun getDestDir(directoryInput: DirectoryInput): File = outputProvider.getContentLocation(
             directoryInput.name,
             directoryInput.contentTypes,
@@ -76,6 +82,9 @@ open class AbsTransformV2(private val logDelegate: LogAware) : GradleTransform()
         )
 
 
+        /**
+         * 获取 DirInput 子文件的目的文件
+         */
         fun DirectoryInput.getDestFile(inputFile: File): File = File(getDestDir(this), inputFile.relativeTo(this.file).path)
 
 
@@ -110,7 +119,6 @@ open class AbsTransformV2(private val logDelegate: LogAware) : GradleTransform()
                         }
 
                 }.flatten().toList()
-
 
             jarsEntries + dirEntries
 

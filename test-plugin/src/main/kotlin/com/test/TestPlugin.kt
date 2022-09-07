@@ -1,5 +1,6 @@
 package com.test
 
+import com.android.build.api.transform.TransformInvocation
 import me.yangxiaobin.lib.BasePlugin
 import me.yangxiaobin.lib.ext.neatName
 import me.yangxiaobin.lib.ext.requireAppExtension
@@ -28,7 +29,12 @@ class TestTransformV2(logDelegate: LogAware) : AbsTransformV2(logDelegate) {
 
     override val LOG_TAG: String get() = "TestTransformV2"
 
-    override fun isIncremental() = false
+    override fun isIncremental() = true
+
+    override fun transform(transformInvocation: TransformInvocation) {
+        logI("TestTransformV2 isIncremental: $isIncremental.")
+        super.transform(transformInvocation)
+    }
 }
 
 

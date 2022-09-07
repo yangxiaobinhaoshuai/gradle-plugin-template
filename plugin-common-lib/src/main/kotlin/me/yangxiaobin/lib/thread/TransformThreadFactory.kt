@@ -27,5 +27,4 @@ class TransformThreadFactory : ThreadFactory, LogAware by LogDelegate(InternalLo
 
         return t
     }
-
 }

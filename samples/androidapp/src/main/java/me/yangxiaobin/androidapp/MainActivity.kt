@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.commit
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -37,6 +38,7 @@ class MainActivity : AppCompatActivity() {
         rv.adapter = RvAdapter(fakeList)
         rv.layoutManager = LinearLayoutManager(this)
         rv.addItemDecoration(DividerItemDecoration(this, RecyclerView.VERTICAL))
+        Toast.makeText(this,"abc",Toast.LENGTH_SHORT).show()
     }
 }
 

@@ -14,8 +14,7 @@ private val defaultLogDelegate = LogDelegate(InternalLogger, LOG_TAG)
 class GradleTransformImpl(
     private val invocation: TransformInvocation,
     private val logDelegate: LogAware = defaultLogDelegate,
-) :
-    TransformAware, LogAware by logDelegate {
+) : TransformAware, LogAware by logDelegate {
 
     override fun preTransform() {
         if (!invocation.isIncremental) invocation.outputProvider.deleteAll()
@@ -23,7 +22,7 @@ class GradleTransformImpl(
 
     override fun doTransform(materials: TransformMaterials) {
 
-        materials.forEach { logI("dispatch material : ${it.input}, ${it.output}.") }
+        //materials.forEach { logI("dispatch material : ${it.input}, ${it.output}.") }
 
         // TODO
         val engine: TransformEngine = ThreadExecutorEngine()
@@ -33,12 +32,12 @@ class GradleTransformImpl(
         val jarTransformer = JarFileTransformer()
 
         materials.forEach { entry: TransformEntry ->
-            when (entry) {
-                is DeleteTransformEntry -> entry.input.delete()
 
-                is JarTransformEntry -> {
-                    jarTransformer.transform(entry.input, entry.output)
-                }
+            when (entry) {
+
+                is DeleteTransformEntry -> entry.output.delete()
+
+                is JarTransformEntry -> jarTransformer.transform(entry.input, entry.output)
 
                 is DirTransformEntry -> {
                    // copyTransformer.transform(entry.input, entry.output)
@@ -57,8 +56,7 @@ class GradleTransformImpl(
                         """.trimIndent()
                         )*/
 
-                        if (f.isClassFile()) classTransformer.transform(f, outputFile)
-                        else copyTransformer.transform(f, outputFile)
+                        if (f.isClassFile()) classTransformer.transform(f, outputFile) else copyTransformer.transform(f, outputFile)
 
                     }
                 }

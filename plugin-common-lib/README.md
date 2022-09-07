@@ -16,3 +16,10 @@
 改动这里代码，需要 publishToMavenLocal 之后才会生效
 
 > gradle :logger-jvm:publishToMavenLocal  :plugin-common-lib:publishToMavenLocal -s
+
+
+### TODO
+1. 多线程处理 Jar
+2. 多 gradle plugin 合并 Transform
+3. 抽象 byteArray 处理 Pipeline
+4. 支持 ClassGraph

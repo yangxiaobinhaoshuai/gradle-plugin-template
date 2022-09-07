@@ -160,10 +160,12 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
                 Format.DIRECTORY
             )
 
+            val rootDir: File = directoryInput.file
+
             if (invocation.isIncremental) {
                 directoryInput.changedFiles.forEach { (changedFile: File, status: Status) ->
 
-                    val outputFile = toOutputFile(outputDir, directoryInput.file, changedFile)
+                    val outputFile = toOutputFile(outputDir, rootDir, changedFile)
 
                     when (status) {
                         Status.ADDED, Status.CHANGED -> transportClassFile(changedFile, outputFile.parentFile)
@@ -174,10 +176,9 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
                     }
                 }
             } else {
-                val rootFile: File = directoryInput.file
 
-                rootFile.walkTopDown().forEach { file ->
-                    val outputFile = toOutputFile(outputDir, rootFile, file)
+                rootDir.walkTopDown().forEach { file ->
+                    val outputFile = toOutputFile(outputDir, rootDir, file)
                     transportClassFile(file, outputFile)
                 }
             }

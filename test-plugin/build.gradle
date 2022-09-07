@@ -54,8 +54,8 @@ dependencies {
     fatJar libCommon
 
     // https://mvnrepository.com/artifact/com.android/zipflinger
-    compileOnly 'com.android:zipflinger:7.2.2'
-    fatJar 'com.android:zipflinger:7.2.2'
+//    compileOnly 'com.android:zipflinger:7.2.2'
+//    fatJar 'com.android:zipflinger:7.2.2'
 
 
     compileOnly libDeps.agp4
