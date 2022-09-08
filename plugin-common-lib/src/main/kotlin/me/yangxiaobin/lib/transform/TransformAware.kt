@@ -2,6 +2,8 @@ package me.yangxiaobin.lib.transform
 
 import me.yangxiaobin.lib.TransformAction
 import java.io.File
+import kotlin.reflect.KFunction0
+import kotlin.reflect.KFunction1
 
 typealias TransformMaterials = Collection<TransformEntry>
 
@@ -48,4 +50,12 @@ interface FileTypeTransformer : TypeTransformer<File> {
 interface ClassByteTypeTransformer : TypeTransformer<ByteArray> {
 
     override fun syncTransform(input: ByteArray, output: ByteArray)
+
+    fun transform(input: ByteArray): ByteArray
 }
+
+fun interface ByteArrayConverter {
+    fun transform(input: ByteArray): ByteArray
+}
+
+open class ByteArrayConverterDelegate(delegate: ByteArrayConverter) : ByteArrayConverter by delegate

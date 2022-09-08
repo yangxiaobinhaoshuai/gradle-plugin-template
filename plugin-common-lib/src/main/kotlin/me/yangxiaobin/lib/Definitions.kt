@@ -1,5 +1,7 @@
 package me.yangxiaobin.lib
 
+import java.util.concurrent.Callable
+
 typealias GradleTransform = com.android.build.api.transform.Transform
 
 typealias GradleTransformStatus = com.android.build.api.transform.Status
@@ -11,18 +13,20 @@ typealias JUCExecutor = java.util.concurrent.Executor
 typealias JUCExecutorService = java.util.concurrent.ExecutorService
 
 
-typealias ActionLambda = () -> Unit
+typealias TypedActionLambda<T> = () -> T
 
-fun interface Action : Runnable, ActionLambda {
+fun interface TypedAction<T> : Callable<T> ,TypedActionLambda<T>{
 
-    override fun run()
-
-    override fun invoke() {
-        run()
-    }
+    override fun call(): T = invoke()
 }
 
-val EMPTY_ACTION: Action = Action {}
+fun interface Action : TypedAction<Unit>, Runnable {
 
-// Alias
+    override fun call() = run()
+
+    override fun run() = invoke()
+}
+
 typealias TransformAction = Action
+
+typealias TypedTransformAction<T> = TypedAction<T>

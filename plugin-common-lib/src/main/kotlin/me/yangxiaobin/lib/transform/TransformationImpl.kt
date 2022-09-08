@@ -2,6 +2,8 @@ package me.yangxiaobin.lib.transform
 
 import com.android.zipflinger.BytesSource
 import com.android.zipflinger.ZipArchive
+import me.yangxiaobin.lib.*
+import me.yangxiaobin.lib.executor.InternalExecutor
 import me.yangxiaobin.lib.ext.safeCopyTo
 import me.yangxiaobin.lib.ext.touch
 import me.yangxiaobin.lib.log.InternalLogger
@@ -12,6 +14,7 @@ import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.Opcodes
 import java.io.File
+import java.util.concurrent.Executor
 import java.util.zip.Deflater
 
 private const val LOG_TAG = "Transformer"
@@ -38,7 +41,7 @@ class ClassFileTypeTransformer(private val logDelegate: LogAware = defaultLogDel
 
         //logI("class transformed from: $input into: $out.")
 
-        val cr = ClassReader(input.readBytes())
+       /* val cr = ClassReader(input.readBytes())
 
         val cw = ClassWriter(ClassWriter.COMPUTE_MAXS)
 
@@ -60,7 +63,11 @@ class ClassFileTypeTransformer(private val logDelegate: LogAware = defaultLogDel
         cr.accept(cv,  ClassReader.EXPAND_FRAMES)
         val bs = cw.toByteArray()
 
+        output.touch().writeBytes(bs)*/
+
+        val bs = TransformRegistry.getFoldConverter().transform(input.readBytes())
         output.touch().writeBytes(bs)
+
     }
 
 }
@@ -68,25 +75,38 @@ class ClassFileTypeTransformer(private val logDelegate: LogAware = defaultLogDel
 /**
  * Android zipFlinger doc : https://android.googlesource.com/platform/tools/base/+/refs/heads/mirror-goog-studio-master-dev/zipflinger/
  */
-class JarFileTypeTransformer(private val logDelegate: LogAware = defaultLogDelegate) : FileTypeTransformer,
-    LogAware by logDelegate {
+class JarFileTypeTransformer(
+    private val logDelegate: LogAware = defaultLogDelegate,
+    private val executor: JUCExecutorService = InternalExecutor.fixed,
+) : FileTypeTransformer, LogAware by logDelegate {
 
     override fun syncTransform(input: File, output: File) {
 
         //logI("jar transformed from: $input into: $output.")
 
-        val inputZipArchive = ZipArchive(input)
-        val outputZipArchive = ZipArchive(output)
+        val inputZipArchive = ZipArchive(input.toPath())
+        val outputZipArchive = ZipArchive(output.toPath())
 
-        inputZipArchive.listEntries()
-            .forEach { entryName->
+        val byteArrayList: List<Pair<ByteArray, String>> = inputZipArchive.listEntries()
+            .map { entryName ->
 
                 val bf = inputZipArchive.getContent(entryName)
                 val bs = ByteArray(bf.remaining())
                 bf.get(bs)
 
+                TypedTransformAction {
+                    //TODO
+                    //println("zip task entry :$entryName executed in thread :${Thread.currentThread().name}.")
+                    TransformRegistry.getFoldConverter().transform(bs) } to entryName
+            }
+            .map { executor.submit(it.first).get() to it.second }
+
+
+        executor.submit {
+            byteArrayList.forEach { (bs, entryName) ->
                 outputZipArchive.add(BytesSource(bs, entryName, Deflater.NO_COMPRESSION))
             }
+        }.get()
 
         inputZipArchive.close()
         outputZipArchive.close()

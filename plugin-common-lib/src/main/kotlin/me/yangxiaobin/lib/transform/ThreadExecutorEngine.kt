@@ -13,7 +13,8 @@ class ThreadExecutorEngine(private val executor: JUCExecutorService = InternalEx
     override fun submitTransformAction(transformActions: List<Action>) {
 
         val map: List<Callable<Unit>> = transformActions.map { Callable {
-            println("---> task :${this.neatName} executed in :${Thread.currentThread().name}.")
+            // TODO
+            //println("---> task :${this.neatName} executed in :${Thread.currentThread().name}.")
             it.invoke()
         } }
 
