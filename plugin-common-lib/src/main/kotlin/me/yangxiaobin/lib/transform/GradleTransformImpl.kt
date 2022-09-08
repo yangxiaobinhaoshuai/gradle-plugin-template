@@ -1,6 +1,7 @@
 package me.yangxiaobin.lib.transform
 
 import com.android.build.api.transform.TransformInvocation
+import me.yangxiaobin.lib.TransformAction
 import me.yangxiaobin.lib.ext.isClassFile
 import me.yangxiaobin.lib.log.InternalLogger
 import me.yangxiaobin.lib.log.LogAware
@@ -26,51 +27,53 @@ class GradleTransformImpl(
 
         val engine: TransformEngine = ThreadExecutorEngine()
 
-        val copyTransformer = FileCopyTransformer()
-        val classTransformer = ClassFileTransformer()
-        val jarTransformer = JarFileTransformer()
+        val actions = mapEntryToAction(materials)
 
-        val actions: List<me.yangxiaobin.lib.Action> = materials.map { entry: TransformEntry ->
+        engine.submitTransformAction(actions)
+    }
+
+    private fun mapEntryToAction(materials: TransformMaterials): List<TransformAction> {
+
+        val copyTransformer = FileCopyTypeTransformer(logDelegate)
+        val classTransformer = ClassFileTypeTransformer(logDelegate)
+        val jarTransformer = JarFileTypeTransformer(logDelegate)
+
+        val actions: List<TransformAction> = materials.map { entry: TransformEntry ->
 
             when (entry) {
 
-                is DeleteTransformEntry -> listOf(me.yangxiaobin.lib.Action { entry.output.delete() })
+                is DeleteTransformEntry -> listOf(TransformAction { entry.output.delete() })
 
-                is JarTransformEntry -> listOf(me.yangxiaobin.lib.Action { jarTransformer.transform(entry.input, entry.output) })
+                is JarTransformEntry -> listOf(TransformAction { jarTransformer.syncTransform(entry.input, entry.output) })
 
                 is DirTransformEntry -> {
-                   // copyTransformer.transform(entry.input, entry.output)
-                    entry.input.walkTopDown().map { f: File ->
 
-                        val outputFile = File(entry.output, f.relativeTo(entry.input).path)
+                    entry.input.walkTopDown().map { childFile: File ->
+
+                        val outputFile = File(entry.output, childFile.relativeTo(entry.input).path)
 
                         /*println(
                             """
-                            walk down, cur file :$f
+                            walk down, cur file :$childFile
                             entry input :${entry.input}
                             entry output: ${entry.output}
-                            relativePath: ${f.relativeTo(entry.output).path}
+                            relativePath: ${childFile.relativeTo(entry.output).path}
                             output: $outputFile
                             ${"\r\n"}
                         """.trimIndent()
                         )*/
 
-                        if (f.isClassFile()) me.yangxiaobin.lib.Action { classTransformer.transform(f, outputFile) }
-                        else me.yangxiaobin.lib.Action { copyTransformer.transform(f, outputFile) }
+                        if (childFile.isClassFile()) TransformAction { classTransformer.syncTransform(childFile, outputFile) }
+                        else TransformAction { copyTransformer.syncTransform(childFile, outputFile) }
 
                     }.toList()
+
                 }
             }
         }.flatten()
 
-        engine.submitTransformEntry(actions)
-    }
+        return actions
 
-    private fun dispatchMaterials(materials: TransformMaterials) {
-
-        materials.filterIsInstance<JarTransformEntry>()
-
-        materials.filterIsInstance<DirTransformEntry>()
     }
 
     override fun postTransform() {

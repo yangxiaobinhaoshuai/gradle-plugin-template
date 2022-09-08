@@ -23,3 +23,6 @@ fun interface Action : Runnable, ActionLambda {
 }
 
 val EMPTY_ACTION: Action = Action {}
+
+// Alias
+typealias TransformAction = Action

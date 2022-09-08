@@ -10,8 +10,9 @@ import java.util.concurrent.Future
 class ThreadExecutorEngine(private val executor: JUCExecutorService = InternalExecutor.fixed) :
     TransformEngine {
 
-    override fun submitTransformEntry(transformers: List<Action>) {
-        val map: List<Callable<Unit>> = transformers.map { Callable {
+    override fun submitTransformAction(transformActions: List<Action>) {
+
+        val map: List<Callable<Unit>> = transformActions.map { Callable {
             println("---> task :${this.neatName} executed in :${Thread.currentThread().name}.")
             it.invoke()
         } }

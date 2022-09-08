@@ -31,10 +31,10 @@ private val defaultLogDelegate = LogDelegate(InternalLogger, LOG_TAG)
  * Empty class
  *          /Users/yangxiaobin/DevelopSpace/IDEA/gradle-plugin-template/samples/androidapp/build/intermediates/transforms/TestTransformV2/debug/1/me/yangxiaobin/androidapp/aspect/JavaAspect.class
  */
-class ClassFileTransformer(private val logDelegate: LogAware = defaultLogDelegate) : FileTransformer,
+class ClassFileTypeTransformer(private val logDelegate: LogAware = defaultLogDelegate) : FileTypeTransformer,
     LogAware by logDelegate {
 
-    override fun transform(input: File, output: File) {
+    override fun syncTransform(input: File, output: File) {
 
         //logI("class transformed from: $input into: $out.")
 
@@ -68,12 +68,12 @@ class ClassFileTransformer(private val logDelegate: LogAware = defaultLogDelegat
 /**
  * Android zipFlinger doc : https://android.googlesource.com/platform/tools/base/+/refs/heads/mirror-goog-studio-master-dev/zipflinger/
  */
-class JarFileTransformer(private val logDelegate: LogAware = defaultLogDelegate) : FileTransformer,
+class JarFileTypeTransformer(private val logDelegate: LogAware = defaultLogDelegate) : FileTypeTransformer,
     LogAware by logDelegate {
 
-    override fun transform(input: File, output: File) {
+    override fun syncTransform(input: File, output: File) {
 
-        logI("jar transformed from: $input into: $output.")
+        //logI("jar transformed from: $input into: $output.")
 
         val inputZipArchive = ZipArchive(input)
         val outputZipArchive = ZipArchive(output)
@@ -94,10 +94,10 @@ class JarFileTransformer(private val logDelegate: LogAware = defaultLogDelegate)
 
 }
 
-class FileCopyTransformer(private val logDelegate: LogAware = defaultLogDelegate) : FileTransformer,
+class FileCopyTypeTransformer(private val logDelegate: LogAware = defaultLogDelegate) : FileTypeTransformer,
     LogAware by logDelegate {
 
-    override fun transform(input: File, output: File) {
+    override fun syncTransform(input: File, output: File) {
         input.safeCopyTo(output)
         //.also { logI("copy from: $input into: $out.") }
     }
