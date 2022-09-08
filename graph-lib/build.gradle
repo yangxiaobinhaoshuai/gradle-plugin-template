@@ -1,0 +1,17 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version'1.5.31'
+}
+
+apply from: "$rootDir.parentFile/gradle/globalDefinitions.gradle"
+
+group = plugin_group_name
+
+version '1.0.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+}
