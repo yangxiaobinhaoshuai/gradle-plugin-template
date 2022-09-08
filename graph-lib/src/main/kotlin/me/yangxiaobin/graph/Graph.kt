@@ -32,6 +32,8 @@ interface Graph<VERTEX, EDGE> {
 
     fun adjacentVertexes(vertex: VERTEX): Iterable<VERTEX>
 
+    fun removeVertex(vertex: VERTEX)
+
     /**
      * 邻接表的字符串表示
      */

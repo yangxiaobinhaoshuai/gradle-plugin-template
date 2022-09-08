@@ -17,7 +17,6 @@ interface DiEdge<V> : Edge<V> {
 
 interface DiGraph<V, E> : Graph<V, E> {
 
-
     fun inAdjVertexes(vertex: V): Iterable<V>
 
     fun outAdjVertexes(vertex: V): Iterable<V>

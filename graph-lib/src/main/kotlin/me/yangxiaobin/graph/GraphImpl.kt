@@ -27,6 +27,16 @@ open class GraphImpl<V, E : Edge<V>>(initialSize: Int = 128) : Graph<V, E> {
 
     override fun adjacentVertexes(vertex: V): Iterable<V> = adjacencyMap.getOrDefault(vertex, mutableSetOf())
 
+    override fun removeVertex(vertex: V) {
+        if (vertex == null) return
+
+        adjacencyMap.remove(vertex)
+        adjacencyMap.forEach { (t: V, u: MutableSet<V>) ->
+            adjacencyMap[t] = u.filterNot { it == vertex }.toMutableSet()
+        }
+
+    }
+
     override fun toAdjString(): String {
         return super.toAdjString()
     }
