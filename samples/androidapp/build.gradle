@@ -2,8 +2,8 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'kotlin-android-extensions'
-    id 'test-plugin'
-    id 'test-A-plugin'
+//    id 'test-plugin'
+//    id 'test-A-plugin'
     //id 'aspect-android'
     //id 'aspectj4Android'
 }
