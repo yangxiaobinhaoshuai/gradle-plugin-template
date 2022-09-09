@@ -6,6 +6,7 @@ import me.yangxiaobin.lib.TransformRegistry
 import me.yangxiaobin.lib.ext.requireAppExtension
 import me.yangxiaobin.lib.log.LogAware
 import me.yangxiaobin.lib.transform.AbsTransformV2
+import me.yangxiaobin.lib.transform_v3.BaseTransformV3
 import org.gradle.api.Project
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassVisitor
@@ -21,6 +22,14 @@ class TestATransform(logDelegate: LogAware) : AbsTransformV2(logDelegate) {
 
 }
 
+class TestATransformV3(logDelegate: LogAware) : BaseTransformV3(logDelegate){
+
+    override fun transform(transformInvocation: TransformInvocation) {
+        super.transform(transformInvocation)
+        logI("TestATransformV3 isIncremental: $isIncremental.")
+    }
+}
+
 class TestAPlugin : BasePlugin() {
 
     override fun apply(p: Project) {
@@ -28,7 +37,8 @@ class TestAPlugin : BasePlugin() {
         logI("Applied Test A Plugin.")
 
         afterEvaluate {
-            this.requireAppExtension.registerTransform(TestATransform(this@TestAPlugin))
+            //this.requireAppExtension.registerTransform(TestATransform(this@TestAPlugin))
+            this.requireAppExtension.registerTransform(TestATransformV3(this@TestAPlugin))
             TransformRegistry.register{
                 val cr = ClassReader(it)
 

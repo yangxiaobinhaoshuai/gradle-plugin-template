@@ -9,6 +9,7 @@ import me.yangxiaobin.lib.log.LogAware
 import java.io.File
 
 
+@Deprecated("See BaseTransformV3")
 open class AbsTransformV2(private val logDelegate: LogAware) : GradleTransform(), LogAware by logDelegate {
 
     override val LOG_TAG: String get() = "AbsTransformV2"

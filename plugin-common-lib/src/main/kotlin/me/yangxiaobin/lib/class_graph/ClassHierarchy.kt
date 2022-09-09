@@ -1,7 +1,6 @@
 package me.yangxiaobin.lib.class_graph
 
 import me.yangxiaobin.graph.*
-import javax.xml.soap.Node
 
 
 @Suppress("ArrayInDataClass")
@@ -50,7 +49,7 @@ class ClassHierarchyGraph : DiGraphImpl<ClassInfo, ClassNode, ClassEdge>() {
         return emptyList()
     }
 
-    fun getSuperNodes(node: ClassNode): List<Node> {
+    fun getSuperNodes(node: ClassNode): List<ClassNode> {
 
         return emptyList()
     }
