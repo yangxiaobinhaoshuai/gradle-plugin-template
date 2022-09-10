@@ -1,8 +1,8 @@
 import org.gradle.api.initialization.resolve.RepositoriesMode
 
 pluginManagement {
+    apply from: "${System.getProperty("user.dir")}/gradle/globalDefinitions.gradle"
     repositories {
-        apply from: "${System.getProperty("user.dir")}/gradle/globalDefinitions.gradle"
         // For plugin dependencies.
         maven { url local_repo_url }
         gradlePluginPortal()
@@ -30,13 +30,13 @@ dependencyResolutionManagement {
 rootProject.name = 'AGPCodelab'
 
 // JVM base libs
-//includeBuild 'logger-jvm'
+includeBuild 'logger-jvm'
 includeBuild 'graph-lib'
 
 // Java Apps
 //include ':samples:app'
 // Android app
-include ':samples:androidapp'
+//include ':samples:androidapp'
 
 //include ':apt:annotation'
 //include ':apt:annotation-processor'

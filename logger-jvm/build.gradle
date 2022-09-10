@@ -13,6 +13,8 @@ group = plugin_group_name
 java {
     withJavadocJar()
     withSourcesJar()
+    sourceCompatibility = build_versions.source_compatibility
+    targetCompatibility = build_versions.source_compatibility
 }
 
 // gradle publishJvmLoggerPublicationToMavenRepository
