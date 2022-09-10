@@ -27,7 +27,7 @@ class SimpleAssembleFormatter : DiskLogFormatter{
         val message = info.message
         val level = info.level
 
-        val logString = "$dateString|$pid|$tid $threadName|$level|$tag|$message$CARRIAGE_RETURN"
+        val logString = "$dateString|$pid|$tid($threadName)|$level|$tag|$message$CARRIAGE_RETURN"
 
         return logString.toByteArray()
     }
