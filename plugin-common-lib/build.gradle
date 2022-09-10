@@ -96,10 +96,11 @@ dependencies {
     // NB. MUST set version when publishing.
 //    String jvmLogger = "$plugin_group_name:logger-jvm:1.0-SNAPSHOT"
 //    implementation jvmLogger
-    implementation "me.yangxiaobin.jvm:logger:1.0-SNAPSHOT"
+    //implementation "me.yangxiaobin.gradle.plugin:logger:1.0-SNAPSHOT"
+    implementation libDeps.jvmLogger
 
-    String graphLib = "$plugin_group_name:graph-lib:1.0.0-SNAPSHOT"
-    implementation graphLib
+//    String graphLib = "$plugin_group_name:graph-lib:1.0.0-SNAPSHOT"
+//    implementation graphLib
 
     // https://mvnrepository.com/artifact/com.android/zipflinger
     implementation 'com.android:zipflinger:7.2.2'

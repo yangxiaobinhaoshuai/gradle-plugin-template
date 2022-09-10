@@ -79,6 +79,6 @@ dependencies {
     //def jvmLogger = "$plugin_group_name:logger-jvm:1.0.0-SNAPSHOT"
     //implementation jvmLogger
     //implementation project(":logger-jvm")
-    implementation "me.yangxiaobin.jvm:logger:1.0-SNAPSHOT"
+    implementation libDeps.jvmLogger
 
 }

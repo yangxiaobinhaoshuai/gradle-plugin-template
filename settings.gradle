@@ -30,8 +30,8 @@ dependencyResolutionManagement {
 rootProject.name = 'AGPCodelab'
 
 // JVM base libs
-includeBuild 'logger-jvm'
-includeBuild 'graph-lib'
+//includeBuild 'logger-jvm'
+//includeBuild 'graph-lib'
 
 // Java Apps
 //include ':samples:app'
