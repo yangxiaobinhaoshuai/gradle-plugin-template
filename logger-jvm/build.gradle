@@ -17,6 +17,7 @@ java {
     targetCompatibility = build_versions.source_compatibility
 }
 
+// 因为工件时间戳，需要删除之前的目录
 // gradle publishJvmLoggerPublicationToMavenRepository
 publishing {
 
@@ -35,7 +36,7 @@ publishing {
     // mvn coordinate : "me.yangxiaobin.jvm:logger:1.0-SNAPSHOT"
     publications {
         jvmLogger(MavenPublication) {
-            groupId = 'me.yangxiaobin.jvm'
+            groupId = plugin_group_name
             artifactId = 'logger'
             version = '1.0-SNAPSHOT'
 

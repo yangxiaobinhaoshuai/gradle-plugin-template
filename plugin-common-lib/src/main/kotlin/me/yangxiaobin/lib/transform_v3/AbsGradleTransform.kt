@@ -1,10 +1,15 @@
 package me.yangxiaobin.lib.transform_v3
 
+import com.android.build.api.transform.Format
+import com.android.build.api.transform.JarInput
 import com.android.build.api.transform.QualifiedContent
+import com.android.build.api.transform.TransformInvocation
+import com.android.build.api.transform.TransformOutputProvider
 import com.android.build.api.variant.VariantInfo
 import me.yangxiaobin.lib.GradleTransform
 import me.yangxiaobin.lib.ext.neatName
 import me.yangxiaobin.lib.log.LogAware
+import java.io.File
 
 open class AbsGradleTransform(private val logDelegate: LogAware) : GradleTransform(), LogAware by logDelegate {
 
@@ -42,5 +47,17 @@ open class AbsGradleTransform(private val logDelegate: LogAware) : GradleTransfo
 
     @Suppress("UnstableApiUsage")
     override fun applyToVariant(variant: VariantInfo?): Boolean = super.applyToVariant(variant)
+
+    override fun transform(transformInvocation: TransformInvocation) {
+        super.transform(transformInvocation)
+    }
+
+    protected fun getInputJarDestFile(jar: File, outputProvider: TransformOutputProvider): File {
+        return outputProvider.getContentLocation(jar.name, inputTypes, scopes, Format.JAR)
+    }
+
+    protected fun getInputDirDestDir(dir: File, outputProvider: TransformOutputProvider): File {
+        return outputProvider.getContentLocation(dir.name, inputTypes, scopes, Format.DIRECTORY)
+    }
 
 }
