@@ -7,3 +7,4 @@
 
 
 ### 编译问题
+- compile / target sdk version 和 工件版本都不要升级

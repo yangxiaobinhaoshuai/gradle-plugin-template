@@ -63,7 +63,7 @@ class TestPlugin : BasePlugin() {
         afterEvaluate {
             //p.requireAppExtension.registerTransform(TestLegacyTransform(p))
             logI("registered transform")
-            p.requireAppExtension.registerTransform(TestTransformV2(this@TestPlugin))
+            //p.requireAppExtension.registerTransform(TestTransformV2(this@TestPlugin))
         }
     }
 }

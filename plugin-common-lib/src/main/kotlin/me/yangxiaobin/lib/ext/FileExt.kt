@@ -3,11 +3,10 @@ package me.yangxiaobin.lib.ext
 import me.yangxiaobin.lib.asm.constant.DOT_CLASS
 import me.yangxiaobin.lib.asm.constant.EXT_CLASS
 import me.yangxiaobin.lib.asm.constant.EXT_JAR
-import me.yangxiaobin.lib.log.InternalLogger
-import org.apache.commons.compress.archivers.zip.ParallelScatterZipCreator
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntry
-import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream
-import org.apache.commons.compress.parallel.InputStreamSupplier
+import org.gradle.internal.impldep.org.apache.commons.compress.archivers.zip.ParallelScatterZipCreator
+import org.gradle.internal.impldep.org.apache.commons.compress.archivers.zip.ZipArchiveEntry
+import org.gradle.internal.impldep.org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream
+import org.gradle.internal.impldep.org.apache.commons.compress.parallel.InputStreamSupplier
 import java.io.File
 import java.io.InputStream
 import java.util.zip.ZipEntry
@@ -19,7 +18,7 @@ import java.util.zip.ZipOutputStream
  */
 
 /* Checks if a file is a .class file. */
-fun File.isClassFile() = this.isFile && this.extension == EXT_CLASS
+fun File.isClassFile() = this.isFile && !this.isDirectory && this.extension == EXT_CLASS
 
 /* Checks if a Zip entry is a .class file. */
 fun ZipEntry.isClassFile() = !this.isDirectory && this.name.endsWith(DOT_CLASS)
@@ -42,7 +41,12 @@ fun File.renamed(newName: String): File {
     return newFile
 }
 
-fun File.touch() = apply {
+
+//private val rwLock = ReadWriteLock()
+/**
+ * Not thread safe
+ */
+fun File.touch(): File = apply {
     if (!this.exists()) {
         this.parentFile?.mkdirs()
         this.createNewFile()

@@ -23,7 +23,7 @@ class TransformThreadFactory : ThreadFactory, LogAware by LogDelegate(InternalLo
         val thdName = "$poolPrefix$threadPrefix${threadCounter.getAndIncrement()}"
         val t = Thread(r, thdName)
 
-        logV("Thread : $thdName created int TTF Factory.")
+        //logV("Thread : $thdName created int TTF Factory.")
 
         return t
     }

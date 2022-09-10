@@ -1,0 +1,5 @@
+
+
+- publish libs   :logger-jvm:publishToMavenLocal  :plugin-common-lib:publishToMavenLocal -s --rerun-tasks
+
+- androidApp transform :   :samples:androidapp:transformClassesWithTestATransformV3ForDebug -s --rerun-tasks

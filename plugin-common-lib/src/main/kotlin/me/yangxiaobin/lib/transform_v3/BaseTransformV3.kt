@@ -4,7 +4,6 @@ import com.android.build.api.transform.*
 import me.yangxiaobin.lib.GradleTransformStatus
 import me.yangxiaobin.lib.ext.isJarFile
 import me.yangxiaobin.lib.log.LogAware
-import me.yangxiaobin.lib.log.LogDelegate
 import java.io.File
 
 open class BaseTransformV3(d: LogAware) : AbsGradleTransform(d) {
@@ -58,13 +57,21 @@ open class BaseTransformV3(d: LogAware) : AbsGradleTransform(d) {
             context.inputs.flatMap { it.jarInputs + it.directoryInputs }
                 .map(QualifiedContent::getFile)
                 .map {
-                    val destFile = if (it.isJarFile()) outputProvider.getDestJarFile(it.name) else outputProvider.getDestDirFile(it.name)
+
+                    val destFile = if (it.isJarFile())
+                        outputProvider.getDestJarFile(it.name)
+                    else
+                        outputProvider.getDestDirFile(it.name)
+
                     ChangedFileTicket(it, destFile)
                 }
         }
 
-        TransformTicketImpl.takeTickets(tickets)
+        logI("tickets :$tickets")
+
+        //TransformTicketImpl.takeTickets(tickets)
     }
+
 
     private fun TransformOutputProvider.getDestJarFile(rawJarName: String): File = this.getContentLocation(rawJarName, inputTypes, scopes, Format.JAR)
 

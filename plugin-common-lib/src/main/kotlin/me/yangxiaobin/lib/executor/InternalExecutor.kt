@@ -12,7 +12,12 @@ object InternalExecutor {
 
     val defaultThdFactory: ThreadFactory by lazy { TransformThreadFactory() }
 
+    val single: ExecutorService by lazy { Executors.newSingleThreadExecutor(defaultThdFactory) }
+
     val fixed: ExecutorService by lazy { Executors.newFixedThreadPool(CPU_COUNT * 2, defaultThdFactory) }
 
     val forkJoin: ForkJoinPool by lazy { ForkJoinPool.commonPool() }
+
+    fun createSingle(): ExecutorService = Executors.newSingleThreadExecutor(defaultThdFactory)
+    fun createFixed(count:Int): ExecutorService = Executors.newFixedThreadPool(count, defaultThdFactory)
 }

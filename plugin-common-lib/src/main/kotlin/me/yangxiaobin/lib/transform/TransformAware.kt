@@ -2,8 +2,6 @@ package me.yangxiaobin.lib.transform
 
 import me.yangxiaobin.lib.TransformAction
 import java.io.File
-import kotlin.reflect.KFunction0
-import kotlin.reflect.KFunction1
 
 typealias TransformMaterials = Collection<TransformEntry>
 

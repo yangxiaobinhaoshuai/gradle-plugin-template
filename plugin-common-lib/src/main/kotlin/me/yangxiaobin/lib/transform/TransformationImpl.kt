@@ -9,12 +9,7 @@ import me.yangxiaobin.lib.ext.touch
 import me.yangxiaobin.lib.log.InternalLogger
 import me.yangxiaobin.lib.log.LogAware
 import me.yangxiaobin.lib.log.LogDelegate
-import org.objectweb.asm.ClassReader
-import org.objectweb.asm.ClassVisitor
-import org.objectweb.asm.ClassWriter
-import org.objectweb.asm.Opcodes
 import java.io.File
-import java.util.concurrent.Executor
 import java.util.zip.Deflater
 
 private const val LOG_TAG = "Transformer"

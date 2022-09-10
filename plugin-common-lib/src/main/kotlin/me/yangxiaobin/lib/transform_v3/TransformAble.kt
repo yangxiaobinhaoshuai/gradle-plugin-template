@@ -1,17 +1,14 @@
 package me.yangxiaobin.lib.transform_v3
 
-import com.android.zipflinger.BytesSource
 import com.android.zipflinger.ZipArchive
 import me.yangxiaobin.lib.JUCExecutorService
-import me.yangxiaobin.lib.TransformRegistry
 import me.yangxiaobin.lib.executor.InternalExecutor
-import me.yangxiaobin.lib.ext.isClassFile
-import me.yangxiaobin.lib.ext.isJarFile
-import me.yangxiaobin.lib.ext.safeCopyTo
-import me.yangxiaobin.lib.ext.touch
+import me.yangxiaobin.lib.ext.*
+import me.yangxiaobin.lib.log.InternalLogger
+import me.yangxiaobin.lib.log.LogAware
+import me.yangxiaobin.lib.log.LogDelegate
 import java.io.File
-import java.util.concurrent.Callable
-import java.util.zip.Deflater
+import java.nio.ByteBuffer
 
 
 sealed interface TransformTicket {
@@ -19,10 +16,26 @@ sealed interface TransformTicket {
     val to: File
     operator fun component1() = from
     operator fun component2() = to
+
+    fun clone(from: File, to: File):TransformTicket
+
+    override fun toString(): String
 }
 
-data class ChangedFileTicket(override val from: File, override val to: File) : TransformTicket
-data class DeleteTicket(override val from: File, override val to: File) : TransformTicket
+data class ChangedFileTicket(override val from: File, override val to: File) : TransformTicket{
+    override fun clone(from: File, to: File): TransformTicket = this.copy(from = from, to = to)
+
+    override fun toString(): String {
+        return "from=$from to=$to"
+    }
+}
+data class DeleteTicket(override val from: File, override val to: File) : TransformTicket{
+    override fun clone(from: File, to: File): TransformTicket = this.copy(from = from, to = to)
+
+    override fun toString(): String {
+        return "from=$from to=$to"
+    }
+}
 
 
 interface TransformBus{
@@ -36,26 +49,41 @@ object TransformTicketImpl : TransformBus {
 
     override fun takeTickets(tickets: List<TransformTicket>) {
 
-        tickets.forEach { t: TransformTicket ->
+        fun TransformTicket.toConcrete(childFile: File) = this.clone(childFile, File(this.to, childFile.relativeTo(this.from).path))
 
-            val from = t.from
+        val rs = sequence {
 
-            when {
-                from.isJarFile() -> TransformEngine.submitSync{ JarTransformer.transform(t) }
-                from.isDirectory -> {
+            tickets.map { t: TransformTicket ->
 
-                    from.walkTopDown().forEach { childFile: File ->
-                        if (childFile.isClassFile()) TransformEngine.submitSync { ClassTransformer.transform(t) }
-                        else TransformEngine.submitSync { CopyTransformer.transform(t) }
-                    }
+                val from = t.from
 
+                when {
+                    from.isJarFile() -> yield(Runnable { JarTransformer.transform(t) })
+
+//                    from.isDirectory -> {
+//
+//                        from.walkTopDown().forEach { childFile: File ->
+//
+//                            val actualTicket = t.toConcrete(childFile)
+//
+//                            if (childFile.isClassFile())
+//                                yield(Runnable { ClassTransformer.transform(actualTicket) })
+//                            else
+//                                yield(Runnable { CopyTransformer.transform(actualTicket) })
+//
+//                        }
+//
+//                    }
+
+                    //else -> throw IllegalArgumentException("Illegal file :$from.")
+                    else -> Unit
                 }
-                from.isClassFile() -> TransformEngine.submitSync { ClassTransformer.transform(t) }
-                else -> TransformEngine.submitSync{ CopyTransformer.transform(t) }
             }
         }
 
-
+        rs.iterator().forEach {
+            TransformEngine.submitSync(it)
+        }
     }
 
 }
@@ -63,22 +91,16 @@ object TransformTicketImpl : TransformBus {
 
 object TransformEngine {
 
-    private val executor: JUCExecutorService = InternalExecutor.fixed
+    private val executor: JUCExecutorService = InternalExecutor.single
 
     fun submitSync(runnable: Runnable) {
-        /**
-         * /Users/yangxiaobin/DevelopSpace/IDEA/gradle-plugin-template/samples/androidapp/build/intermediates/transforms/TestTransformV2/debug/1 (Is a directory)
-        at me.yangxiaobin.lib.transform_v3.TransformEngine.submitSync(TransformAble.kt:69)
-        at me.yangxiaobin.lib.transform_v3.TransformTicketImpl.takeTickets(TransformAble.kt:48)
-        at me.yangxiaobin.lib.transform_v3.BaseTransformV3.dispatchInput(BaseTransformV3.kt:66)
-        at me.yangxiaobin.lib.transform_v3.BaseTransformV3.transform(BaseTransformV3.kt:15)
-        at com.test_a.TestATransformV3.transform(TestAPlugin.kt:28)
-         */
         executor.submit(runnable).get()
     }
 
 }
 
+private const val LOG_TAG = "V3Transformer"
+private val transformerLogDelegate = LogDelegate(InternalLogger, LOG_TAG)
 
 sealed interface FileTransformer {
 
@@ -88,66 +110,78 @@ sealed interface FileTransformer {
     fun transform(ticket: TransformTicket)
 }
 
-object CopyTransformer : FileTransformer {
+object CopyTransformer : FileTransformer, LogAware by transformerLogDelegate {
 
     override fun transform(ticket: TransformTicket) {
-        val (from, to) = ticket
+        val (input, output) = ticket
+
+        logI("${curThread.name} copy from: $input to $output.")
+        //input.copyTo(output)
 
         // Copy only is NOT deletion
-        if (ticket !is DeleteTicket) from.safeCopyTo(to)
+        //if (ticket !is DeleteTicket) from.safeCopyTo(to)
     }
 }
 
-object JarTransformer : FileTransformer {
+object JarTransformer : FileTransformer, LogAware by transformerLogDelegate {
 
-    private val executor: JUCExecutorService = InternalExecutor.fixed
-
-    override fun transform(ticket: TransformTicket) {
-
-        val (input,output) = ticket
-
-        val inputZipArchive = ZipArchive(input.toPath())
-        val outputZipArchive = ZipArchive(output.toPath())
-
-        val byteArrayList: List<Pair<ByteArray, String>> = inputZipArchive.listEntries()
-            .map { entryName: String ->
-
-                val bf = inputZipArchive.getContent(entryName)
-                val bs = ByteArray(bf.remaining())
-                bf.get(bs)
-
-                Callable {
-                    //TODO
-                    //println("zip task entry :$entryName executed in thread :${Thread.currentThread().name}.")
-                    TransformRegistry.getFoldConverter().transform(bs) } to entryName
-            }
-            .map { executor.submit(it.first).get() to it.second }
-
-
-        executor.submit {
-            byteArrayList.forEach { (bs, entryName) ->
-                outputZipArchive.add(BytesSource(bs, entryName, Deflater.NO_COMPRESSION))
-            }
-        }.get()
-
-        inputZipArchive.close()
-        outputZipArchive.close()
-
-        if (ticket is DeleteTicket) output.delete()
-    }
-
-}
-
-object ClassTransformer : FileTransformer {
+    private val executor: JUCExecutorService = InternalExecutor.createSingle()
 
     override fun transform(ticket: TransformTicket) {
 
         val (input, output) = ticket
 
-        val bs = TransformRegistry.getFoldConverter().transform(input.readBytes())
+        logI("${curThread.name} jar transform from: $input to $output.")
 
-        if (ticket is DeleteTicket) output.delete()
-        else output.touch().writeBytes(bs)
+        rewriteJar(input, output)
+    }
+
+    private fun rewriteJar(input: File, output: File) {
+
+        val inputZipArchive = ZipArchive(input.toPath())
+        val outputZipArchive by lazy { ZipArchive(output.toPath()) }
+
+        val byteOperations: Sequence<Runnable> = sequence {
+
+            inputZipArchive.listEntries()
+                .forEach { entryName: String ->
+
+                    logI("process entry name :$entryName.")
+
+                    val bf: ByteBuffer = inputZipArchive.getContent(entryName)
+                    val bs = ByteArray(bf.remaining())
+                    bf.get(bs)
+
+                    // Just copy here
+                   // yield(Runnable { println("---> write into out jar, $entryName.");outputZipArchive.add(BytesSource(bs, entryName, Deflater.NO_COMPRESSION)) })
+                }
+        }
+
+        byteOperations.forEach {
+            executor.submit(it).get()
+        }
+
+        inputZipArchive.close()
+        outputZipArchive.close()
+    }
+
+}
+
+object ClassTransformer : FileTransformer, LogAware by transformerLogDelegate {
+
+    override fun transform(ticket: TransformTicket) {
+
+        val (input, output) = ticket
+
+        logI("${curThread.name} class transform from: $input to $output.")
+        //input.copyTo(output)
+
+        //val bs = TransformRegistry.getFoldConverter().transform(input.readBytes())
+
+
+        //input.safeCopyTo(output)
+       // output.touch().writeBytes(bs)
+
     }
 
 }

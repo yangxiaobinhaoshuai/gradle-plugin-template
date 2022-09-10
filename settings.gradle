@@ -1,5 +1,16 @@
 import org.gradle.api.initialization.resolve.RepositoriesMode
 
+pluginManagement {
+    repositories {
+        apply from: "${System.getProperty("user.dir")}/gradle/globalDefinitions.gradle"
+        // For plugin dependencies.
+        maven { url local_repo_url }
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
+
 enableFeaturePreview('VERSION_CATALOGS')
 
 dependencyResolutionManagement {
@@ -19,12 +30,12 @@ dependencyResolutionManagement {
 rootProject.name = 'AGPCodelab'
 
 // JVM base libs
-includeBuild 'logger-jvm'
+//includeBuild 'logger-jvm'
 includeBuild 'graph-lib'
 
-// Apps
-include ':samples:app'
-
+// Java Apps
+//include ':samples:app'
+// Android app
 include ':samples:androidapp'
 
 //include ':apt:annotation'
@@ -41,8 +52,8 @@ include ':samples:androidapp'
 
 
 includeBuild 'plugin-common-lib'
-includeBuild 'test-plugin'
-includeBuild 'test-plugin-A'
+//includeBuild 'test-plugin'
+//includeBuild 'test-plugin-A'
 //includeBuild 'bit64checker'
 
 //includeBuild 'aspectj/java-aspectj-plugin'

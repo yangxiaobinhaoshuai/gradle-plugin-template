@@ -22,11 +22,13 @@ class TestATransform(logDelegate: LogAware) : AbsTransformV2(logDelegate) {
 
 }
 
-class TestATransformV3(logDelegate: LogAware) : BaseTransformV3(logDelegate){
+class TestATransformV3(logDelegate: LogAware) : BaseTransformV3(logDelegate) {
+
+    override fun isIncremental(): Boolean = false
 
     override fun transform(transformInvocation: TransformInvocation) {
-        super.transform(transformInvocation)
         logI("TestATransformV3 isIncremental: $isIncremental.")
+        super.transform(transformInvocation)
     }
 }
 
@@ -38,30 +40,30 @@ class TestAPlugin : BasePlugin() {
 
         afterEvaluate {
             //this.requireAppExtension.registerTransform(TestATransform(this@TestAPlugin))
-            this.requireAppExtension.registerTransform(TestATransformV3(this@TestAPlugin))
-            TransformRegistry.register{
-                val cr = ClassReader(it)
-
-                val cw = ClassWriter(ClassWriter.COMPUTE_MAXS)
-
-                val cv = object : ClassVisitor(Opcodes.ASM7, cw) {
-
-                    override fun visit(
-                        version: Int,
-                        access: Int,
-                        name: String?,
-                        signature: String?,
-                        superName: String?,
-                        interfaces: Array<out String>?
-                    ) {
-                        super.visit(version, access, name, signature, superName, interfaces)
-                        //println("----> Test A Plugin visit class :$name.")
-                    }
-                }
-
-                cr.accept(cv, ClassReader.EXPAND_FRAMES)
-                cw.toByteArray()
-            }
+            //this.requireAppExtension.registerTransform(TestATransformV3(this@TestAPlugin))
+//            TransformRegistry.register {
+//                val cr = ClassReader(it)
+//
+//                val cw = ClassWriter(ClassWriter.COMPUTE_MAXS)
+//
+//                val cv = object : ClassVisitor(Opcodes.ASM7, cw) {
+//
+//                    override fun visit(
+//                        version: Int,
+//                        access: Int,
+//                        name: String?,
+//                        signature: String?,
+//                        superName: String?,
+//                        interfaces: Array<out String>?
+//                    ) {
+//                        super.visit(version, access, name, signature, superName, interfaces)
+//                        //println("----> Test A Plugin visit class :$name.")
+//                    }
+//                }
+//
+//                cr.accept(cv, ClassReader.EXPAND_FRAMES)
+//                cw.toByteArray()
+//            }
         }
 
     }

@@ -1,10 +1,22 @@
 
+pluginManagement {
+    apply from: "$rootDir.parentFile/gradle/globalDefinitions.gradle"
+    repositories {
+        // For plugin dependencies.
+        maven { url local_repo_url }
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
+
 enableFeaturePreview('VERSION_CATALOGS')
+apply from: "$rootDir.parentFile/gradle/globalDefinitions.gradle"
 
 dependencyResolutionManagement {
     versionCatalogs {
         libDeps {
-            from(files("../gradle/libs.versions.toml"))
+            from(files(versions_toml))
         }
     }
 }

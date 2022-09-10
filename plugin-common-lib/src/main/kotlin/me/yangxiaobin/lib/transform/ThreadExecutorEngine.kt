@@ -3,7 +3,6 @@ package me.yangxiaobin.lib.transform
 import me.yangxiaobin.lib.Action
 import me.yangxiaobin.lib.JUCExecutorService
 import me.yangxiaobin.lib.executor.InternalExecutor
-import me.yangxiaobin.lib.ext.neatName
 import java.util.concurrent.Callable
 import java.util.concurrent.Future
 
