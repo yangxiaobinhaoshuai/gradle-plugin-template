@@ -4,14 +4,18 @@ import com.android.build.api.transform.QualifiedContent
 import com.android.build.api.transform.TransformInvocation
 import me.yangxiaobin.lib.GradleTransformStatus
 import me.yangxiaobin.lib.ext.isJarFile
+import me.yangxiaobin.lib.log.InternalLogger
 import me.yangxiaobin.lib.log.LogAware
+import me.yangxiaobin.lib.log.LogDelegate
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.Opcodes
 
+private val defaultLogAware = LogDelegate(InternalLogger, "TransformDispatcher")
+
 @Suppress("TYPEALIAS_EXPANSION_DEPRECATION")
-open class TransformDispatcher(d: LogAware) : AbsGradleTransform(d), TransformAware {
+open class TransformDispatcher(d: LogAware = defaultLogAware) : AbsGradleTransform(d), TransformAware {
 
     override fun transform(transformInvocation: TransformInvocation) {
         super.transform(transformInvocation)

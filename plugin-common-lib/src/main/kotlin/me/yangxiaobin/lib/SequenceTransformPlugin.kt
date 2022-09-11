@@ -8,6 +8,10 @@ import me.yangxiaobin.lib.transform_v3.FunctionKey
 import me.yangxiaobin.lib.transform_v3.TransformAwareManager
 import me.yangxiaobin.lib.transform_v3.TransformDispatcher
 import org.gradle.api.Project
+import org.objectweb.asm.ClassReader
+import org.objectweb.asm.ClassVisitor
+import org.objectweb.asm.ClassWriter
+import org.objectweb.asm.Opcodes
 
 const val ESC = '\u001B'
 
@@ -27,8 +31,34 @@ class SequenceTransformPlugin : BasePlugin() {
         logI("${red("✓")} apply TestBasePlugin")
 
 
+        // TODO
         FunctionInvoker.hook(FunctionKey.of("postTransform")){
             println("_-- hook works")
+        }
+
+        // TODO
+        TransformAwareManager.registerTransformAware { _, bs ->
+            val cr = ClassReader(bs)
+
+            val cw = ClassWriter(ClassWriter.COMPUTE_MAXS)
+
+            val cv = object : ClassVisitor(Opcodes.ASM7, cw) {
+
+                override fun visit(
+                    version: Int,
+                    access: Int,
+                    name: String?,
+                    signature: String?,
+                    superName: String?,
+                    interfaces: Array<out String>?
+                ) {
+                    super.visit(version, access, name, signature, superName, interfaces)
+                    //println("----> register visit class :$name.")
+                }
+            }
+
+            cr.accept(cv, ClassReader.EXPAND_FRAMES)
+            cw.toByteArray()
         }
 
         //val legacyTransform = AbsLegacyTransform(p)
