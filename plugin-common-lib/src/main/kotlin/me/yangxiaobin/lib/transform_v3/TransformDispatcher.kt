@@ -7,18 +7,25 @@ import me.yangxiaobin.lib.ext.isJarFile
 import me.yangxiaobin.lib.log.LogAware
 
 @Suppress("TYPEALIAS_EXPANSION_DEPRECATION")
-open class BaseTransformV3(d: LogAware) : AbsGradleTransform(d) {
+open class TransformDispatcher(d: LogAware) : AbsGradleTransform(d), TransformAware {
 
     override fun transform(transformInvocation: TransformInvocation) {
         super.transform(transformInvocation)
 
-        dispatchInput(transformInvocation)
+        val ts =  TransformAwareManager.transforms
 
-        FunctionInvoker.register(FunctionKey.of("preTransform")) {}
-            .register(FunctionKey.of("preTransform")) { }
-            .register(FunctionKey.of("transform")) { }
-            .register(FunctionKey.of("postTransform")) { }
+        FunctionInvoker.register(FunctionKey.of("preTransform")) { ts.forEach(TransformAware::preTransform) }
+            .register(FunctionKey.of("dispatchTransform")) { dispatchInput(transformInvocation) }
+            .register(FunctionKey.of("postTransform")) { ts.forEach(TransformAware::postTransform) }
             .start()
+    }
+
+    override fun preTransform() {
+
+    }
+
+    override fun postTransform() {
+
     }
 
     private fun dispatchInput(context: TransformInvocation){

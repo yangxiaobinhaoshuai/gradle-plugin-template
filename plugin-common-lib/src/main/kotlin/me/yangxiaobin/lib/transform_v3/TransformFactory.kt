@@ -163,7 +163,7 @@ object JarTransformer : FileTransformer, LogAware by transformerLogDelegate {
             inputZipArchive.listEntries()
                 .forEach { entryName: String ->
 
-                    logI("process entry name :$entryName.")
+                    //logI("process entry name :$entryName.")
 
                     val bf: ByteBuffer = inputZipArchive.getContent(entryName)
                     val bs = ByteArray(bf.remaining())
