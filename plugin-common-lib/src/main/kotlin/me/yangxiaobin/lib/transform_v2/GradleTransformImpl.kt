@@ -1,4 +1,4 @@
-package me.yangxiaobin.lib.transform
+package me.yangxiaobin.lib.transform_v2
 
 import com.android.build.api.transform.TransformInvocation
 import me.yangxiaobin.lib.TransformAction
@@ -12,6 +12,7 @@ import java.io.File
 private const val LOG_TAG = "TransformAwareImpl"
 private val defaultLogDelegate = LogDelegate(InternalLogger, LOG_TAG)
 
+@Deprecated("see v3")
 class GradleTransformImpl(
     private val invocation: TransformInvocation,
     private val logDelegate: LogAware = defaultLogDelegate,

@@ -1,11 +1,11 @@
-package me.yangxiaobin.lib
+package me.yangxiaobin.lib.transform_v2
 
-import me.yangxiaobin.lib.transform.ByteArrayConverter
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.Opcodes
 
+@Deprecated("see v3")
 object TransformRegistry {
 
     private val byteConverters: MutableList<ByteArrayConverter> = mutableListOf()

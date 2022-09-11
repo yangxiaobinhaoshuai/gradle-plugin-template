@@ -5,7 +5,7 @@ import me.yangxiaobin.lib.ext.neatName
 import me.yangxiaobin.lib.ext.requireAppExtension
 import me.yangxiaobin.lib.log.ILog
 import me.yangxiaobin.lib.log.LogAware
-import me.yangxiaobin.lib.transform.AbsLegacyTransform
+import me.yangxiaobin.lib.transform_v1.AbsLegacyTransform
 import me.yangxiaobin.lib.transform_v3.BaseTransformV3
 import org.gradle.api.Project
 

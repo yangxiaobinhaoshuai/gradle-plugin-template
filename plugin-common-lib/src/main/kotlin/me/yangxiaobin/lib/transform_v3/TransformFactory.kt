@@ -10,6 +10,7 @@ import me.yangxiaobin.lib.log.LogAware
 import me.yangxiaobin.lib.log.LogDelegate
 import java.io.File
 import java.nio.ByteBuffer
+import java.util.concurrent.Executor
 import java.util.zip.Deflater
 
 
@@ -42,11 +43,19 @@ data class DeleteTicket(override val from: File, override val to: File) : Transf
 
 interface TransformBus{
 
-    fun takeTickets(tickets:List<TransformTicket>)
+    fun takeTickets(tickets: List<TransformTicket>)
 }
 
 
 object TransformTicketImpl : TransformBus {
+
+
+    // TODO should be di
+    private val copyTransformer: FileTransformer by lazy { CopyTransformer }
+    private val jarTransformer: FileTransformer by lazy { JarTransformer }
+    private val classTransformer: FileTransformer by lazy { ClassTransformer }
+
+    private val engine: TransformEngine by lazy { TransformEngineImpl }
 
     override fun takeTickets(tickets: List<TransformTicket>) {
 
@@ -59,7 +68,7 @@ object TransformTicketImpl : TransformBus {
                 val from = ticket.from
 
                 when {
-                    from.isJarFile() -> yield(Runnable { JarTransformer.transform(ticket) })
+                    from.isJarFile() -> yield(Runnable { jarTransformer.transform(ticket) })
 
                     from.isDirectory -> {
 
@@ -68,9 +77,9 @@ object TransformTicketImpl : TransformBus {
                             val actualTicket = ticket.detailed(childFile)
 
                             if (childFile.isClassFile())
-                                yield(Runnable { ClassTransformer.transform(actualTicket) })
+                                yield(Runnable { classTransformer.transform(actualTicket) })
                             else
-                                yield(Runnable { CopyTransformer.transform(actualTicket) })
+                                yield(Runnable { copyTransformer.transform(actualTicket) })
 
                         }
 
@@ -81,21 +90,32 @@ object TransformTicketImpl : TransformBus {
             }
         }
 
-        rs.iterator().forEach(TransformEngine::submitSync)
+        rs.iterator().forEach(engine::submitTransformActionSync)
+    }
+
+}
+
+interface TransformEngine : Executor {
+
+    fun submitTransformActionSync(runnable: Runnable)
+
+    override fun execute(command: Runnable) {
+        submitTransformActionSync(command)
     }
 
 }
 
 
-object TransformEngine {
+object TransformEngineImpl : TransformEngine {
 
     private val executor: JUCExecutorService = InternalExecutor.fixed
 
-    fun submitSync(runnable: Runnable) {
+    override fun submitTransformActionSync(runnable: Runnable) {
         executor.submit(runnable).get()
     }
 
 }
+
 
 private const val LOG_TAG = "V3Transformer"
 private val transformerLogDelegate = LogDelegate(InternalLogger, LOG_TAG)

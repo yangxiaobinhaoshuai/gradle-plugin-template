@@ -1,4 +1,4 @@
-package me.yangxiaobin.lib.transform
+package me.yangxiaobin.lib.transform_v2
 
 import com.android.build.api.transform.*
 import com.android.build.api.variant.VariantInfo

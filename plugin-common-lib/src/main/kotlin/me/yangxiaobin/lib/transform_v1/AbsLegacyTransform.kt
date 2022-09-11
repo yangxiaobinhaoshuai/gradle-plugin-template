@@ -1,4 +1,4 @@
-package me.yangxiaobin.lib.transform
+package me.yangxiaobin.lib.transform_v1
 
 import com.android.build.api.transform.*
 import kotlinx.coroutines.*
@@ -15,11 +15,9 @@ import java.util.concurrent.TimeUnit
 import java.util.function.Function
 import java.util.zip.ZipFile
 
-
-private typealias Action = () -> Unit
-
 /**
  * @see com.google.dagger:hilt-android-gradle-plugin:2.28-alpha
+ *
  * @see https://github.com/google/dagger/tree/master/java/dagger/hilt/android/plugin/main/src/main/kotlin/dagger/hilt/android/plugin
  */
 @Suppress("MemberVisibilityCanBePrivate")
@@ -67,7 +65,7 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
         )
     }
 
-    private val transformActions = mutableSetOf<Action>()
+    private val transformActions = mutableSetOf<() -> Unit>()
 
     private val jarFileTransformer: Function<ByteArray, ByteArray>? by lazy { getJarTransformer() }
     private val classFileTransformer: Function<ByteArray, ByteArray>? by lazy { getClassTransformer() }
@@ -149,7 +147,8 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
         val t1 = System.currentTimeMillis()
         logI(" processClassFile begins.")
 
-        fun toOutputFile(outputDir: File, inputDir: File, inputFile: File) = File(outputDir, inputFile.relativeTo(inputDir).path)
+        fun toOutputFile(outputDir: File, inputDir: File, inputFile: File) =
+            File(outputDir, inputFile.relativeTo(inputDir).path)
 
         directoryInputs.forEach { directoryInput: DirectoryInput ->
 

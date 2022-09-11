@@ -1,4 +1,4 @@
-package me.yangxiaobin.lib.transform
+package me.yangxiaobin.lib.transform_v2
 
 import com.android.zipflinger.BytesSource
 import com.android.zipflinger.ZipArchive
@@ -29,6 +29,8 @@ private val defaultLogDelegate = LogDelegate(InternalLogger, LOG_TAG)
  * Empty class
  *          /Users/yangxiaobin/DevelopSpace/IDEA/gradle-plugin-template/samples/androidapp/build/intermediates/transforms/TestTransformV2/debug/1/me/yangxiaobin/androidapp/aspect/JavaAspect.class
  */
+
+@Deprecated("see v3")
 class ClassFileTypeTransformer(private val logDelegate: LogAware = defaultLogDelegate) : FileTypeTransformer,
     LogAware by logDelegate {
 
@@ -70,6 +72,7 @@ class ClassFileTypeTransformer(private val logDelegate: LogAware = defaultLogDel
 /**
  * Android zipFlinger doc : https://android.googlesource.com/platform/tools/base/+/refs/heads/mirror-goog-studio-master-dev/zipflinger/
  */
+@Deprecated("see v3")
 class JarFileTypeTransformer(
     private val logDelegate: LogAware = defaultLogDelegate,
     private val executor: JUCExecutorService = InternalExecutor.fixed,
@@ -109,6 +112,7 @@ class JarFileTypeTransformer(
 
 }
 
+@Deprecated("see v3")
 class FileCopyTypeTransformer(private val logDelegate: LogAware = defaultLogDelegate) : FileTypeTransformer,
     LogAware by logDelegate {
 
