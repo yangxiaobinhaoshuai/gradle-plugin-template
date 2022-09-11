@@ -5,6 +5,10 @@ import com.android.build.api.transform.TransformInvocation
 import me.yangxiaobin.lib.GradleTransformStatus
 import me.yangxiaobin.lib.ext.isJarFile
 import me.yangxiaobin.lib.log.LogAware
+import org.objectweb.asm.ClassReader
+import org.objectweb.asm.ClassVisitor
+import org.objectweb.asm.ClassWriter
+import org.objectweb.asm.Opcodes
 
 @Suppress("TYPEALIAS_EXPANSION_DEPRECATION")
 open class TransformDispatcher(d: LogAware) : AbsGradleTransform(d), TransformAware {
@@ -26,6 +30,31 @@ open class TransformDispatcher(d: LogAware) : AbsGradleTransform(d), TransformAw
 
     override fun postTransform() {
 
+    }
+
+    override fun getClassTransformer(): ClassTransformation = { _, bs ->
+        val cr = ClassReader(bs)
+
+        val cw = ClassWriter(ClassWriter.COMPUTE_MAXS)
+
+        val cv = object : ClassVisitor(Opcodes.ASM7, cw) {
+
+            override fun visit(
+                version: Int,
+                access: Int,
+                name: String?,
+                signature: String?,
+                superName: String?,
+                interfaces: Array<out String>?
+            ) {
+                super.visit(version, access, name, signature, superName, interfaces)
+                //println("----> default visit class :$name.")
+            }
+        }
+
+        cr.accept(cv, ClassReader.EXPAND_FRAMES)
+        cw.toByteArray()
+        //bs
     }
 
     private fun dispatchInput(context: TransformInvocation){

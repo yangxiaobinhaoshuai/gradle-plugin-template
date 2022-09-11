@@ -49,7 +49,6 @@ interface TransformBus{
 
 object TransformTicketImpl : TransformBus {
 
-
     // TODO should be di
     private val copyTransformer: FileTransformer by lazy { CopyTransformer }
     private val jarTransformer: FileTransformer by lazy { JarTransformer }
@@ -61,7 +60,10 @@ object TransformTicketImpl : TransformBus {
 
         val rs: Sequence<Runnable> = sequence {
 
-            fun TransformTicket.detailed(detailFile: File): TransformTicket = this.exchange(detailFile, File(this.to, detailFile.relativeTo(this.from).path))
+            fun TransformTicket.detailed(detailFile: File): TransformTicket {
+                val detailOutputFile = File(this.to, detailFile.relativeTo(this.from).path)
+                return this.exchange(detailFile, detailOutputFile)
+            }
 
             tickets.forEach { ticket ->
 
@@ -145,15 +147,17 @@ object JarTransformer : FileTransformer, LogAware by transformerLogDelegate {
 
     override fun transform(ticket: TransformTicket) {
 
-        val (input, output) = ticket
+        val (_, output) = ticket
 
         //logI("${curThread.name} jar transform from: $input to $output.")
 
-        rewriteJar(input, output)
+        rewriteJar(ticket)
         if (ticket is DeleteTicket) output.delete()
     }
 
-    private fun rewriteJar(input: File, output: File) {
+    private fun rewriteJar(ticket: TransformTicket) {
+
+        val (input, output) = ticket
 
         val inputZipArchive = ZipArchive(input.toPath())
         val outputZipArchive by lazy { ZipArchive(output.toPath()) }
@@ -169,11 +173,13 @@ object JarTransformer : FileTransformer, LogAware by transformerLogDelegate {
                     val bs = ByteArray(bf.remaining())
                     bf.get(bs)
 
+                    val transformedBs = TransformAwareManager.getClassTransformer().invoke(ticket, bs)
+
                     // Just copy here
                     yield(
                         Runnable {
                             //logI("${curThread.name} write into out jar, $entryName.")
-                            outputZipArchive.add(BytesSource(bs, entryName, Deflater.NO_COMPRESSION))
+                            outputZipArchive.add(BytesSource(transformedBs, entryName, Deflater.NO_COMPRESSION))
                         }
                     )
                 }
@@ -195,15 +201,12 @@ object ClassTransformer : FileTransformer, LogAware by transformerLogDelegate {
 
         //logI("${curThread.name} class transform from: $input to $output.")
 
-        input.safeCopyTo(output)
-
-        if (ticket is DeleteTicket) output.delete()
-
-        //val bs = TransformRegistry.getFoldConverter().transform(input.readBytes())
+        val transformedBs = TransformAwareManager.getClassTransformer().invoke(ticket, input.readBytes())
 
         //input.safeCopyTo(output)
-       // output.touch().writeBytes(bs)
+        output.touch().writeBytes(transformedBs)
 
+        if (ticket is DeleteTicket) output.delete()
     }
 
 }

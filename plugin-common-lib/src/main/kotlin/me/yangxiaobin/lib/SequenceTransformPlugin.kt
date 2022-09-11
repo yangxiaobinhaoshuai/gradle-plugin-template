@@ -3,6 +3,8 @@ package me.yangxiaobin.lib
 import me.yangxiaobin.lib.ext.neatName
 import me.yangxiaobin.lib.ext.requireAppExtension
 import me.yangxiaobin.lib.log.ILog
+import me.yangxiaobin.lib.transform_v3.FunctionInvoker
+import me.yangxiaobin.lib.transform_v3.FunctionKey
 import me.yangxiaobin.lib.transform_v3.TransformAwareManager
 import me.yangxiaobin.lib.transform_v3.TransformDispatcher
 import org.gradle.api.Project
@@ -23,6 +25,11 @@ class SequenceTransformPlugin : BasePlugin() {
     override fun apply(p: Project) {
         super.apply(p)
         logI("${red("✓")} apply TestBasePlugin")
+
+
+        FunctionInvoker.hook(FunctionKey.of("postTransform")){
+            println("_-- hook works")
+        }
 
         //val legacyTransform = AbsLegacyTransform(p)
         val dispatchTransformer = TransformDispatcher(this)
