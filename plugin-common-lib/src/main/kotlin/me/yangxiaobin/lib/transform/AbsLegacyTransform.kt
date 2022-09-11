@@ -205,7 +205,7 @@ open class AbsLegacyTransform(protected val project: Project) : Transform() {
                 // 3. Write jar.
 
                 transformActions += {
-                    ZipFile(inputJarFile).simpleTransformTo(
+                    ZipFile(inputJarFile).blockingTransformTo(
                         outputJarFile,
                         jarFileTransformer!!::apply
                     )

@@ -5,8 +5,8 @@ import me.yangxiaobin.lib.ext.neatName
 import me.yangxiaobin.lib.ext.requireAppExtension
 import me.yangxiaobin.lib.log.ILog
 import me.yangxiaobin.lib.log.LogAware
-import me.yangxiaobin.lib.transform_v3.AbsGradleTransform
-import me.yangxiaobin.lib.transform_v3.CopyTransform
+import me.yangxiaobin.lib.transform.AbsLegacyTransform
+import me.yangxiaobin.lib.transform_v3.BaseTransformV3
 import org.gradle.api.Project
 
 const val ESC = '\u001B'
@@ -26,18 +26,26 @@ class TestBasePlugin : BasePlugin() {
         super.apply(p)
         logI("${red("✓")} apply TestBasePlugin")
 
-        val transform = TestBaseTransform(this)
+        val testBaseTransform = TestBaseTransform(this)
+        val legacyTransform = TestLegacyTransform(p)
 
         afterEvaluate {
-            this.requireAppExtension.registerTransform(transform)
+            this.requireAppExtension.registerTransform(testBaseTransform)
         }
     }
 }
 
-class TestBaseTransform(d: LogAware) : CopyTransform(d) {
-
+class TestBaseTransform(d: LogAware) : BaseTransformV3(d) {
     override fun transform(transformInvocation: TransformInvocation) {
         logI("${this.neatName} start ====>")
         super.transform(transformInvocation)
     }
 }
+
+class TestLegacyTransform(p: Project) : AbsLegacyTransform(p) {
+    override fun transform(invocation: TransformInvocation) {
+        logI("${this.neatName} start ====>")
+        super.transform(invocation)
+    }
+}
+

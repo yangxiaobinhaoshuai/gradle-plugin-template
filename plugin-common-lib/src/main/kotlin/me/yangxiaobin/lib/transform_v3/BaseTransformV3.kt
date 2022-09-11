@@ -1,11 +1,12 @@
 package me.yangxiaobin.lib.transform_v3
 
-import com.android.build.api.transform.*
+import com.android.build.api.transform.QualifiedContent
+import com.android.build.api.transform.TransformInvocation
 import me.yangxiaobin.lib.GradleTransformStatus
 import me.yangxiaobin.lib.ext.isJarFile
 import me.yangxiaobin.lib.log.LogAware
-import java.io.File
 
+@Suppress("TYPEALIAS_EXPANSION_DEPRECATION")
 open class BaseTransformV3(d: LogAware) : AbsGradleTransform(d) {
 
     override fun transform(transformInvocation: TransformInvocation) {
@@ -29,52 +30,48 @@ open class BaseTransformV3(d: LogAware) : AbsGradleTransform(d) {
             val  deleteJars = context.inputs.flatMap { it.jarInputs}
                 .filter { it.status == GradleTransformStatus.REMOVED }
                 .map(QualifiedContent::getFile)
-                .map { DeleteTicket(it,outputProvider.getDestJarFile(it.name)) }
+                .map { DeleteTicket(it, getInputJarDestFile(it, outputProvider)) }
 
             val  changedJars = context.inputs.flatMap { it.jarInputs}
                 .filter { it.status == GradleTransformStatus.ADDED || it.status == GradleTransformStatus.CHANGED }
                 .map(QualifiedContent::getFile)
-                .map { ChangedFileTicket(it,outputProvider.getDestJarFile(it.name)) }
+                .map { ChangedFileTicket(it, getInputJarDestFile(it, outputProvider)) }
 
             val deleteDirs = context.inputs.flatMap { it.directoryInputs }
                 .map { it.changedFiles }
                 .flatMap { it.entries }
                 .filter { it.value == GradleTransformStatus.REMOVED }
                 .map { it.key }
-                .map { DeleteTicket(it,outputProvider.getDestDirFile(it.name)) }
+                .map { DeleteTicket(it, getInputJarDestFile(it, outputProvider)) }
 
             val changedDirs = context.inputs.flatMap { it.directoryInputs }
                 .map { it.changedFiles }
                 .flatMap { it.entries }
                 .filter { it.value == GradleTransformStatus.ADDED || it.value == GradleTransformStatus.CHANGED }
                 .map { it.key }
-                .map { ChangedFileTicket(it,outputProvider.getDestDirFile(it.name)) }
+                .map { ChangedFileTicket(it, getInputJarDestFile(it, outputProvider)) }
 
            deleteJars + deleteDirs + changedJars + changedDirs
 
         } else {
+
+            // This matters.
+            context.outputProvider.deleteAll()
 
             context.inputs.flatMap { it.jarInputs + it.directoryInputs }
                 .map(QualifiedContent::getFile)
                 .map {
 
                     val destFile = if (it.isJarFile())
-                        outputProvider.getDestJarFile(it.name)
+                        getInputJarDestFile(it, outputProvider)
                     else
-                        outputProvider.getDestDirFile(it.name)
+                        getInputDirDestDir(it, outputProvider)
 
                     ChangedFileTicket(it, destFile)
                 }
         }
 
-        logI("tickets :$tickets")
-
-        //TransformTicketImpl.takeTickets(tickets)
+        TransformTicketImpl.takeTickets(tickets)
     }
-
-
-    private fun TransformOutputProvider.getDestJarFile(rawJarName: String): File = this.getContentLocation(rawJarName, inputTypes, scopes, Format.JAR)
-
-    private fun TransformOutputProvider.getDestDirFile(rawDirName: String): File = this.getContentLocation(rawDirName, inputTypes, scopes, Format.DIRECTORY)
 
 }

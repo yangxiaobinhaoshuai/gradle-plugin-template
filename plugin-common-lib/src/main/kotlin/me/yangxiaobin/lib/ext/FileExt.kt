@@ -1,17 +1,8 @@
 package me.yangxiaobin.lib.ext
 
-import me.yangxiaobin.lib.asm.constant.DOT_CLASS
 import me.yangxiaobin.lib.asm.constant.EXT_CLASS
 import me.yangxiaobin.lib.asm.constant.EXT_JAR
-import org.gradle.internal.impldep.org.apache.commons.compress.archivers.zip.ParallelScatterZipCreator
-import org.gradle.internal.impldep.org.apache.commons.compress.archivers.zip.ZipArchiveEntry
-import org.gradle.internal.impldep.org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream
-import org.gradle.internal.impldep.org.apache.commons.compress.parallel.InputStreamSupplier
 import java.io.File
-import java.io.InputStream
-import java.util.zip.ZipEntry
-import java.util.zip.ZipFile
-import java.util.zip.ZipOutputStream
 
 /**
  * @see kotlin.io.copyTo
@@ -19,9 +10,6 @@ import java.util.zip.ZipOutputStream
 
 /* Checks if a file is a .class file. */
 fun File.isClassFile() = this.isFile && !this.isDirectory && this.extension == EXT_CLASS
-
-/* Checks if a Zip entry is a .class file. */
-fun ZipEntry.isClassFile() = !this.isDirectory && this.name.endsWith(DOT_CLASS)
 
 /* Checks if a file is a .jar file. */
 fun File.isJarFile() = this.isFile && this.extension == EXT_JAR
@@ -66,43 +54,5 @@ fun File.safeCopyTo(output: File) {
         }
     } else this.copyTo(output)
 }
-
-
-fun ZipFile.parallelTransformTo(output: File, transform: (ByteArray) -> ByteArray) {
-    val creator = ParallelScatterZipCreator()
-
-    this.entries().asSequence().forEach { entry: ZipEntry ->
-
-        val stream = InputStreamSupplier {
-            this.getInputStream(ZipEntry(entry.name))
-                .toIf(entry.isClassFile()) { ins: InputStream ->
-                    transform.invoke(ins.readBytes()).inputStream()
-                }
-        }
-
-        creator.addArchiveEntry(ZipArchiveEntry(entry), stream)
-    }
-
-    ZipArchiveOutputStream(output.outputStream().buffered()).use(creator::writeTo)
-}
-
-
-fun ZipFile.simpleTransformTo(output: File, transform: (ByteArray) -> ByteArray) {
-
-    output.outputStream().buffered().let { ZipOutputStream(it) }
-        .use { zos ->
-            this.entries().asSequence().forEach { entry: ZipEntry ->
-                zos.putNextEntry(ZipEntry(entry.name))
-                this.getInputStream(entry)
-                    .toIf(entry.isClassFile()) { ins ->
-                        transform.invoke(ins.readBytes()).inputStream()
-                    }
-                    .use { it.copyTo(zos) }
-            }
-
-            zos.closeEntry()
-        }
-}
-
 
 

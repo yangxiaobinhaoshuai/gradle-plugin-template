@@ -52,10 +52,20 @@ open class AbsGradleTransform(private val logDelegate: LogAware) : GradleTransfo
         super.transform(transformInvocation)
     }
 
+    /**
+     * e.g.
+     * from :  /Users/handsomeyang/DevelopWorkSpace/IDEAProjects/gradle-template/samples/androidapp/build/intermediates/compile_and_runtime_not_namespaced_r_class_jar/debug/R.jar
+     * to   :  /Users/handsomeyang/DevelopWorkSpace/IDEAProjects/gradle-template/samples/androidapp/build/intermediates/transforms/TestBaseTransform/debug/4.jar
+     */
     protected fun getInputJarDestFile(jar: File, outputProvider: TransformOutputProvider): File {
         return outputProvider.getContentLocation(jar.name, inputTypes, scopes, Format.JAR)
     }
 
+    /**
+     * e.g.
+     * from :  /Users/handsomeyang/DevelopWorkSpace/IDEAProjects/gradle-template/samples/androidapp/build/intermediates/javac/debug/classes
+     * to   :  /Users/handsomeyang/DevelopWorkSpace/IDEAProjects/gradle-template/samples/androidapp/build/intermediates/transforms/TestBaseTransform/debug/5
+     */
     protected fun getInputDirDestDir(dir: File, outputProvider: TransformOutputProvider): File {
         return outputProvider.getContentLocation(dir.name, inputTypes, scopes, Format.DIRECTORY)
     }
