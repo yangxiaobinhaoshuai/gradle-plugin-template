@@ -89,7 +89,7 @@ object TransformTicketImpl : TransformBus {
 
 object TransformEngine {
 
-    private val executor: JUCExecutorService = InternalExecutor.single
+    private val executor: JUCExecutorService = InternalExecutor.fixed
 
     fun submitSync(runnable: Runnable) {
         executor.submit(runnable).get()
@@ -113,22 +113,24 @@ object CopyTransformer : FileTransformer, LogAware by transformerLogDelegate {
     override fun transform(ticket: TransformTicket) {
         val (input, output) = ticket
 
-        logI("${curThread.name} copy from: $input to $output.")
-        input.safeCopyTo(output)
+        //logI("${curThread.name} copy from: $input to $output.")
+
+        if (ticket !is DeleteTicket) input.safeCopyTo(output)
     }
 }
 
 object JarTransformer : FileTransformer, LogAware by transformerLogDelegate {
 
-    private val executor: JUCExecutorService = InternalExecutor.createSingle()
+    private val executor: JUCExecutorService = InternalExecutor.createFixed(CPU_COUNT)
 
     override fun transform(ticket: TransformTicket) {
 
         val (input, output) = ticket
 
-        logI("${curThread.name} jar transform from: $input to $output.")
+        //logI("${curThread.name} jar transform from: $input to $output.")
 
         rewriteJar(input, output)
+        if (ticket is DeleteTicket) output.delete()
     }
 
     private fun rewriteJar(input: File, output: File) {
@@ -148,7 +150,12 @@ object JarTransformer : FileTransformer, LogAware by transformerLogDelegate {
                     bf.get(bs)
 
                     // Just copy here
-                    yield(Runnable { println("---> write into out jar, $entryName.");outputZipArchive.add(BytesSource(bs, entryName, Deflater.NO_COMPRESSION)) })
+                    yield(
+                        Runnable {
+                            //logI("${curThread.name} write into out jar, $entryName.")
+                            outputZipArchive.add(BytesSource(bs, entryName, Deflater.NO_COMPRESSION))
+                        }
+                    )
                 }
         }
 
@@ -166,11 +173,13 @@ object ClassTransformer : FileTransformer, LogAware by transformerLogDelegate {
 
         val (input, output) = ticket
 
-        logI("${curThread.name} class transform from: $input to $output.")
+        //logI("${curThread.name} class transform from: $input to $output.")
+
         input.safeCopyTo(output)
 
-        //val bs = TransformRegistry.getFoldConverter().transform(input.readBytes())
+        if (ticket is DeleteTicket) output.delete()
 
+        //val bs = TransformRegistry.getFoldConverter().transform(input.readBytes())
 
         //input.safeCopyTo(output)
        // output.touch().writeBytes(bs)

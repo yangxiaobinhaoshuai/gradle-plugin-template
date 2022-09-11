@@ -42,14 +42,14 @@ open class BaseTransformV3(d: LogAware) : AbsGradleTransform(d) {
                 .flatMap { it.entries }
                 .filter { it.value == GradleTransformStatus.REMOVED }
                 .map { it.key }
-                .map { DeleteTicket(it, getInputJarDestFile(it, outputProvider)) }
+                .map { DeleteTicket(it, getInputDirDestDir(it, outputProvider)) }
 
             val changedDirs = context.inputs.flatMap { it.directoryInputs }
                 .map { it.changedFiles }
                 .flatMap { it.entries }
                 .filter { it.value == GradleTransformStatus.ADDED || it.value == GradleTransformStatus.CHANGED }
                 .map { it.key }
-                .map { ChangedFileTicket(it, getInputJarDestFile(it, outputProvider)) }
+                .map { ChangedFileTicket(it, getInputDirDestDir(it, outputProvider)) }
 
            deleteJars + deleteDirs + changedJars + changedDirs
 
