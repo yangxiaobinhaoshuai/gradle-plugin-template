@@ -1,3 +1,5 @@
+@file:Suppress("TYPEALIAS_EXPANSION_DEPRECATION")
+
 package me.yangxiaobin.lib.transform_v3
 
 import com.android.build.api.transform.QualifiedContent
@@ -14,8 +16,10 @@ import org.objectweb.asm.Opcodes
 
 private val defaultLogAware = LogDelegate(InternalLogger, "TransformDispatcher")
 
-@Suppress("TYPEALIAS_EXPANSION_DEPRECATION")
 open class TransformDispatcher(d: LogAware = defaultLogAware) : AbsGradleTransform(d), TransformAware {
+
+    // TODO di here.
+    private val transformBus: TransformBus by lazy { TransformTicketImpl }
 
     override fun transform(transformInvocation: TransformInvocation) {
         super.transform(transformInvocation)
@@ -36,6 +40,7 @@ open class TransformDispatcher(d: LogAware = defaultLogAware) : AbsGradleTransfo
 
     }
 
+    // TODO
     override fun getClassTransformer(): ClassTransformation = { _, bs ->
         val cr = ClassReader(bs)
 
@@ -111,7 +116,7 @@ open class TransformDispatcher(d: LogAware = defaultLogAware) : AbsGradleTransfo
                 }
         }
 
-        TransformTicketImpl.takeTickets(tickets)
+        transformBus.takeTickets(tickets)
     }
 
 }
