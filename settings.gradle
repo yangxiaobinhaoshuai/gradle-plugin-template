@@ -31,12 +31,12 @@ rootProject.name = 'AGPCodelab'
 
 // JVM base libs
 //includeBuild 'logger-jvm'
-//includeBuild 'graph-lib'
+includeBuild 'graph-lib'
 
 // Java Apps
 //include ':samples:app'
 // Android app
-include ':samples:androidapp'
+//include ':samples:androidapp'
 
 //include ':apt:annotation'
 //include ':apt:annotation-processor'
@@ -51,7 +51,7 @@ include ':samples:androidapp'
 //project(':samples:Android-Template-App').projectDir = new File(rootProject.projectDir, 'Android-Template/app')
 
 
-includeBuild 'plugin-common-lib'
+//includeBuild 'plugin-common-lib'
 //includeBuild 'test-plugin'
 //includeBuild 'test-plugin-A'
 //includeBuild 'bit64checker'

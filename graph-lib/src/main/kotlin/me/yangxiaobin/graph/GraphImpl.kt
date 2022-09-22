@@ -37,7 +37,11 @@ open class GraphImpl<V, E : Edge<V>>(initialSize: Int = 128) : Graph<V, E> {
 
     }
 
-    override fun toAdjString(): String {
-        return super.toAdjString()
+    override fun v(): Int = adjacencyMap.keys.size
+
+    override fun e(): Int {
+        TODO("Not yet implemented")
     }
+
+    override fun iterator(): Iterator<V> = adjacencyMap.keys().iterator()
 }

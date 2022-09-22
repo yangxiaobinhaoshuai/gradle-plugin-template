@@ -21,23 +21,28 @@ interface Edge<VERTEX> {
     override fun hashCode(): Int
 
     override fun equals(other: Any?): Boolean
+    operator fun component1(): VERTEX = first
+    operator fun component2(): VERTEX = second
 }
 
-/**
- * 邻接表表示
- */
-interface Graph<VERTEX, EDGE> {
+interface Graph<VERTEX, EDGE> : Iterable<VERTEX> {
+
+
+    /**
+     *顶点数
+     */
+    fun v(): Int
+
+    /**
+     * 边数
+     */
+    fun e(): Int
 
     fun addEdge(edge: EDGE)
 
     fun adjacentVertexes(vertex: VERTEX): Iterable<VERTEX>
 
     fun removeVertex(vertex: VERTEX)
-
-    /**
-     * 邻接表的字符串表示
-     */
-    fun toAdjString() = this.toString()
 }
 
 
