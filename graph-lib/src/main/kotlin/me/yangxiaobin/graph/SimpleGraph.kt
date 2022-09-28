@@ -2,10 +2,18 @@ package me.yangxiaobin.graph
 
 
 data class SimpleVertex<T>(override val data: T) : Vertex<T> {
-
     override fun plus(other: Vertex<T>): Edge<Vertex<T>> = SimpleEdge(this, other)
 
     override fun toString(): String = data.toString()
+    override fun equals(other: Any?): Boolean = when (other) {
+        null -> false
+        !is SimpleVertex<*> -> false
+        else -> this.data == other.data
+    }
+
+    override fun hashCode(): Int {
+        return data.hashCode()
+    }
 }
 
 fun <T> T.toSimpleVertex(): SimpleVertex<T> = SimpleVertex(this)
@@ -27,5 +35,6 @@ interface SimpleGraph<T> : Graph<SimpleVertex<T>, Edge<SimpleVertex<T>>> {
 
 }
 
-open class SimpleGraphImpl<T>(initialSize: Int = 128) : SimpleGraph<T>,
-    GraphImpl<SimpleVertex<T>, Edge<SimpleVertex<T>>>(initialSize)
+open class SimpleGraphImpl<T>(initialSize: Int = 128) : SimpleGraph<T>, GraphImpl<SimpleVertex<T>,
+        Edge<SimpleVertex<T>>>(initialSize) {
+}

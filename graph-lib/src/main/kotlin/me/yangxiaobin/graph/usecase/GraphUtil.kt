@@ -40,9 +40,9 @@ fun <V, E> Graph<V, E>.selfLoopCount(): Int {
 fun <V, E> Graph<V, E>.toAdjString(): String {
     val sb = StringBuilder()
 
-    this.forEach {
-        sb.append("\r\nv: $it: \r\n")
-        this.getAdjacentVertexes(it).forEach { sb.append("  :$it") }
+    this.forEach { v ->
+        sb.append("\r\nv: $v: \r\n")
+        this.getAdjacentVertexes(v).forEach { sb.append("  $it,") }
     }
 
     return sb.toString()

@@ -1,8 +1,6 @@
-package me.yangxiaobin.graph.test
+package me.yangxiaobin.graph
 
-import me.yangxiaobin.graph.SimpleGraph
-import me.yangxiaobin.graph.SimpleGraphImpl
-import me.yangxiaobin.graph.toAdjString
+import me.yangxiaobin.graph.usecase.Search
 
 fun graphLog(message: String) = println(message)
 
@@ -28,7 +26,17 @@ class GraphTest {
                 .addVertexPair(5, 9)
 
 
+            val search = Search(simpleGraph, 4.toSimpleVertex())
+
             graphLog("graph toAdjString: ${simpleGraph.toAdjString()}")
+
+            graphLog(
+                """
+                search result : 
+                isMarked :${search.isConnected(5.toSimpleVertex())}
+                count :${search.getConnectedCount()}
+            """.trimIndent()
+            )
         }
     }
 }

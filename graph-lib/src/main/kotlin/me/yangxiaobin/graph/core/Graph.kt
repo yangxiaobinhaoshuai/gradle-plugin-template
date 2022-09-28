@@ -60,6 +60,10 @@ interface Graph<VERTEX, in EDGE> : Iterable<VERTEX> {
 
 /**
  * Multi-Thread-Safe
+ *
+ * 允许单个自环
+ *
+ * 不允许平行边
  */
 open class GraphImpl<V, E : Edge<V>>(initialSize: Int = 128) : Graph<V, E> {
 
@@ -70,8 +74,12 @@ open class GraphImpl<V, E : Edge<V>>(initialSize: Int = 128) : Graph<V, E> {
     protected val adjacencyMap: ConcurrentHashMap<V, MutableSet<V>> = ConcurrentHashMap(initialSize)
 
     override fun addEdge(edge: E) {
-        val vertexes: MutableSet<V> = adjacencyMap.getOrPut(edge.first) { mutableSetOf() }
-        vertexes.add(edge.second)
+
+        val firstValue: MutableSet<V> = adjacencyMap.getOrPut(edge.first,::mutableSetOf)
+        firstValue.add(edge.second)
+
+        val secondValue: MutableSet<V> = adjacencyMap.getOrPut(edge.second,::mutableSetOf)
+        secondValue.add(edge.first)
     }
 
     override fun getAdjacentVertexes(vertex: V): Iterable<V> = adjacencyMap.getOrDefault(vertex, mutableSetOf())
