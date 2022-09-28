@@ -1,6 +1,7 @@
 package me.yangxiaobin.graph
 
-import me.yangxiaobin.graph.usecase.Path
+import me.yangxiaobin.graph.usecase.BfsPath
+import me.yangxiaobin.graph.usecase.DfsPath
 import me.yangxiaobin.graph.usecase.Search
 
 fun graphLog(message: String) = println(message)
@@ -27,30 +28,40 @@ class GraphTest {
                 .addVertexPair(5, 8)
                 .addVertexPair(5, 9)
 
-                .addVertexPair(3,10)
-                .addVertexPair(3,12)
-                .addVertexPair(10,11)
+                .addVertexPair(3, 10)
+                .addVertexPair(3, 12)
+                .addVertexPair(10, 11)
 
 
             val search = Search(simpleGraph, 4.toSimpleVertex())
 
-            val path = Path(simpleGraph, 10.toSimpleVertex())
+            val dfsPath = DfsPath(simpleGraph, 10.toSimpleVertex())
+
+            val bfsPath = BfsPath(simpleGraph, 1.toSimpleVertex())
 
             graphLog("graph toAdjString: ${simpleGraph.toAdjString()}")
 
-            graphLog(
-                """
-                search result : 
-                isMarked :${search.isConnected(5.toSimpleVertex())}
-                count :${search.getConnectedCount()}
-            """.trimIndent()
-            )
+//            graphLog(
+//                """
+//                search result :
+//                isMarked :${search.isConnected(5.toSimpleVertex())}
+//                count :${search.getConnectedCount()}
+//            """.trimIndent()
+//            )
+//
+//            graphLog(
+//                """
+//                path result:
+//                hasPathTo: ${dfsPath.hasPathTo(6.toSimpleVertex())}
+//                path : ${dfsPath.pathTo(7.toSimpleVertex())}
+//            """.trimIndent()
+//            )
 
             graphLog(
                 """
-                path result:
-                hasPathTo: ${path.hasPathTo(6.toSimpleVertex())}
-                path : ${path.pathTo(7.toSimpleVertex())}
+                bfs path:
+                hasPathTo: ${bfsPath.hasPathTo(10.toSimpleVertex())}
+                pathTo: ${bfsPath.pathTo(11.toSimpleVertex())}
             """.trimIndent()
             )
         }
