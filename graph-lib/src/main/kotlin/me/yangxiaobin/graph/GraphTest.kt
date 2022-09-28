@@ -1,6 +1,7 @@
 package me.yangxiaobin.graph
 
 import me.yangxiaobin.graph.usecase.BfsPath
+import me.yangxiaobin.graph.usecase.ConnectComponent
 import me.yangxiaobin.graph.usecase.DfsPath
 import me.yangxiaobin.graph.usecase.Search
 
@@ -32,12 +33,16 @@ class GraphTest {
                 .addVertexPair(3, 12)
                 .addVertexPair(10, 11)
 
+                .addVertexPair(13, 13)
+
 
             val search = Search(simpleGraph, 4.toSimpleVertex())
 
             val dfsPath = DfsPath(simpleGraph, 10.toSimpleVertex())
 
             val bfsPath = BfsPath(simpleGraph, 1.toSimpleVertex())
+
+            val cc = ConnectComponent(simpleGraph)
 
             graphLog("graph toAdjString: ${simpleGraph.toAdjString()}")
 
@@ -57,11 +62,19 @@ class GraphTest {
 //            """.trimIndent()
 //            )
 
+//            graphLog(
+//                """
+//                bfs path:
+//                hasPathTo: ${bfsPath.hasPathTo(10.toSimpleVertex())}
+//                pathTo: ${bfsPath.pathTo(11.toSimpleVertex())}
+//            """.trimIndent()
+//            )
+
             graphLog(
                 """
-                bfs path:
-                hasPathTo: ${bfsPath.hasPathTo(10.toSimpleVertex())}
-                pathTo: ${bfsPath.pathTo(11.toSimpleVertex())}
+                   cc 
+                   cc count :${cc.count()}
+                   cc isConnected :${cc.isConnected(1.toSimpleVertex(), 4.toSimpleVertex())}
             """.trimIndent()
             )
         }
