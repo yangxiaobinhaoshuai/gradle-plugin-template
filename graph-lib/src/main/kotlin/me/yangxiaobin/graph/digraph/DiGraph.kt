@@ -1,5 +1,9 @@
 package me.yangxiaobin.graph
 
+import me.yangxiaobin.graph.core.Edge
+import me.yangxiaobin.graph.core.Graph
+import me.yangxiaobin.graph.core.Vertex
+
 
 interface DiVertex<D> : Vertex<D> {
 

@@ -1,26 +1,26 @@
 package me.yangxiaobin.graph.usecase
 
-import me.yangxiaobin.graph.Graph
+import me.yangxiaobin.graph.SimpleGraph
 
 /**
  * Via DFS
  */
-class Search<V, E>(graph: Graph<V, E>, target: V) {
+class Search<T>(graph: SimpleGraph<T>, target: T) {
 
-    private val marked = mutableMapOf<V, Boolean>()
+    private val marked = mutableMapOf<T, Boolean>()
 
     private var count = 0
 
     init {
-        dfs(graph,target)
+        dfs(graph, target)
     }
 
     /**
      * 两顶点是否连通
      */
-    fun isConnected(v: V): Boolean = marked.getOrDefault(v, false)
+    fun isConnected(v: T): Boolean = marked.getOrDefault(v, false)
 
-    private fun dfs(graph: Graph<V, E>, target: V) {
+    private fun dfs(graph: SimpleGraph<T>, target: T) {
         marked[target] = true
         count++
 

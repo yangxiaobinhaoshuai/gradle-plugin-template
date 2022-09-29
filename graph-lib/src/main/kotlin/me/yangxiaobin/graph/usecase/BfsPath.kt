@@ -1,13 +1,13 @@
 package me.yangxiaobin.graph.usecase
 
-import me.yangxiaobin.graph.Graph
+import me.yangxiaobin.graph.SimpleGraph
 import java.util.*
 
-class BfsPath<V, E>(graph: Graph<V, E>, target: V) {
+class BfsPath<T>(graph: SimpleGraph<T>, target: T) {
 
-    private val marked = mutableMapOf<V, Boolean>()
+    private val marked = mutableMapOf<T, Boolean>()
 
-    private val parentTree = mutableMapOf<V, V>()
+    private val parentTree = mutableMapOf<T, T>()
 
 
     init {
@@ -15,9 +15,9 @@ class BfsPath<V, E>(graph: Graph<V, E>, target: V) {
     }
 
 
-    private fun bfs(graph: Graph<V, E>, target: V) {
+    private fun bfs(graph: SimpleGraph<T>, target: T) {
 
-        val queue: Queue<V> = LinkedList<V>()
+        val queue: Queue<T> = LinkedList<T>()
 
         marked[target] = true
 
@@ -38,16 +38,16 @@ class BfsPath<V, E>(graph: Graph<V, E>, target: V) {
         }
     }
 
-    fun hasPathTo(v: V): Boolean = marked[v] == true
+    fun hasPathTo(v: T): Boolean = marked[v] == true
 
 
-    fun pathTo(v: V): Iterable<V> {
+    fun pathTo(v: T): Iterable<T> {
 
         if (!hasPathTo(v)) return emptyList()
 
-        val actualPath = mutableListOf<V>()
+        val actualPath = mutableListOf<T>()
 
-        var parent: V? = parentTree[v]
+        var parent: T? = parentTree[v]
 
         while (parent != null) {
             actualPath += parent

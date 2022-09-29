@@ -35,12 +35,11 @@ class GraphTest {
 
                 .addVertexPair(13, 13)
 
+            val search = Search(simpleGraph, 4)
 
-            val search = Search(simpleGraph, 4.toSimpleVertex())
+            val dfsPath = DfsPath(simpleGraph, 10)
 
-            val dfsPath = DfsPath(simpleGraph, 10.toSimpleVertex())
-
-            val bfsPath = BfsPath(simpleGraph, 1.toSimpleVertex())
+            val bfsPath = BfsPath(simpleGraph, 1)
 
             val cc = ConnectComponent(simpleGraph)
 
@@ -74,7 +73,7 @@ class GraphTest {
                 """
                    cc 
                    cc count :${cc.count()}
-                   cc isConnected :${cc.isConnected(1.toSimpleVertex(), 4.toSimpleVertex())}
+                   cc isConnected :${cc.isConnected(1, 8)}
             """.trimIndent()
             )
         }

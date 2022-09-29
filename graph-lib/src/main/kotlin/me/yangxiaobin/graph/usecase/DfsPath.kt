@@ -1,22 +1,22 @@
 package me.yangxiaobin.graph.usecase
 
-import me.yangxiaobin.graph.Graph
+import me.yangxiaobin.graph.SimpleGraph
 
 
-class DfsPath<V, E>(graph: Graph<V, E>, target: V) {
+class DfsPath<T>(graph: SimpleGraph<T>, target: T) {
 
-    private val marked = mutableMapOf<V, Boolean>()
+    private val marked = mutableMapOf<T, Boolean>()
 
     /**
      * this to parent
      */
-    private val parentTree = mutableMapOf<V,V>()
+    private val parentTree = mutableMapOf<T, T>()
 
     init {
         dfs(graph, target)
     }
 
-    private fun dfs(graph: Graph<V, E>, target: V) {
+    private fun dfs(graph: SimpleGraph<T>, target: T) {
         marked[target] = true
 
         for (v in graph.getAdjacentVertexes(target)) {
@@ -30,25 +30,25 @@ class DfsPath<V, E>(graph: Graph<V, E>, target: V) {
     /**
      * 两点间是否存在路径
      */
-    fun hasPathTo(v: V): Boolean = marked.getOrDefault(v, false)
+    fun hasPathTo(v: T): Boolean = marked.getOrDefault(v, false)
 
     /**
      * 获取两个顶点的路径
      */
-    fun pathTo(v: V): Iterable<V> {
+    fun pathTo(v: T): Iterable<T> {
 
         if (!hasPathTo(v)) return emptyList()
 
-        val actualPath = mutableListOf<V>()
+        val actualPath = mutableListOf<T>()
 
-        var parent:V? = parentTree[v]
+        var parent: T? = parentTree[v]
 
         while (parent != null) {
             actualPath += parent
             parent = parentTree[parent]
         }
 
-        if (actualPath.isNotEmpty()) actualPath.add(0,v)
+        if (actualPath.isNotEmpty()) actualPath.add(0, v)
 
         return actualPath.reversed()
     }

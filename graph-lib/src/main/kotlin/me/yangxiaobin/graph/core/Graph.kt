@@ -1,4 +1,4 @@
-package me.yangxiaobin.graph
+package me.yangxiaobin.graph.core
 
 import java.util.concurrent.ConcurrentHashMap
 
@@ -27,7 +27,7 @@ interface Edge<VERTEX> {
     operator fun component2(): VERTEX = second
 }
 
-interface Graph<VERTEX, in EDGE> : Iterable<VERTEX> {
+interface Graph<VERTEX, EDGE> : Iterable<VERTEX> {
     /**
      *顶点数
      */

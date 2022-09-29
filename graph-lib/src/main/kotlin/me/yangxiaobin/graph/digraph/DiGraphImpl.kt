@@ -1,5 +1,7 @@
 package me.yangxiaobin.graph
 
+import me.yangxiaobin.graph.core.GraphImpl
+
 
 data class DiEdgeImpl<V>(override val front: V, override val end: V) : DiEdge<V>
 
