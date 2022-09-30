@@ -11,7 +11,7 @@ class UnionFindTest {
         @JvmStatic
         fun main(args: Array<String>) {
 
-            log("union find  test ----> see below ")
+            log("union find  test ----> see below\r\n")
 
             val qf = QuickFind<Int>()
 
@@ -60,27 +60,29 @@ class UnionFindTest {
             wqu.union(9,11)
 
 
-            log("""
-                quick find result 
-                count: ${qf.count()}
-                is connected : ${qf.isConnected(7,6)}
-            """.trimIndent())
+//            log("""
+//                quick find result
+//                count: ${qf.count()}
+//                is connected : ${qf.isConnected(7,6)}
+//            """.trimIndent())
+
+            log(
+                """
+                quick union result
+                cc :${qu.count()}
+                isConnected : ${qu.isConnected(7, 6)}
+            """.trimIndent()
+            )
 
 //            log(
 //                """
-//                union find cc :${wqu.count()}
-//                isConnected : ${wqu.isConnected(7, 9)}
+//                weighted quick union result
+//                cc :${wqu.count()}
+//                isConnected : ${wqu.isConnected(7, 6)}
 //            """.trimIndent()
 //            )
 
-//            log(
-//                """
-//                union find cc :${qu.count()}
-//                isConnected : ${qu.isConnected(7, 6)}
-//            """.trimIndent()
-//            )
-
-            log("union find  test ----> end ")
+            log("\r\nunion find  test ----> end ")
         }
 
     }
