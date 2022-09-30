@@ -49,6 +49,7 @@ class QuickFind<T>(mapInitialSize: Int = 64) : UnionFind<T> {
 
     /**
      * 分量数量
+     * 从 1 开始
      */
     private var count = AtomicInteger(0)
 
@@ -60,6 +61,11 @@ class QuickFind<T>(mapInitialSize: Int = 64) : UnionFind<T> {
      * O(1)
      */
     override fun union(t1: T, t2: T) {
+        val p1 = find(t1)
+        val p2 = find(t2)
+
+        if (p1 >= 0 && p2 >= 0 && p1 == p2) return
+
         val t1Index = idMap.getOrPut(t1) { count.incrementAndGet() }
         idMap[t2] = t1Index
     }
@@ -109,10 +115,10 @@ class QuickUnion<T>(mapInitialSize: Int = 64) : UnionFind<T> {
      */
     override fun union(t1: T, t2: T) {
 
-//        val p1 = find(t1)
-//        val p2 = find(t2)
-//
-//        if (p1 >= 0 && p2 >= 0 && p1 == p2) return
+        val p1 = find(t1)
+        val p2 = find(t2)
+
+        if (p1 >= 0 && p2 >= 0 && p1 == p2) return
 
         if (parentTree[t1] == null) {
             idMap.computeIfAbsent(t1) { count.getAndIncrement() }
