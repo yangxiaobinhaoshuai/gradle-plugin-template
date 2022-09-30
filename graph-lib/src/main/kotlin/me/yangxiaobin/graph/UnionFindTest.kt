@@ -20,10 +20,13 @@ class UnionFindTest {
             qf.union(0,3)
             qf.union(0,4)
 
-            qf.union(5,6)
+            qf.union(2,5)
+            qf.union(3,6)
             qf.union(5,7)
-            qf.union(5,8)
-            qf.union(5,9)
+
+            qf.union(8,9)
+            qf.union(8,10)
+            qf.union(9,11)
 
             val qu = QuickUnion<Int>()
 
@@ -57,9 +60,11 @@ class UnionFindTest {
             wqu.union(9,11)
 
 
-//            log("""
-//                union find result : ${qf.isConnected(9,16)}
-//            """.trimIndent())
+            log("""
+                quick find result 
+                count: ${qf.count()}
+                is connected : ${qf.isConnected(7,6)}
+            """.trimIndent())
 
 //            log(
 //                """
@@ -68,12 +73,14 @@ class UnionFindTest {
 //            """.trimIndent()
 //            )
 
-            log(
-                """
-                union find cc :${qu.count()}
-                isConnected : ${qu.isConnected(7, 6)}
-            """.trimIndent()
-            )
+//            log(
+//                """
+//                union find cc :${qu.count()}
+//                isConnected : ${qu.isConnected(7, 6)}
+//            """.trimIndent()
+//            )
+
+            log("union find  test ----> end ")
         }
 
     }
