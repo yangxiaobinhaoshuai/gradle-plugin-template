@@ -33,20 +33,33 @@ interface UnionFind<T> {
     fun count(): Int
 }
 
+
+/**
+ * 特点：
+ * find 效率很高, Union 复杂度很高
+ *
+ * 对于规模为 n 的元素集合，时间复杂度为 ：O(n)
+ */
 class QuickFind<T>(mapInitialSize: Int = 64) : UnionFind<T> {
 
     /**
      * 分量 ids
      */
-    private val idMap: Map<T, Int> = ConcurrentHashMap<T, Int>(mapInitialSize)
+    private val idMap: MutableMap<T, Int> = ConcurrentHashMap<T, Int>(mapInitialSize)
 
     /**
      * 分量数量
      */
     private var count = AtomicInteger(0)
-    override fun union(t1: T, t2: T) {
-        idMap as ConcurrentHashMap<T, Int>
 
+    /**
+     * 归并 t1 和 t2 到同一个分量
+     *
+     * 将 t2 的 index 改为 t1 的 index
+     *
+     * O(1)
+     */
+    override fun union(t1: T, t2: T) {
         val t1Index = idMap.getOrPut(t1) { count.incrementAndGet() }
         idMap[t2] = t1Index
     }
@@ -63,7 +76,47 @@ class QuickFind<T>(mapInitialSize: Int = 64) : UnionFind<T> {
 }
 
 
-class QuickUnion<T> : UnionFind<T> {
+/**
+ * 目的为了提高 Union 的效率
+ * 与 Quick-Find 算法互补
+ * 使用父节点树
+ */
+class QuickUnion<T>(mapInitialSize: Int = 64) : UnionFind<T> {
+
+    /**
+     * 分量 ids
+     */
+    private val parentTree: MutableMap<T, Pair<T, Int>> = ConcurrentHashMap<T, Pair<T, Int>>(mapInitialSize)
+
+
+    /**
+     * 分量数量
+     */
+    private var count = AtomicInteger(0)
+
+    /**
+     * t2 的父节点 = t1 的父节点
+     */
+    override fun union(t1: T, t2: T) {
+
+        if (find(t1) > 0 && find(t2) > 0 && find(t1) == find(t2)) return
+
+        val t1Parent: Pair<T, Int> = parentTree.getOrPut(t1) { t1 to count.getAndIncrement() }
+
+        parentTree[t2] = t1Parent
+    }
+
+    override fun find(t: T): Int = parentTree[t]?.second ?: -1
+
+    override fun isConnected(t1: T, t2: T): Boolean = when {
+        find(t1) == -1 || find(t2) == -1 -> false
+        else -> find(t1) == find(t2)
+    }
+
+    override fun count(): Int = count.get()
+}
+
+class WeightedQuickUnion<T> : UnionFind<T> {
     override fun union(t1: T, t2: T) {
         TODO("Not yet implemented")
     }
@@ -79,6 +132,5 @@ class QuickUnion<T> : UnionFind<T> {
     override fun count(): Int {
         TODO("Not yet implemented")
     }
-}
 
-class Weighted
+}
