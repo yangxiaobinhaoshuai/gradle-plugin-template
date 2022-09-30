@@ -66,9 +66,15 @@ class QuickFind<T>(mapInitialSize: Int = 64) : UnionFind<T> {
 
     override fun find(t: T): Int = idMap.getOrDefault(t, -1)
 
-    override fun isConnected(t1: T, t2: T): Boolean = when {
-        find(t1) == -1 || find(t2) == -1 -> false
-        else -> find(t1) == find(t2)
+    override fun isConnected(t1: T, t2: T): Boolean {
+
+        val p1 = find(t1)
+        val p2 = find(t2)
+
+        return when {
+            p1 == -1 || p2 == -1 -> false
+            else -> p1 == p2
+        }
     }
 
     override fun count(): Int = count.get()
@@ -82,35 +88,54 @@ class QuickFind<T>(mapInitialSize: Int = 64) : UnionFind<T> {
  * 使用父节点树
  */
 class QuickUnion<T>(mapInitialSize: Int = 64) : UnionFind<T> {
-
     /**
      * 分量 ids
      */
-    private val parentTree: MutableMap<T, Pair<T, Int>> = ConcurrentHashMap<T, Pair<T, Int>>(mapInitialSize)
-
+    private val parentTree: MutableMap<T, T> = ConcurrentHashMap<T, T>(mapInitialSize)
 
     /**
      * 分量数量
      */
-    private var count = AtomicInteger(0)
+    private val idMap: MutableMap<T, Int> = ConcurrentHashMap<T, Int>()
+
+    private val count = AtomicInteger(0)
 
     /**
      * t2 的父节点 = t1 的父节点
      */
     override fun union(t1: T, t2: T) {
 
-        if (find(t1) > 0 && find(t2) > 0 && find(t1) == find(t2)) return
+        val p1 = find(t1)
+        val p2 = find(t2)
 
-        val t1Parent: Pair<T, Int> = parentTree.getOrPut(t1) { t1 to count.getAndIncrement() }
+        if (p1 >= 0 && p2 >= 0 && p1 == p2) return
 
-        parentTree[t2] = t1Parent
+        if (parentTree[t1] == null) {
+            idMap.computeIfAbsent(t1) { count.getAndIncrement() }
+        }
+
+        parentTree[t2] = t1
     }
 
-    override fun find(t: T): Int = parentTree[t]?.second ?: -1
+    override fun find(t: T): Int {
 
-    override fun isConnected(t1: T, t2: T): Boolean = when {
-        find(t1) == -1 || find(t2) == -1 -> false
-        else -> find(t1) == find(t2)
+        var parent = parentTree[t]
+        while (parent != null && parentTree[parent] != null && parent != t) {
+            parent = parentTree[parent]
+        }
+
+        return parent?.let { idMap.getOrDefault(it, -1) } ?: -1
+    }
+
+    override fun isConnected(t1: T, t2: T): Boolean {
+
+        val p1 = find(t1)
+        val p2 = find(t2)
+
+        return when {
+            p1 == -1 || p2 == -1 -> false
+            else -> p1 == p2
+        }
     }
 
     override fun count(): Int = count.get()

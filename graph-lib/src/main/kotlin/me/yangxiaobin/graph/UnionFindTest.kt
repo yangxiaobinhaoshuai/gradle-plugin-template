@@ -9,7 +9,8 @@ class UnionFindTest {
 
         @JvmStatic
         fun main(args: Array<String>) {
-            log("uf test ----> ")
+
+            log("union find  test ----> see below ")
 
             val qf = QuickFind<Int>()
 
@@ -45,7 +46,7 @@ class UnionFindTest {
             log(
                 """
                 union find cc :${qu.count()}
-                isConnected : ${qu.isConnected(10, 11)}
+                isConnected : ${qu.isConnected(11, 10)}
             """.trimIndent()
             )
 
