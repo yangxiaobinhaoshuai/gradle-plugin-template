@@ -55,7 +55,7 @@ class QuickFind<T> : UnionFind<T> {
     /**
      * 分量数量
      */
-    private var ccCount = 0
+    private var ccCount = AtomicInteger()
 
     /**
      * 归并 t1 和 t2 到同一个分量
@@ -72,12 +72,12 @@ class QuickFind<T> : UnionFind<T> {
         when {
 
             id1 < 0 -> {
-                id2 = idMap.getOrPut(t2) { ccCount++; ccIdGenerator.incrementAndGet() }
+                id2 = idMap.getOrPut(t2) { ccCount.incrementAndGet(); ccIdGenerator.incrementAndGet() }
                 idMap[t1] = id2
             }
 
             id2 < 0 -> {
-                id1 = idMap.getOrPut(t1) { ccCount++; ccIdGenerator.incrementAndGet() }
+                id1 = idMap.getOrPut(t1) { ccCount.incrementAndGet(); ccIdGenerator.incrementAndGet() }
                 idMap[t2] = id1
             }
 
@@ -86,7 +86,7 @@ class QuickFind<T> : UnionFind<T> {
             else -> {
                 id2 = idMap.getValue(t2)
                 idMap[t1] = id2
-                ccCount--
+                ccCount.decrementAndGet()
             }
 
         }
@@ -105,7 +105,7 @@ class QuickFind<T> : UnionFind<T> {
             id1 == id2
     }
 
-    override fun count(): Int = ccCount
+    override fun count(): Int = ccCount.get()
 
 }
 
@@ -132,7 +132,7 @@ class QuickUnion<T> : UnionFind<T> {
 
     private val ccIdGenerator = AtomicInteger()
 
-    private var ccCount = 0
+    private var ccCount = AtomicInteger()
 
     /**
      * t2 的父节点 = t1 的父节点
@@ -148,7 +148,7 @@ class QuickUnion<T> : UnionFind<T> {
             id1 < 0 && id2 < 0 -> {
                 // t2 -> t1
                 parentTree[t2] = t1
-                id1 = idMap.getOrPut(t1) { ccCount++; ccIdGenerator.incrementAndGet() }
+                id1 = idMap.getOrPut(t1) { ccCount.incrementAndGet(); ccIdGenerator.incrementAndGet() }
                 idMap[t1] = id1
             }
 
@@ -170,7 +170,7 @@ class QuickUnion<T> : UnionFind<T> {
 
                 parentTree[top1Parent] = top2Parent
 
-                ccCount--
+                ccCount.decrementAndGet()
             }
         }
     }
@@ -180,7 +180,7 @@ class QuickUnion<T> : UnionFind<T> {
      */
     private fun getTopParent(t: T): T? {
         var p = parentTree[t]
-        while (p != null && parentTree[p] != null) p = parentTree[t]
+        while (p != null && parentTree[p] != null) p = parentTree[p]
         return p
     }
 
@@ -199,13 +199,13 @@ class QuickUnion<T> : UnionFind<T> {
         val id1 = find(t1)
         val id2 = find(t2)
 
-        return if (id1 == -1 || id2 == -1 )
+        return if (id1 == -1 || id2 == -1)
             false
         else
             id1 == id2
     }
 
-    override fun count(): Int = ccCount
+    override fun count(): Int = ccCount.get()
 }
 
 /**
@@ -213,13 +213,15 @@ class QuickUnion<T> : UnionFind<T> {
  *
  * O(logn)
  */
-class WeightedQuickUnion<T>(mapInitialSize: Int = 64) : UnionFind<T> {
+class WeightedQuickUnion<T> : UnionFind<T> {
 
-    private val parentTree: MutableMap<T, T> = ConcurrentHashMap<T, T>(mapInitialSize)
+    private val parentTree: MutableMap<T, T> = ConcurrentHashMap<T, T>()
 
     private val idMap: MutableMap<T, Int> = ConcurrentHashMap<T, Int>()
 
-    private val count = AtomicInteger()
+    private val ccIdGenerator = AtomicInteger()
+
+    private var ccCount = AtomicInteger()
 
     /**
      * 各个连通分量的大小
@@ -228,49 +230,82 @@ class WeightedQuickUnion<T>(mapInitialSize: Int = 64) : UnionFind<T> {
 
     override fun union(t1: T, t2: T) {
 
-        val p1 = find(t1)
-        val p2 = find(t2)
+        var id1 = find(t1)
+        val id2 = find(t2)
 
-        if (p1 >= 0 && p2 >= 0 && p1 == p2) return
+        when {
+            id1 < 0 && id2 < 0 -> {
+                parentTree[t2] = t1
+                id1 = idMap.getOrPut(t1) { ccCount.incrementAndGet(); ccIdGenerator.incrementAndGet() }
+                idMap[t1] = id1
 
-        val id1 = idMap.getOrDefault(t1, -1)
-        val id2 = idMap.getOrDefault(t2, -1)
+                sizeMap[id1] = sizeMap.getOrDefault(id1, 0) + 1
+            }
 
-        val s1 = sizeMap.getOrDefault(id1, 0)
-        val s2 = sizeMap.getOrDefault(id2, 0)
+            id1 < 0 -> {
+                val top2Parent: T = getTopParent(t2) ?: t2
+                parentTree[t1] = top2Parent
 
-        if (s1 > s2) {
+                sizeMap[id1] = sizeMap.getOrDefault(id1, 0) + 1
+            }
 
+            id2 < 0 -> {
+                val top1Parent: T = getTopParent(t1) ?: t1
+                parentTree[t2] = top1Parent
 
-        } else {
+                sizeMap[id2] = sizeMap.getOrDefault(id2, 0) + 1
+            }
+
+            id1 == id2 -> return
+
+            else -> {
+
+                val s1 = sizeMap.getOrDefault(id1,0)
+                val s2 = sizeMap.getOrDefault(id2,0)
+
+                val top1Parent: T = getTopParent(t1) ?: t1
+                val top2Parent: T = getTopParent(t2) ?: t2
+
+                if (s1 > s2) {
+                    parentTree[top2Parent] = top1Parent
+                    sizeMap[id1] = sizeMap.getOrDefault(id1,0) + sizeMap.getOrDefault(id2,0)
+                } else {
+                    parentTree[top1Parent] = top2Parent
+                    sizeMap[id2] = sizeMap.getOrDefault(id1,0) + sizeMap.getOrDefault(id2,0)
+                }
+
+                ccCount.decrementAndGet()
+            }
 
         }
 
-        if (parentTree[t1] == null) {
-            idMap.computeIfAbsent(t1) { count.incrementAndGet() }
-            sizeMap[count.get()] = 1
-        }
+    }
 
-
+    private fun getTopParent(t: T): T? {
+        var p = parentTree[t]
+        while (p != null && parentTree[p] != null) p = parentTree[p]
+        return p
     }
 
     override fun find(t: T): Int {
 
-        var parent = parentTree[t]
-        while (parent != null && parentTree[parent] != null) parent = parentTree[parent]
+        val parent = getTopParent(t)
 
-        return if (parent == null) -1 else idMap.getOrDefault(parent, -1)
+        return if (parent == null)
+            -1
+        else
+            idMap.getOrDefault(parent, -1)
     }
 
     override fun isConnected(t1: T, t2: T): Boolean {
-        val p1 = find(t1)
-        val p2 = find(t2)
-        return when {
-            p1 == -1 || p2 == -1 -> false
-            else -> p1 == p2
-        }
+        val id1 = find(t1)
+        val id2 = find(t2)
+        return if (id1 < 0 || id2 < 0)
+            false
+        else
+            id1 == id2
     }
 
-    override fun count(): Int = count.get()
+    override fun count(): Int = ccCount.get()
 
 }

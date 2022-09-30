@@ -66,21 +66,21 @@ class UnionFindTest {
 //                is connected : ${qf.isConnected(7,6)}
 //            """.trimIndent())
 
-            log(
-                """
-                quick union result
-                cc :${qu.count()}
-                isConnected : ${qu.isConnected(7, 6)}
-            """.trimIndent()
-            )
-
 //            log(
 //                """
-//                weighted quick union result
-//                cc :${wqu.count()}
-//                isConnected : ${wqu.isConnected(7, 6)}
+//                quick union result
+//                cc :${qu.count()}
+//                isConnected : ${qu.isConnected(7, 6)}
 //            """.trimIndent()
 //            )
+
+            log(
+                """
+                weighted quick union result
+                cc :${wqu.count()}
+                isConnected : ${wqu.isConnected(7, 16)}
+            """.trimIndent()
+            )
 
             log("\r\nunion find  test ----> end ")
         }
