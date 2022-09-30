@@ -63,15 +63,15 @@ class UnionFindTest {
 
 //            log(
 //                """
-//                union find cc :${qu.count()}
-//                isConnected : ${qu.isConnected(1, 10)}
+//                union find cc :${wqu.count()}
+//                isConnected : ${wqu.isConnected(7, 9)}
 //            """.trimIndent()
 //            )
 
             log(
                 """
-                union find cc :${wqu.count()}
-                isConnected : ${wqu.isConnected(7, 9)}
+                union find cc :${qu.count()}
+                isConnected : ${qu.isConnected(7, 6)}
             """.trimIndent()
             )
         }

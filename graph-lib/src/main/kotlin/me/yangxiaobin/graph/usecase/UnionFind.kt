@@ -121,7 +121,7 @@ class QuickUnion<T>(mapInitialSize: Int = 64) : UnionFind<T> {
         if (p1 >= 0 && p2 >= 0 && p1 == p2) return
 
         if (parentTree[t1] == null) {
-            idMap.computeIfAbsent(t1) { count.getAndIncrement() }
+            idMap.computeIfAbsent(t1) { count.incrementAndGet() }
         }
 
         parentTree[t2] = t1
@@ -129,17 +129,18 @@ class QuickUnion<T>(mapInitialSize: Int = 64) : UnionFind<T> {
 
     override fun find(t: T): Int {
 
-        var parent = parentTree[t]
-        while (parent != null && parentTree[parent] != null && parent != t) {
-            parent = parentTree[parent]
-        }
+        var parent: T? = parentTree[t]
+        while (parent != null && parentTree[parent] != null) parent = parentTree[parent]
 
-        return parent?.let { idMap.getOrDefault(it, -1) } ?: -1
+        return if (parent == null) -1 else idMap.getOrDefault(parent, -1)
     }
 
     override fun isConnected(t1: T, t2: T): Boolean {
         val p1 = find(t1)
         val p2 = find(t2)
+
+        //println("---> p1:$p1, p2:$p2 , $parentTree")
+
         return when {
             p1 == -1 || p2 == -1 -> false
             else -> p1 == p2
