@@ -2,6 +2,7 @@ package me.yangxiaobin.graph
 
 import me.yangxiaobin.graph.usecase.QuickFind
 import me.yangxiaobin.graph.usecase.QuickUnion
+import me.yangxiaobin.graph.usecase.WeightedQuickUnion
 
 class UnionFindTest {
     companion object {
@@ -39,17 +40,40 @@ class UnionFindTest {
             qu.union(8,10)
             qu.union(9,11)
 
+
+            val wqu = WeightedQuickUnion<Int>()
+
+            wqu.union(0,1)
+            wqu.union(0,2)
+            wqu.union(0,3)
+            wqu.union(0,4)
+
+            wqu.union(2,5)
+            wqu.union(3,6)
+            wqu.union(5,7)
+
+            wqu.union(8,9)
+            wqu.union(8,10)
+            wqu.union(9,11)
+
+
 //            log("""
 //                union find result : ${qf.isConnected(9,16)}
 //            """.trimIndent())
 
+//            log(
+//                """
+//                union find cc :${qu.count()}
+//                isConnected : ${qu.isConnected(1, 10)}
+//            """.trimIndent()
+//            )
+
             log(
                 """
-                union find cc :${qu.count()}
-                isConnected : ${qu.isConnected(11, 10)}
+                union find cc :${wqu.count()}
+                isConnected : ${wqu.isConnected(7, 9)}
             """.trimIndent()
             )
-
         }
 
     }

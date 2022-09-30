@@ -86,6 +86,8 @@ class QuickFind<T>(mapInitialSize: Int = 64) : UnionFind<T> {
  * 目的为了提高 Union 的效率
  * 与 Quick-Find 算法互补
  * 使用父节点树
+ *
+ * O(1)
  */
 class QuickUnion<T>(mapInitialSize: Int = 64) : UnionFind<T> {
     /**
@@ -102,13 +104,15 @@ class QuickUnion<T>(mapInitialSize: Int = 64) : UnionFind<T> {
 
     /**
      * t2 的父节点 = t1 的父节点
+     *
+     * O(1)
      */
     override fun union(t1: T, t2: T) {
 
-        val p1 = find(t1)
-        val p2 = find(t2)
-
-        if (p1 >= 0 && p2 >= 0 && p1 == p2) return
+//        val p1 = find(t1)
+//        val p2 = find(t2)
+//
+//        if (p1 >= 0 && p2 >= 0 && p1 == p2) return
 
         if (parentTree[t1] == null) {
             idMap.computeIfAbsent(t1) { count.getAndIncrement() }
@@ -128,10 +132,8 @@ class QuickUnion<T>(mapInitialSize: Int = 64) : UnionFind<T> {
     }
 
     override fun isConnected(t1: T, t2: T): Boolean {
-
         val p1 = find(t1)
         val p2 = find(t2)
-
         return when {
             p1 == -1 || p2 == -1 -> false
             else -> p1 == p2
@@ -141,21 +143,88 @@ class QuickUnion<T>(mapInitialSize: Int = 64) : UnionFind<T> {
     override fun count(): Int = count.get()
 }
 
-class WeightedQuickUnion<T> : UnionFind<T> {
+/**
+ * Base on quick-union
+ *
+ * O(logn)
+ */
+class WeightedQuickUnion<T>(mapInitialSize: Int = 64) : UnionFind<T> {
+
+    private val parentTree: MutableMap<T, T> = ConcurrentHashMap<T, T>(mapInitialSize)
+
+    private val idMap: MutableMap<T, Int> = ConcurrentHashMap<T, Int>()
+
+    private val count = AtomicInteger()
+
+    /**
+     * 各个连通分量的大小
+     */
+    private val sizeMap: MutableMap<Int, Int> = ConcurrentHashMap<Int, Int>()
+
     override fun union(t1: T, t2: T) {
-        TODO("Not yet implemented")
+
+        if (parentTree[t1] == null) {
+            idMap.computeIfAbsent(t1) { count.getAndIncrement() }
+        }
+
+        val t1Index = find(t1)
+
+        if (parentTree[t2] == null) {
+            parentTree[t2] = t1
+            sizeMap[t1Index] = (sizeMap[t1Index] ?: 0) + 1
+        } else {
+
+            val t2Index = find(t2)
+
+            // t1  >  t2
+            if (sizeMap.getOrDefault(t1Index, 0) > sizeMap.getOrDefault(t2Index, 0)) {
+
+                var t1Parent = parentTree[t1]
+                while (t1Parent != null && parentTree[t1Parent] != null) t1Parent = parentTree[t1Parent]
+
+                var t2Parent = parentTree[t2]
+                while (t2Parent != null && parentTree[t2Parent] != null) t2Parent = parentTree[t2Parent]
+
+                parentTree[t1Parent!!] = t2Parent!!
+
+                sizeMap[t2Index] = (sizeMap[t2Index] ?: 0) + 1
+                count.decrementAndGet()
+            } else {
+
+
+                var t1Parent = parentTree[t1]
+                while (t1Parent != null && parentTree[t1Parent] != null) t1Parent = parentTree[t1Parent]
+
+                var t2Parent = parentTree[t2]
+                while (t2Parent != null && parentTree[t2Parent] != null) t2Parent = parentTree[t2Parent]
+
+                parentTree[t2Parent!!] = t1Parent!!
+
+                sizeMap[t1Index] = (sizeMap[t1Index] ?: 0) + 1
+                count.decrementAndGet()
+            }
+        }
     }
 
     override fun find(t: T): Int {
-        TODO("Not yet implemented")
+
+        var parent = parentTree[t]
+        while (parent != null && parentTree[parent] != null && parent != t) {
+            parent = parentTree[parent]
+        }
+
+        return parent?.let { idMap.getOrDefault(it, -1) } ?: -1
     }
 
     override fun isConnected(t1: T, t2: T): Boolean {
-        TODO("Not yet implemented")
+        val p1 = find(t1)
+        val p2 = find(t2)
+        return when {
+            p1 == -1 || p2 == -1 -> false
+            else -> p1 == p2
+        }
     }
 
-    override fun count(): Int {
-        TODO("Not yet implemented")
-    }
+    override fun count(): Int = count.get()
 
 }
