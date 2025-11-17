@@ -14,7 +14,7 @@ aspectjV = "1.9.7"
 junit = { module = "junit:junit", version.ref = "junitV" }
 
 # 更新 Gradle https://developer.android.com/studio/releases/gradle-plugin?buildsystem=cmake
-agp7 = { module = "com.android.tools.build:gradle", version = "7.0.0" }
+agp7 = { module = "com.android.tools.build:gradle", version = "7.2.0" }
 agp4 = { module = "com.android.tools.build:gradle", version = "4.2.0" }
 kgp1531 = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlinV" }
 

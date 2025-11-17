@@ -13,8 +13,14 @@ typealias OnLogging = (LogMessageMeta) -> Unit
 
 fun createOnPostLoggingDelegate(p: LogPrinter, onLogging: OnLogging) = object : LogPrinterDelegate(p) {
 
-    override fun print(level: LogLevel, tag: String, message: String) {
-        p.print(level, tag, message)
+
+    override fun print(
+        level: LogLevel,
+        tag: String,
+        message: String,
+        throwable: Throwable?
+    ) {
+        p.print(level, tag, message, throwable)
         onLogging.invoke(LogMessageMeta(level, tag, message))
     }
 }

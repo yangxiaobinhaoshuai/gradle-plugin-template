@@ -19,7 +19,13 @@ class LogActionImpl : LogAction {
 
     override val logContext: DomainContext get() = defaultElements
 
-    override fun logPriority(logContext: DomainContext, level: LogLevel, tag: String, message: String) {
+    override fun logPriority(
+        logContext: DomainContext,
+        level: LogLevel,
+        tag: String,
+        message: String,
+        throwable: Throwable?
+    ) {
 
         /**
          * Check whether working element has substitutes.
@@ -28,7 +34,8 @@ class LogActionImpl : LogAction {
             val curElement: E? = logContext[this]
             val interceptElement = logContext[InterceptorLogElement]
             @Suppress("UNCHECKED_CAST")
-            return (interceptElement?.interceptor?.takeIf { it.wantIntercept(curElement) }?.transform(curElement) ?: curElement) as? E
+            return (interceptElement?.interceptor?.takeIf { it.wantIntercept(curElement) }?.transform(curElement)
+                ?: curElement) as? E
         }
 
         val enable = EnableLogElement.check()?.enable
@@ -53,7 +60,14 @@ class LogActionImpl : LogAction {
                 ?.format(actualTag to message)
                 ?: (actualTag to message)
 
-            LogPrinterLogElement.check()?.logPrinter?.print(level,formatTag, formatMessage)
+            LogPrinterLogElement.check()
+                ?.logPrinter
+                ?.print(
+                    level,
+                    formatTag,
+                    formatMessage,
+                    throwable
+                )
         }
     }
 

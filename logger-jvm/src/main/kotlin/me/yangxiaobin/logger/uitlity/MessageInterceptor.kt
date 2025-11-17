@@ -1,11 +1,11 @@
 package com.zyb.iot.pad.ack.base.log
 
-import com.zyb.iot.pad.ack.base.domaincontext.DomainElement
-import com.zyb.iot.pad.ack.base.log.elements.DomainElementInterceptor
-import com.zyb.iot.pad.ack.base.log.elements.LogPrinter
-import com.zyb.iot.pad.ack.base.log.elements.LogPrinterDelegate
-import com.zyb.iot.pad.ack.base.log.elements.LogPrinterLogElement
-import com.zyb.iot.pad.ack.base.log.tool.LogLevel
+import me.yangxiaobin.logger.core.LogLevel
+import me.yangxiaobin.logger.domain.DomainElement
+import me.yangxiaobin.logger.elements.LogPrinterDelegate
+import me.yangxiaobin.logger.elements.LogPrinterLogElement
+import me.yangxiaobin.logger.uitlity.DomainElementInterceptor
+import me.yangxiaobin.logger.uitlity.LogPrinter
 
 
 class MessageReplaceDelegate(

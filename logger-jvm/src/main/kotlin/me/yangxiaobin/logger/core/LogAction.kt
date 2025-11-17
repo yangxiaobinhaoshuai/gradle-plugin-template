@@ -6,5 +6,11 @@ interface LogAction {
 
     val logContext: DomainContext
 
-    fun logPriority(logContext: DomainContext, level: LogLevel, tag: String, message: String)
+    fun logPriority(
+        logContext: DomainContext,
+        level: LogLevel,
+        tag: String,
+        message: String,
+        throwable: Throwable?
+    )
 }

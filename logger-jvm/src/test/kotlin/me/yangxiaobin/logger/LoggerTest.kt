@@ -30,10 +30,14 @@ class LoggerTest {
             logI("Hello Logger!")
 
             val printer =  object :LogPrinter{
-                override fun print(level: LogLevel, tag: String, message: String) {
-                    //
+                override fun print(
+                    level: LogLevel,
+                    tag: String,
+                    message: String,
+                    throwable: Throwable?
+                ) {
+                    // TODO
                 }
-
             }
 
 

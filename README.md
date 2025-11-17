@@ -2,6 +2,10 @@
 
 # Gradle plugin template
 
+## N.B.
+- Gradle 7.1 is required.
+- JDK 11 is required.
+
 - Gradle Plugin CodeLab.
 
 ## ASM Commands

@@ -30,8 +30,8 @@ dependencyResolutionManagement {
 rootProject.name = 'AGPCodelab'
 
 // JVM base libs
-//includeBuild 'logger-jvm'
-includeBuild 'graph-lib'
+includeBuild 'logger-jvm'
+//includeBuild 'graph-lib'
 
 // Java Apps
 //include ':samples:app'
@@ -51,6 +51,7 @@ includeBuild 'graph-lib'
 //project(':samples:Android-Template-App').projectDir = new File(rootProject.projectDir, 'Android-Template/app')
 
 
+// TODO 2025.11.17 build break :Cannot use @TaskAction annotation on method AbstractKotlinCompile.execute() because interface org.gradle.api.tasks.incremental.IncrementalTaskInputs is not a valid parameter to an action method
 //includeBuild 'plugin-common-lib'
 //includeBuild 'test-plugin'
 //includeBuild 'test-plugin-A'

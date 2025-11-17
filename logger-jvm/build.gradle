@@ -17,8 +17,12 @@ java {
     targetCompatibility = build_versions.source_compatibility
 }
 
+// Must before publishing {}
+version '1.0.1'
+
 // 因为工件时间戳，需要删除之前的目录
-// gradle publishJvmLoggerPublicationToMavenRepository
+// gradle publishJvmLoggerPublicationToMavenRepository -sq
+// cd logger-jvm ../gradlew publishJvmLoggerPublicationToMavenRepository -sq
 publishing {
 
     repositories {
@@ -38,14 +42,19 @@ publishing {
         jvmLogger(MavenPublication) {
             groupId = plugin_group_name
             artifactId = 'logger'
-            version = '1.0-SNAPSHOT'
+            version = project.version
 
             from components.java
         }
     }
 }
 
-version '1.0.0-SNAPSHOT'
+
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
 
 repositories {
     mavenCentral()

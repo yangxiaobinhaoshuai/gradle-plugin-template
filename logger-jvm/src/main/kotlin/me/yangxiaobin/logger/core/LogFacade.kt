@@ -13,6 +13,8 @@ interface LogFacade {
 
     fun e(tag: String, message: String)
 
+    fun e(tag: String, message: String, t: Throwable)
+
     /**
      * Preserve previous context and copy a new one object.
      */
